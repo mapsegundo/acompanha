@@ -18,7 +18,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         .single()
 
     // 2. Fetch Check-ins
-    const { data: checkins, error: checkinsError } = await supabase
+    const { data: checkins } = await supabase
         .from('weekly_checkins')
         .select('*')
         .eq('patient_id', id)

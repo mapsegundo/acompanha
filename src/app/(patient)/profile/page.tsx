@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -100,8 +100,8 @@ export default function ProfilePage() {
             // Optional: redirect to dashboard if coming from checking redirect? 
             // For now just stay on profile or refresh.
             // router.refresh() 
-        } catch (error: any) {
-            toast.error("Erro ao salvar perfil", { description: error.message })
+        } catch (error) {
+            toast.error("Erro ao salvar perfil", { description: (error as Error).message })
         }
     }
 

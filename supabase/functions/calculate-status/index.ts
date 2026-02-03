@@ -1,4 +1,5 @@
-
+/* eslint-disable */
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
@@ -7,7 +8,7 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
@@ -46,7 +47,7 @@ serve(async (req) => {
         const previous = checkins[1]
 
         let status = 'Verde'
-        let reasons: string[] = []
+        const reasons: string[] = []
 
         // Rule 1: Sleep + Fatigue + Muscle Pain (General "Bad" condition)
         // Assuming scales 0-10 where 0 is Good/Low and 10 is Bad/High? 
@@ -104,7 +105,7 @@ serve(async (req) => {
         })
 
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ error: (error as any).message }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 400,
         })

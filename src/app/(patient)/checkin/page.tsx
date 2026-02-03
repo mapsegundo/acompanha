@@ -1,9 +1,9 @@
-
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { format } from "date-fns"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -18,50 +18,51 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
 const formSchema = z.object({
-    data: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
         message: "Data inválida",
     }),
 
     // Check-in Fields
-    peso: z.string().transform((v) => parseFloat(v) || 0),
+    peso: z.any().transform((v) => Number(v)).pipe(z.number().min(0, "Peso inválido")),
     cansaco: z.number().min(0).max(10),
-    horas_treino_7d: z.string().transform((v) => parseFloat(v) || 0),
+    horas_treino_7d: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
     qualidade_sono: z.number().min(0).max(10),
     dor_muscular: z.number().min(0).max(10),
     estresse: z.number().min(0).max(10),
     humor: z.number().min(0).max(10),
-    duracao_treino: z.string().transform((v) => parseFloat(v) || 0),
+    duracao_treino: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
     libido: z.number().min(0).max(10),
     erecao_matinal: z.boolean(),
     lesao: z.boolean(),
     local_lesao: z.string().optional(),
 })
 
+type FormValues = z.infer<typeof formSchema>
+
 function CheckinForm() {
     const [step, setStep] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
-    const [isProfileComplete, setIsProfileComplete] = useState(true)
     const router = useRouter()
     const searchParams = useSearchParams()
     const checkinId = searchParams.get('id')
     const supabase = createClient()
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form: UseFormReturn<FormValues> = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            data: new Date().toISOString().split('T')[0],
-            peso: "70",
+            data: format(new Date(), 'yyyy-MM-dd'),
+            peso: 0,
             cansaco: 5,
-            horas_treino_7d: "5",
+            horas_treino_7d: 0,
             qualidade_sono: 5,
             dor_muscular: 0,
             estresse: 5,
             humor: 5,
-            duracao_treino: "60",
+            duracao_treino: 0,
             libido: 5,
-            erecao_matinal: true,
+            erecao_matinal: false,
             lesao: false,
-            local_lesao: "",
+            local_lesao: '',
         },
     })
 
@@ -83,7 +84,6 @@ function CheckinForm() {
 
             // If profile incomplete, flag it (component will redirect or show warning)
             if (!patient || !patient.nome || patient.nome === 'Paciente Demo' || !patient.modalidade) {
-                setIsProfileComplete(false)
                 toast.warning("Complete seu perfil para realizar o check-in.")
                 router.push('/profile') // Redirect to profile
                 return
@@ -100,14 +100,14 @@ function CheckinForm() {
                 if (checkin) {
                     form.reset({
                         data: checkin.data,
-                        peso: String(checkin.peso),
+                        peso: Number(checkin.peso),
                         cansaco: checkin.cansaco,
-                        horas_treino_7d: String(checkin.horas_treino_7d),
+                        horas_treino_7d: Number(checkin.horas_treino_7d),
                         qualidade_sono: checkin.qualidade_sono,
                         dor_muscular: checkin.dor_muscular,
                         estresse: checkin.estresse,
                         humor: checkin.humor,
-                        duracao_treino: String(checkin.duracao_treino),
+                        duracao_treino: Number(checkin.duracao_treino),
                         libido: checkin.libido,
                         erecao_matinal: checkin.erecao_matinal,
                         lesao: checkin.lesao,
@@ -132,7 +132,7 @@ function CheckinForm() {
         setStep((s) => Math.max(s - 1, 1))
     }
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: FormValues) => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
@@ -162,8 +162,8 @@ function CheckinForm() {
 
             router.push("/dashboard")
 
-        } catch (error: any) {
-            toast.error("Erro ao salvar", { description: error.message })
+        } catch (error) {
+            toast.error("Erro ao salvar", { description: (error as Error).message })
         }
     }
 

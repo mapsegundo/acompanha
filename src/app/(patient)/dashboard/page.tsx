@@ -7,31 +7,56 @@ import { Plus, Calendar, Activity } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { redirect } from "next/navigation"
 
-export default async function DashboardPage() {
+interface WeeklyCheckin {
+    id: string
+    created_at: string
+    data: string
+    peso: number
+    cansaco: number
+    dor_muscular: number
+    qualidade_sono: number
+    horas_treino_7d: number
+    lesao: boolean
+}
+
+export default async function PatientDashboard() {
     const supabase = await createClient()
 
     // 1. Get logged user
     const { data: { user } } = await supabase.auth.getUser()
 
-    // 2. Get patient ID 
+    if (!user) {
+        redirect('/login')
+    }
+
+    // 1. Get Patient Data
     const { data: patient } = await supabase
         .from('patients')
         .select('id')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single()
 
     // 3. Get Checkins
-    let checkins: any[] = []
+    let checkins: WeeklyCheckin[] = []
 
     if (patient) {
-        const { data } = await supabase
-            .from('weekly_checkins')
-            .select('*')
-            .eq('patient_id', patient.id)
-            .order('data', { ascending: false })
+        try {
+            const { data, error } = await supabase
+                .from('weekly_checkins')
+                .select('*')
+                .eq('patient_id', patient.id)
+                .order('data', { ascending: false })
 
-        if (data) checkins = data
+            if (error) {
+                throw error
+            }
+
+            if (data) checkins = data as WeeklyCheckin[]
+        } catch (error) {
+            console.error('Error loading checkins:', error)
+        }
     }
 
     return (

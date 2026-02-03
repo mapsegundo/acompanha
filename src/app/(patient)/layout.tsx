@@ -1,6 +1,6 @@
 
 import Link from "next/link"
-import { Activity, LayoutDashboard, PlusCircle, LogOut } from "lucide-react"
+import { LayoutDashboard, PlusCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function PatientLayout({
