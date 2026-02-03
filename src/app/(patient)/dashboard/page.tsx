@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus, Calendar, Activity } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
 
@@ -95,7 +95,7 @@ export default async function PatientDashboard() {
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                                    {format(new Date(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
+                                    {format(parseISO(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
                                 </CardTitle>
                                 <Badge variant={statusBadge}>
                                     {statusColor}

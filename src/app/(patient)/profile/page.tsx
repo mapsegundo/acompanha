@@ -11,13 +11,23 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 
 const profileSchema = z.object({
     nome: z.string().min(2, "Nome é obrigatório"),
-    modalidade: z.string().min(2, "Modalidade é obrigatória"),
-    idade: z.string().optional(), // Inputs often return strings, need transform or flexible schema
-    sexo: z.string().optional(),
-    fase_temporada: z.string().optional(),
+    sport_modalities_id: z.string().uuid("Selecione uma modalidade"),
+    idade: z.string().optional(),
+    sexo: z.enum(["M", "F"]),
+    season_phases_id: z.string().uuid("Selecione a fase da temporada"),
+    peso: z.string().min(1, "Peso é obrigatório"),
 })
 
 export default function ProfilePage() {
@@ -29,15 +39,19 @@ export default function ProfilePage() {
         resolver: zodResolver(profileSchema),
         defaultValues: {
             nome: "",
-            modalidade: "",
+            sport_modalities_id: "",
             idade: "",
-            sexo: "",
-            fase_temporada: "",
+            sexo: "M",
+            season_phases_id: "",
+            peso: "",
         },
     })
 
+    const [modalities, setModalities] = useState<{ id: string, nome: string }[]>([])
+    const [phases, setPhases] = useState<{ id: string, nome: string }[]>([])
+
     useEffect(() => {
-        const loadProfile = async () => {
+        const loadInitialData = async () => {
             setIsLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
@@ -45,6 +59,16 @@ export default function ProfilePage() {
                 return
             }
 
+            // Load lookup tables
+            const [modalitiesRes, phasesRes] = await Promise.all([
+                supabase.from('sport_modalities').select('*').order('nome'),
+                supabase.from('season_phases').select('*').order('nome')
+            ])
+
+            if (modalitiesRes.data) setModalities(modalitiesRes.data)
+            if (phasesRes.data) setPhases(phasesRes.data)
+
+            // Load patient profile
             const { data: patient } = await supabase
                 .from('patients')
                 .select('*')
@@ -54,15 +78,16 @@ export default function ProfilePage() {
             if (patient) {
                 form.reset({
                     nome: patient.nome === 'Paciente Demo' ? '' : patient.nome || "",
-                    modalidade: patient.modalidade || "",
+                    sport_modalities_id: patient.sport_modalities_id || "",
                     idade: patient.idade ? String(patient.idade) : "",
-                    sexo: patient.sexo || "",
-                    fase_temporada: patient.fase_temporada || ""
+                    sexo: (patient.sexo as any) || "M",
+                    season_phases_id: patient.season_phases_id || "",
+                    peso: patient.peso ? String(patient.peso) : ""
                 })
             }
             setIsLoading(false)
         }
-        loadProfile()
+        loadInitialData()
     }, [form, router, supabase])
 
     const onSubmit = async (values: z.infer<typeof profileSchema>) => {
@@ -79,12 +104,13 @@ export default function ProfilePage() {
 
             const payload = {
                 user_id: user.id,
-                email: user.email, // Ensure email is kept/set
+                email: user.email,
                 nome: values.nome,
-                modalidade: values.modalidade,
+                sport_modalities_id: values.sport_modalities_id,
                 idade: values.idade ? parseInt(values.idade) : null,
                 sexo: values.sexo,
-                fase_temporada: values.fase_temporada
+                season_phases_id: values.season_phases_id,
+                peso: values.peso ? parseFloat(values.peso) : null
             }
 
             if (existing) {
@@ -130,13 +156,24 @@ export default function ProfilePage() {
 
                         <FormField
                             control={form.control}
-                            name="modalidade"
+                            name="sport_modalities_id"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Modalidade Esportiva</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Ex: Corrida, Triathlon" {...field} />
-                                    </FormControl>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecione sua modalidade" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {modalities.map((item) => (
+                                                <SelectItem key={item.id} value={item.id}>
+                                                    {item.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -158,12 +195,12 @@ export default function ProfilePage() {
                             />
                             <FormField
                                 control={form.control}
-                                name="sexo"
+                                name="peso"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Sexo Biológico</FormLabel>
+                                        <FormLabel>Peso (kg)</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="M / F" {...field} />
+                                            <Input type="number" step="0.1" placeholder="Ex: 75.5" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -173,13 +210,55 @@ export default function ProfilePage() {
 
                         <FormField
                             control={form.control}
-                            name="fase_temporada"
+                            name="sexo"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Sexo Biológico</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            className="flex gap-4"
+                                        >
+                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value="M" />
+                                                </FormControl>
+                                                <Label className="font-normal cursor-pointer">Masculino</Label>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value="F" />
+                                                </FormControl>
+                                                <Label className="font-normal cursor-pointer">Feminino</Label>
+                                            </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="season_phases_id"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Fase da Temporada</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Ex: Base, Polimento, Competitiva" {...field} />
-                                    </FormControl>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecione a fase atual" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {phases.map((item) => (
+                                                <SelectItem key={item.id} value={item.id}>
+                                                    {item.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

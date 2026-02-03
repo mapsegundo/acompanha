@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { format, parseISO, isAfter, startOfDay } from "date-fns"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -20,6 +20,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
         message: "Data inválida",
+    }).refine((val) => {
+        const selectedDate = parseISO(val)
+        const today = startOfDay(new Date())
+        return !isAfter(selectedDate, today)
+    }, {
+        message: "A data não pode ser futura",
     }),
 
     // Check-in Fields

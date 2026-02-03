@@ -9,11 +9,42 @@ create table if not exists patients (
   nome text,
   idade integer,
   sexo text,
-  modalidade text,
-  fase_temporada text,
+  peso numeric,
+  sport_modalities_id uuid references sport_modalities(id),
+  season_phases_id uuid references season_phases(id),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   unique(user_id)
 );
+
+-- Lookup tables
+create table if not exists sport_modalities (
+  id uuid primary key default uuid_generate_v4(),
+  nome text not null unique,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+create table if not exists season_phases (
+  id uuid primary key default uuid_generate_v4(),
+  nome text not null unique,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Seed sport_modalities
+insert into sport_modalities (nome) values 
+('Judô/BJJ'), 
+('Musculação'), 
+('Hyrox'), 
+('Crossfit'), 
+('Endurance (Corrida, Ciclismo, Natação)')
+on conflict (nome) do nothing;
+
+-- Seed season_phases
+insert into season_phases (nome) values 
+('Pré-temporada/Preparatório'), 
+('Competitiva'), 
+('Transição'), 
+('Off season')
+on conflict (nome) do nothing;
 
 -- Create weekly_checkins table
 create table if not exists weekly_checkins (
@@ -72,3 +103,10 @@ create policy "Patients can insert own checkins"
       and patients.user_id = auth.uid()
     )
   );
+
+-- Policies for lookup tables
+alter table sport_modalities enable row level security;
+alter table season_phases enable row level security;
+
+create policy "Anyone can view sport_modalities" on sport_modalities for select using (true);
+create policy "Anyone can view season_phases" on season_phases for select using (true);
