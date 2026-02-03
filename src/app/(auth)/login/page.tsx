@@ -26,7 +26,9 @@ export default function LoginPage() {
         if (error) {
             toast.error("Erro ao enviar magic link", { description: error.message })
         } else {
-            toast.success("Magic Link enviado!", { description: "Verifique seu email para acessar." })
+            toast.success("Magic Link enviado!", {
+                description: "Verifique seu email para acessar."
+            })
         }
         setLoading(false)
     }

@@ -9,23 +9,28 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Activity, Users, AlertTriangle } from "lucide-react"
+import { Activity, Users, AlertTriangle, ArrowRight } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
+import Link from "next/link"
 
-// Mock Data
-const patients = [
-    { id: 1, name: "Alice Silva", status: "Vermelho", lastCheckin: "2023-10-27", trend: "down" },
-    { id: 2, name: "Bob Santos", status: "Amarelo", lastCheckin: "2023-10-26", trend: "stable" },
-    { id: 3, name: "Carlos Oliveira", status: "Verde", lastCheckin: "2023-10-25", trend: "up" },
-    { id: 4, name: "Daniela Costa", status: "Verde", lastCheckin: "2023-10-27", trend: "up" },
-]
+export default async function DoctorDashboard() {
+    const supabase = await createClient()
 
-export default function DoctorDashboard() {
-    const redCount = patients.filter(p => p.status === 'Vermelho').length
-    const activeCount = patients.length
+    // Fetch patients (limit 5 for dashboard)
+    const { data: patients } = await supabase
+        .from('patients')
+        .select('*')
+        .limit(5)
+        .order('created_at', { ascending: false })
+
+    // Get total counts
+    const { count: activeCount } = await supabase.from('patients').select('*', { count: 'exact', head: true })
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Painel Médico</h1>
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold tracking-tight">Painel Médico</h1>
+            </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card>
@@ -34,8 +39,8 @@ export default function DoctorDashboard() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{activeCount}</div>
-                        <p className="text-xs text-muted-foreground">+2 essa semana</p>
+                        <div className="text-2xl font-bold">{activeCount || 0}</div>
+                        <p className="text-xs text-muted-foreground">Monitorados</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -44,51 +49,60 @@ export default function DoctorDashboard() {
                         <AlertTriangle className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-600">{redCount}</div>
-                        <p className="text-xs text-muted-foreground">Pacientes em vermelho</p>
+                        <div className="text-2xl font-bold text-red-600">--</div>
+                        <p className="text-xs text-muted-foreground">Em desenvolvimento</p>
                     </CardContent>
                 </Card>
                 <Card>
-                    {/* Placeholder for compliance or average health */}
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Acompanhamentos (Semana)</CardTitle>
+                        <CardTitle className="text-sm font-medium">Acompanhamentos</CardTitle>
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">85%</div>
+                        <div className="text-2xl font-bold">--%</div>
                         <p className="text-xs text-muted-foreground">Taxa de resposta</p>
                     </CardContent>
                 </Card>
             </div>
 
             <div className="space-y-4">
-                <h2 className="text-xl font-bold">Status Recente</h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold">Pacientes Recentes</h2>
+                    <Link href="/doctor/patients" className="text-sm text-blue-500 hover:underline flex items-center gap-1">
+                        Ver todos <ArrowRight className="h-3 w-3" />
+                    </Link>
+                </div>
+
                 <Card>
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Paciente</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Último Check-in</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Modalidade</TableHead>
                                 <TableHead>Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {patients.map((patient) => (
+                            {patients?.map((patient) => (
                                 <TableRow key={patient.id}>
-                                    <TableCell className="font-medium">{patient.name}</TableCell>
+                                    <TableCell className="font-medium">{patient.nome || 'Sem Nome'}</TableCell>
+                                    <TableCell>{patient.email}</TableCell>
+                                    <TableCell>{patient.modalidade || '-'}</TableCell>
                                     <TableCell>
-                                        <Badge variant={patient.status === 'Verde' ? "default" : patient.status === 'Amarelo' ? "secondary" : "destructive"}
-                                            className={patient.status === 'Verde' ? "bg-green-600 hover:bg-green-700" : patient.status === 'Amarelo' ? "bg-yellow-500 hover:bg-yellow-600" : ""}>
-                                            {patient.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{patient.lastCheckin}</TableCell>
-                                    <TableCell>
-                                        <a href={`/doctor/patients/${patient.id}`} className="text-blue-600 hover:underline text-sm">Ver Detalhes</a>
+                                        <Link href={`/doctor/patients/${patient.id}`} className="text-blue-600 hover:underline text-sm">
+                                            Ver Detalhes
+                                        </Link>
                                     </TableCell>
                                 </TableRow>
                             ))}
+                            {!patients?.length && (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                                        Nenhum paciente encontrado.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </Card>
