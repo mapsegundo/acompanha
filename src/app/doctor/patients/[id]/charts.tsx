@@ -105,16 +105,77 @@ export function PatientCharts({ checkins }: PatientChartsProps) {
             <h3 className="text-lg font-semibold mt-8">Histórico Recente</h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {checkins.slice().reverse().slice(0, 4).map((checkin) => (
-                    <Card key={checkin.id} className="text-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-base">{format(new Date(checkin.data), "dd 'de' MMMM", { locale: ptBR })}</CardTitle>
+                    <Card key={checkin.id} className="text-sm border-none shadow-md ring-1 ring-border overflow-hidden">
+                        <CardHeader className="pb-3 border-b bg-muted/20">
+                            <CardTitle className="text-sm font-black italic text-slate-900">
+                                {format(new Date(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-1">
-                            <div className="flex justify-between"><span>Peso:</span> <span className="font-bold">{checkin.peso} kg</span></div>
-                            <div className="flex justify-between"><span>Sono:</span> <span className={checkin.qualidade_sono < 5 ? "text-red-500" : "text-green-600"}>{checkin.qualidade_sono}/10</span></div>
-                            <div className="flex justify-between"><span>Lesão:</span> {checkin.lesao ? <Badge variant="destructive">Sim</Badge> : <Badge variant="outline">Não</Badge>}</div>
-                            {checkin.local_lesao && <div className="text-xs text-red-500 mt-1">Local: {checkin.local_lesao}</div>}
-                            <div className="flex justify-between pt-2 border-t mt-2"><span>Ereção Matinal:</span> {checkin.erecao_matinal ? "Sim" : "Não"}</div>
+                        <CardContent className="p-4 space-y-4">
+                            {/* CATEGORY: PHYSICAL & PERFORMANCE */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Peso:</span>
+                                    <span className="font-black text-slate-900">{checkin.peso} kg</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Treino (7d):</span>
+                                    <span className="font-black text-slate-900">{checkin.horas_treino_7d}h</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Média Sessão:</span>
+                                    <span className="font-black text-slate-900">{checkin.duracao_treino} min</span>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-3 space-y-2">
+                                {/* CATEGORY: WELL-BEING (0-10) */}
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Sono:</span>
+                                        <span className={`text-xs font-black ${checkin.qualidade_sono >= 8 ? "text-green-600" : checkin.qualidade_sono >= 5 ? "text-orange-500" : "text-red-500"}`}>{checkin.qualidade_sono}/10</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Cansaço:</span>
+                                        <span className={`text-xs font-black ${checkin.cansaco <= 3 ? "text-green-600" : checkin.cansaco <= 7 ? "text-orange-500" : "text-red-500"}`}>{checkin.cansaco}/10</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Estresse:</span>
+                                        <span className={`text-xs font-black ${checkin.estresse <= 3 ? "text-green-600" : checkin.estresse <= 7 ? "text-orange-500" : "text-red-500"}`}>{checkin.estresse}/10</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Humor:</span>
+                                        <span className={`text-xs font-black ${checkin.humor >= 8 ? "text-green-600" : checkin.humor >= 5 ? "text-orange-500" : "text-red-500"}`}>{checkin.humor}/10</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Libido:</span>
+                                        <span className={`text-xs font-black ${checkin.libido >= 8 ? "text-green-600" : checkin.libido >= 5 ? "text-orange-500" : "text-red-500"}`}>{checkin.libido}/10</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-400 font-black uppercase">Dor:</span>
+                                        <span className={`text-xs font-black ${checkin.dor_muscular <= 3 ? "text-green-600" : checkin.dor_muscular <= 7 ? "text-orange-500" : "text-red-500"}`}>{checkin.dor_muscular}/10</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-3 space-y-2">
+                                {/* CATEGORY: INDICATORS */}
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Lesão:</span>
+                                    {checkin.lesao ? (
+                                        <div className="flex flex-col items-end">
+                                            <Badge variant="destructive" className="h-5 text-[9px] font-black uppercase px-2">SIM</Badge>
+                                            {checkin.local_lesao && <span className="text-[9px] text-red-600 font-bold mt-0.5">{checkin.local_lesao.toUpperCase()}</span>}
+                                        </div>
+                                    ) : <Badge variant="outline" className="h-5 text-[9px] font-bold uppercase text-slate-600 px-2">NÃO</Badge>}
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Ereção Matinal:</span>
+                                    <span className={`font-black text-xs ${checkin.erecao_matinal ? "text-green-600" : "text-slate-600"}`}>
+                                        {checkin.erecao_matinal ? "SIM" : "NÃO"}
+                                    </span>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
