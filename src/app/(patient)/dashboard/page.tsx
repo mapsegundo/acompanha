@@ -90,6 +90,11 @@ export default async function DashboardPage() {
                                         {checkin.lesao && <span className="text-red-500 font-semibold">Lesão Relatada</span>}
                                     </div>
                                 </div>
+                                <div className="mt-4 pt-4 border-t flex justify-end">
+                                    <Link href={`/checkin?id=${checkin.id}`} className="text-xs text-blue-500 hover:underline">
+                                        Editar
+                                    </Link>
+                                </div>
                             </CardContent>
                         </Card>
                     )

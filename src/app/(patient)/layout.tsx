@@ -26,7 +26,12 @@ export default function PatientLayout({
                                 Novo Check-in
                             </Button>
                         </Link>
-                        {/* Future: Profile link */}
+                        <Link href="/profile">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <PlusCircle className="h-4 w-4" />
+                                Meu Perfil
+                            </Button>
+                        </Link>
                     </nav>
                 </div>
                 <div className="p-6 border-t">
