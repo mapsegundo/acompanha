@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
     Select,
@@ -131,6 +132,10 @@ export default function ProfilePage() {
         }
     }
 
+    const onInvalid = () => {
+        toast.error("Preencha todos os campos obrigatórios corretamente.")
+    }
+
     if (isLoading) return <div>Carregando...</div>
 
     return (
@@ -139,7 +144,7 @@ export default function ProfilePage() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm border">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
                         <FormField
                             control={form.control}
                             name="nome"
@@ -264,8 +269,19 @@ export default function ProfilePage() {
                             )}
                         />
 
-                        <Button type="submit" className="w-full">
-                            Salvar Informações
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={form.formState.isSubmitting}
+                        >
+                            {form.formState.isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Salvando...
+                                </>
+                            ) : (
+                                "Salvar Informações"
+                            )}
                         </Button>
                     </form>
                 </Form>

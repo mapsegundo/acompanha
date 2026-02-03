@@ -14,8 +14,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
@@ -173,6 +175,34 @@ function CheckinForm() {
         }
     }
 
+    const onInvalid = () => {
+        toast.error("Por favor, corrija os erros no formulário antes de continuar.")
+    }
+
+    const getScoreColor = (value: number, isPositive: boolean) => {
+        if (isPositive) {
+            if (value >= 7) return "text-green-600"
+            if (value >= 4) return "text-yellow-600"
+            return "text-red-600"
+        } else {
+            if (value <= 3) return "text-green-600"
+            if (value <= 6) return "text-yellow-600"
+            return "text-red-600"
+        }
+    }
+
+    const getRangeColor = (value: number, isPositive: boolean) => {
+        if (isPositive) {
+            if (value >= 7) return "bg-green-500"
+            if (value >= 4) return "bg-yellow-500"
+            return "bg-red-500"
+        } else {
+            if (value <= 3) return "bg-green-500"
+            if (value <= 6) return "bg-yellow-500"
+            return "bg-red-500"
+        }
+    }
+
     const progress = (step / 3) * 100
 
     if (isLoading) {
@@ -190,7 +220,7 @@ function CheckinForm() {
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
 
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
@@ -235,7 +265,9 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel className="flex justify-between">
                                                 Qualidade do Sono
-                                                <span className="font-bold text-primary">{field.value}/10</span>
+                                                <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
+                                                    {field.value}/10
+                                                </span>
                                             </FormLabel>
                                             <FormControl>
                                                 <Slider
@@ -243,6 +275,7 @@ function CheckinForm() {
                                                     value={[field.value]}
                                                     onValueChange={(vals) => field.onChange(vals[0])}
                                                     className="py-4"
+                                                    rangeClassName={getRangeColor(field.value, true)}
                                                 />
                                             </FormControl>
                                             <div className="flex justify-between text-xs text-muted-foreground px-1">
@@ -260,7 +293,9 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel className="flex justify-between">
                                                 Nível de Cansaço
-                                                <span className="font-bold text-primary">{field.value}/10</span>
+                                                <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
+                                                    {field.value}/10
+                                                </span>
                                             </FormLabel>
                                             <FormControl>
                                                 <Slider
@@ -268,6 +303,7 @@ function CheckinForm() {
                                                     value={[field.value]}
                                                     onValueChange={(vals) => field.onChange(vals[0])}
                                                     className="py-4"
+                                                    rangeClassName={getRangeColor(field.value, false)}
                                                 />
                                             </FormControl>
                                             <div className="flex justify-between text-xs text-muted-foreground px-1">
@@ -290,9 +326,14 @@ function CheckinForm() {
                                 name="estresse"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-between">Nível de Estresse <span className="font-bold text-primary">{field.value}/10</span></FormLabel>
+                                        <FormLabel className="flex justify-between">
+                                            Nível de Estresse
+                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
+                                                {field.value}/10
+                                            </span>
+                                        </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" />
+                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, false)} />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Baixo</span><span>Muito Alto</span>
@@ -307,9 +348,14 @@ function CheckinForm() {
                                 name="humor"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-between">Humor <span className="font-bold text-primary">{field.value}/10</span></FormLabel>
+                                        <FormLabel className="flex justify-between">
+                                            Humor
+                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
+                                                {field.value}/10
+                                            </span>
+                                        </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" />
+                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, true)} />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Deprimido</span><span>Feliz</span>
@@ -324,9 +370,14 @@ function CheckinForm() {
                                 name="libido"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-between">Libido <span className="font-bold text-primary">{field.value}/10</span></FormLabel>
+                                        <FormLabel className="flex justify-between">
+                                            Libido
+                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
+                                                {field.value}/10
+                                            </span>
+                                        </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" />
+                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, true)} />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Baixa</span><span>Alta</span>
@@ -397,9 +448,14 @@ function CheckinForm() {
                                 name="dor_muscular"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-between">Dor Muscular <span className="font-bold text-primary">{field.value}/10</span></FormLabel>
+                                        <FormLabel className="flex justify-between">
+                                            Dor Muscular
+                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
+                                                {field.value}/10
+                                            </span>
+                                        </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" />
+                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, false)} />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Sem Dor</span><span>Muita Dor</span>
@@ -457,8 +513,19 @@ function CheckinForm() {
                                 Próximo
                             </Button>
                         ) : (
-                            <Button type="submit" className="ml-auto bg-green-600 hover:bg-green-700">
-                                {checkinId ? 'Atualizar Check-in' : 'Finalizar Check-in'}
+                            <Button
+                                type="submit"
+                                className="ml-auto bg-green-600 hover:bg-green-700"
+                                disabled={form.formState.isSubmitting}
+                            >
+                                {form.formState.isSubmitting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Processando...
+                                    </>
+                                ) : (
+                                    checkinId ? 'Atualizar Check-in' : 'Finalizar Check-in'
+                                )}
                             </Button>
                         )}
                     </div>

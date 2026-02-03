@@ -11,8 +11,11 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  rangeClassName,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+  rangeClassName?: string
+}) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -46,9 +49,8 @@ function Slider({
           data-slot="slider-range"
           className={cn(
             "absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full",
-            // Dynamic color based on value percentage
-            // Default blue-ish
-            "bg-primary"
+            // Use rangeClassName if provided, otherwise default to bg-primary
+            rangeClassName || "bg-primary"
           )}
           style={{
             // Optional: if we wanted dynamic gradient based on value, we could inject style here
