@@ -57,6 +57,7 @@ function CheckinForm() {
 
     const form: UseFormReturn<FormValues> = useForm<FormValues>({
         resolver: zodResolver(formSchema),
+        mode: "onChange",
         defaultValues: {
             data: format(new Date(), 'yyyy-MM-dd'),
             peso: 0,

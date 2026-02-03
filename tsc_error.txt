@@ -1,0 +1,5 @@
+src/app/(patient)/dashboard/page.tsx(1,58): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+src/app/(patient)/dashboard/page.tsx(2,23): error TS2307: Cannot find module '@/components/ui/badge' or its corresponding type declarations.
+src/app/(patient)/dashboard/page.tsx(3,24): error TS2307: Cannot find module '@/components/ui/button' or its corresponding type declarations.
+src/app/(patient)/dashboard/page.tsx(6,30): error TS2307: Cannot find module '@/lib/supabase/server' or its corresponding type declarations.
+src/app/(patient)/dashboard/page.tsx(10,53): error TS2307: Cannot find module '@/components/ui/alert' or its corresponding type declarations.
