@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ACOMPANHA
 
-## Getting Started
+Sistema de acompanhamento clínico e esportivo longitudinal.
 
-First, run the development server:
+## Sobre o Projeto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+O Acompanha é uma plataforma desenvolvida para conectar médicos e pacientes, facilitando o monitoramento contínuo de indicadores de saúde, treinos e bem-estar.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Funcionalidades
+- **Pacientes**: Check-in semanal interativo (físico, sono, mental), histórico evolutivo e dashboard visual.
+- **Médicos**: Painel de controle com alertas automáticos (status verde, amarelo, vermelho), lista de pacientes e gráficos de tendências.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js 14+ (App Router), Tailwind CSS v4, shadcn/ui
+- **Backend**: Supabase (Postgres, Auth, RLS, Edge Functions)
+- **Deploy**: Vercel ready
 
-## Learn More
+## Estrutura do Banco de Dados
 
-To learn more about Next.js, take a look at the following resources:
+- `patients`: Perfil do usuário.
+- `weekly_checkins`: Registros longitudinais.
+- `doctors`: Perfil médico e permissões administrativas.
+- `RLS (Row Level Security)`: Garante que pacientes vejam apenas seus dados e médicos vejam seus pacientes.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Configuração Local
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone o repositório**
+2. **Instale as dependências**:
+   ```bash
+   npm install
+   ```
+3. **Configure as variáveis de ambiente**:
+   Crie um arquivo `.env.local` na raiz com suas chaves do Supabase:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=sua_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima
+   SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
+   ```
+4. **Banco de Dados**:
+   Execute os scripts SQL localizados em `supabase/` no SQL Editor do Supabase.
+5. **Rode o projeto**:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O projeto é otimizado para deploy na Vercel. Lembre-se de configurar as variáveis de ambiente no painel da Vercel.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desenvolvido como MVP para monitoramento de saúde de alta performance.
