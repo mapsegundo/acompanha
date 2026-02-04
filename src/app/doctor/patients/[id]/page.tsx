@@ -15,8 +15,8 @@ interface PatientData {
     idade: number | null
     sexo: string | null
     peso: number | null
-    sport_modalities: { name: string } | null
-    season_phases: { name: string } | null
+    sport_modalities: { nome: string } | null
+    season_phases: { nome: string } | null
 }
 
 interface CheckinData {
@@ -51,8 +51,8 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             idade,
             sexo,
             peso,
-            sport_modalities ( name ),
-            season_phases ( name )
+            sport_modalities ( nome ),
+            season_phases ( nome )
         `)
         .eq('id', id)
         .single()
@@ -77,9 +77,9 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
     // Type-safe extraction of FK joined data
     // @ts-expect-error Supabase FK join types are complex, but we know the structure
-    const modalityName = patient.sport_modalities?.name || "Sem modalidade"
+    const modalityName = patient.sport_modalities?.nome || "Sem modalidade"
     // @ts-expect-error Supabase FK join types are complex, but we know the structure
-    const phaseName = patient.season_phases?.name || "Sem fase"
+    const phaseName = patient.season_phases?.nome || "Sem fase"
 
     return (
         <div className="space-y-8">

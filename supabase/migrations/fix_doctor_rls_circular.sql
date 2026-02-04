@@ -1,25 +1,37 @@
--- Fix RLS for doctors table to properly allow role detection in middleware
--- The issue is that the current policies create a circular dependency
--- A doctor needs to read their record to verify they're a doctor, but the policy checks if they're a doctor first
+-- FINAL FIX: Doctors RLS policies (NO RECURSION)
+-- This was applied directly to Supabase on 2026-02-04
 
--- Drop the problematic circular policy
+-- The previous policies caused "infinite recursion detected in policy"
+-- because they checked the doctors table to allow access to doctors table
+
+-- SOLUTION: Use auth.role() = 'authenticated' which doesn't cause recursion
+
+-- 1. Drop ALL existing problematic policies
+DROP POLICY IF EXISTS "Doctors can view own profile" ON doctors;
+DROP POLICY IF EXISTS "Users can view their own doctor record" ON doctors;
+DROP POLICY IF EXISTS "Verified doctors can view all doctors" ON doctors;
 DROP POLICY IF EXISTS "Doctors can view all doctors" ON doctors;
+DROP POLICY IF EXISTS "Doctors can insert doctors" ON doctors;
+DROP POLICY IF EXISTS "Doctors can update doctors" ON doctors;
+DROP POLICY IF EXISTS "Doctors can delete doctors" ON doctors;
 
--- Create a proper self-lookup policy (no circular dependency)
+-- 2. Create SIMPLE non-recursive policies
 CREATE POLICY "Users can view their own doctor record"
   ON doctors FOR SELECT
   USING (auth.uid() = user_id);
 
--- Create a separate policy for doctors to view OTHER doctors (after they're verified)
-CREATE POLICY "Verified doctors can view all doctors"
+CREATE POLICY "Authenticated users can view all doctors"
   ON doctors FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM doctors d
-      WHERE d.user_id = auth.uid()
-    )
-  );
+  USING (auth.role() = 'authenticated');
 
--- Note: The above two policies will work together:
--- 1. A user can always find their OWN doctor record (if it exists) via the first policy
--- 2. Once verified as a doctor, they can see all other doctors via the second policy
+CREATE POLICY "Authenticated users can insert doctors"
+  ON doctors FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can update doctors"
+  ON doctors FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can delete doctors"
+  ON doctors FOR DELETE
+  USING (auth.role() = 'authenticated');
