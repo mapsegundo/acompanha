@@ -39,11 +39,11 @@ const formSchema = z.object({
     estresse: z.number().min(0).max(10),
     humor: z.number().min(0).max(10),
     duracao_treino: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
-    ciclo_menstrual_alterado: z.boolean(),
+    ciclo_menstrual_alterado: z.boolean().nullable().optional(),
     libido: z.number().min(0).max(10),
-    erecao_matinal: z.boolean(),
-    lesao: z.boolean(),
-    local_lesao: z.string().optional(),
+    erecao_matinal: z.boolean().nullable().optional(),
+    lesao: z.boolean().nullable().optional(),
+    local_lesao: z.string().optional().nullable(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -51,6 +51,7 @@ type FormValues = z.infer<typeof formSchema>
 function CheckinForm() {
     const [step, setStep] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
+    const [sexo, setSexo] = useState<string | null>(null)
     const router = useRouter()
     const searchParams = useSearchParams()
     const checkinId = searchParams.get('id')
@@ -99,6 +100,8 @@ function CheckinForm() {
                 return
             }
 
+            setSexo(patient.sexo)
+
             // 2. Load Check-in if Editing
             if (checkinId) {
                 const { data: checkin } = await supabase
@@ -111,17 +114,17 @@ function CheckinForm() {
                     form.reset({
                         data: checkin.data,
                         peso: Number(checkin.peso),
-                        cansaco: checkin.cansaco,
+                        cansaco: checkin.cansaco ?? 5,
                         horas_treino_7d: Number(checkin.horas_treino_7d),
-                        qualidade_sono: checkin.qualidade_sono,
-                        dor_muscular: checkin.dor_muscular,
-                        estresse: checkin.estresse,
-                        humor: checkin.humor,
+                        qualidade_sono: checkin.qualidade_sono ?? 5,
+                        dor_muscular: checkin.dor_muscular ?? 0,
+                        estresse: checkin.estresse ?? 5,
+                        humor: checkin.humor ?? 5,
                         duracao_treino: Number(checkin.duracao_treino),
-                        ciclo_menstrual_alterado: checkin.ciclo_menstrual_alterado || false,
-                        libido: checkin.libido,
-                        erecao_matinal: checkin.erecao_matinal,
-                        lesao: checkin.lesao,
+                        ciclo_menstrual_alterado: !!checkin.ciclo_menstrual_alterado,
+                        libido: checkin.libido ?? 5,
+                        erecao_matinal: !!checkin.erecao_matinal,
+                        lesao: !!checkin.lesao,
                         local_lesao: checkin.local_lesao || "",
                     })
                 }
@@ -156,9 +159,29 @@ function CheckinForm() {
                 return
             }
 
-            const payload = {
+            const payload: any = {
                 patient_id: patient.id,
-                ...values
+                data: values.data,
+                peso: Number(values.peso),
+                cansaco: Number(values.cansaco),
+                horas_treino_7d: Number(values.horas_treino_7d),
+                qualidade_sono: Number(values.qualidade_sono),
+                dor_muscular: Number(values.dor_muscular),
+                estresse: Number(values.estresse),
+                humor: Number(values.humor),
+                duracao_treino: Number(values.duracao_treino),
+                libido: Number(values.libido),
+                lesao: Boolean(values.lesao),
+                local_lesao: values.local_lesao || null,
+            }
+
+            // Explicitly handle gender-specific fields to ensure they persist
+            if (sexo === 'F') {
+                payload.ciclo_menstrual_alterado = Boolean(values.ciclo_menstrual_alterado);
+                payload.erecao_matinal = null;
+            } else if (sexo === 'M') {
+                payload.erecao_matinal = Boolean(values.erecao_matinal);
+                payload.ciclo_menstrual_alterado = null;
             }
 
             if (checkinId) {
@@ -368,23 +391,25 @@ function CheckinForm() {
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name="ciclo_menstrual_alterado"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base font-bold">Alteração recente do ciclo menstrual?</FormLabel>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                            {sexo === 'F' && (
+                                <FormField
+                                    control={form.control}
+                                    name="ciclo_menstrual_alterado"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <div className="space-y-0.5">
+                                                <FormLabel className="text-base font-bold">Alteração recente do ciclo menstrual?</FormLabel>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                             <FormField
                                 control={form.control}
@@ -408,26 +433,28 @@ function CheckinForm() {
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name="erecao_matinal"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base font-bold">Ereção Matinal</FormLabel>
-                                            <FormDescription>
-                                                Você apresentou ereção matinal na maioria dos dias?
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                            {sexo === 'M' && (
+                                <FormField
+                                    control={form.control}
+                                    name="erecao_matinal"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <div className="space-y-0.5">
+                                                <FormLabel className="text-base font-bold">Ereção Matinal</FormLabel>
+                                                <FormDescription>
+                                                    Você apresentou ereção matinal na maioria dos dias?
+                                                </FormDescription>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                         </div>
                     )}
 

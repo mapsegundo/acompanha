@@ -77,7 +77,7 @@ export default async function PatientDashboard() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {checkins.map((checkin) => {
-                    const status = calculateHealthStatus(checkin)
+                    const status = calculateHealthStatus(checkin, patient.sexo)
                     const statusColor = getStatusColor(status)
                     const statusBadge = getBadgeVariant(status)
 
@@ -93,22 +93,69 @@ export default async function PatientDashboard() {
                                     {status}
                                 </Badge>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold flex items-center gap-2">
+                            <CardContent className="space-y-4">
+                                <div className="text-2xl font-black flex items-center gap-2 text-slate-900 italic">
                                     {checkin.peso} kg
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-2 space-y-1">
-                                    <div className="flex justify-between">
-                                        <span>Sono: {checkin.qualidade_sono}/10</span>
-                                        <span>Cansaço: {checkin.cansaco}/10</span>
+                                <div className="text-[11px] text-slate-600 font-bold space-y-3">
+                                    {/* Linha 1: Saúde Básica */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Sono</span>
+                                            <span className="text-slate-900 font-black">{checkin.qualidade_sono}/10</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Fadiga</span>
+                                            <span className="text-slate-900 font-black">{checkin.cansaco}/10</span>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Treino: {checkin.horas_treino_7d}h</span>
-                                        {checkin.lesao && <span className="text-red-500 font-semibold truncate">Lesão/Incômodo</span>}
+
+                                    {/* Linha 2: Psicológico */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Humor</span>
+                                            <span className="text-slate-900 font-black">{checkin.humor}/10</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Stress</span>
+                                            <span className="text-slate-900 font-black">{checkin.estresse}/10</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Linha 3: Recuperação & Hormonal */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Libido</span>
+                                            <span className="text-slate-900 font-black font-mono">{checkin.libido}/10</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-slate-100 pb-1">
+                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Treino</span>
+                                            <span className="text-slate-900 font-black">{checkin.horas_treino_7d}h</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Indicadores de Risco */}
+                                    <div className="space-y-2 pt-1">
+                                        {checkin.lesao && (
+                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 p-1.5 rounded-lg border border-red-100">
+                                                <Activity className="h-3 w-3" /> Lesão ou Dor relatada
+                                            </div>
+                                        )}
+                                        {checkin.ciclo_menstrual_alterado && patient.sexo === 'F' && (
+                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 p-1.5 rounded-lg border border-red-100">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-red-600" /> Alteração Ciclo Menstrual
+                                            </div>
+                                        )}
+                                        {!checkin.erecao_matinal && patient.sexo === 'M' && (
+                                            <div className="flex items-center gap-2 text-orange-600 font-black uppercase text-[10px] bg-orange-50 p-1.5 rounded-lg border border-orange-100">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-orange-600" /> Ausência Ereção Matinal
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="mt-4 pt-4 border-t flex justify-end">
-                                    <Link href={`/checkin?id=${checkin.id}`} className="text-xs text-blue-500 hover:underline">
+                                <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-400 font-bold">Ref: {format(parseISO(checkin.data), "eeee", { locale: ptBR })}</span>
+                                    <Link href={`/checkin?id=${checkin.id}`} className="text-xs text-blue-600 font-black uppercase hover:underline">
                                         Editar
                                     </Link>
                                 </div>

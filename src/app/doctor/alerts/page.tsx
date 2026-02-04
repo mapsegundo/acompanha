@@ -29,6 +29,7 @@ export default async function AlertsPage() {
         .select(`
             id,
             nome,
+            sexo,
             weekly_checkins (
                 id,
                 data,
@@ -55,12 +56,12 @@ export default async function AlertsPage() {
 
         const latest = recentCheckins[0] as any
 
-        const status = calculateHealthStatus(latest)
+        const status = calculateHealthStatus(latest, patient.sexo)
 
         if (status === 'Crítico') {
             const reasons = []
             if (latest.lesao) reasons.push('lesão/dor relatada')
-            if (latest.ciclo_menstrual_alterado) reasons.push('alteração no ciclo menstrual')
+            if (latest.ciclo_menstrual_alterado && patient.sexo === 'F') reasons.push('alteração no ciclo menstrual')
             if (latest.qualidade_sono <= 3) reasons.push('sono péssimo')
             if (latest.cansaco >= 9) reasons.push('cansaço extremo')
             if (latest.dor_muscular >= 9) reasons.push('dor muscular aguda')
@@ -85,7 +86,7 @@ export default async function AlertsPage() {
             if (latest.estresse >= 8) reasons.push('estresse alto')
             if (latest.humor <= 4) reasons.push('humor deprimido')
             if (latest.libido <= 5) reasons.push('libido reduzida')
-            if (latest.erecao_matinal === false) reasons.push('ausência de ereção matinal')
+            if (latest.erecao_matinal === false && patient.sexo === 'M') reasons.push('ausência de ereção matinal')
 
             activeAlerts.push({
                 id: `warn-${latest.id}`,

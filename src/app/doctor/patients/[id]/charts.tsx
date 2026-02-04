@@ -28,6 +28,7 @@ interface Checkin {
 
 interface PatientChartsProps {
     checkins: Checkin[]
+    sexo: string
 }
 
 const subjectiveConfig = {
@@ -44,7 +45,7 @@ const physicalConfig = {
     horas_treino_7d: { label: "Horas Treino", color: "#f97316" },
 } satisfies ChartConfig
 
-export function PatientCharts({ checkins }: PatientChartsProps) {
+export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
     // Format dates for display
     const data = checkins.map(c => ({
         ...c,
@@ -170,18 +171,22 @@ export function PatientCharts({ checkins }: PatientChartsProps) {
                                         </div>
                                     ) : <Badge variant="outline" className="h-5 text-[9px] font-bold uppercase text-slate-600 px-2">NÃO</Badge>}
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Ereção Matinal:</span>
-                                    <span className={`font-black text-xs ${checkin.erecao_matinal ? "text-green-600" : "text-slate-600"}`}>
-                                        {checkin.erecao_matinal ? "SIM" : "NÃO"}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Alteração Ciclo:</span>
-                                    <span className={`font-black text-xs ${checkin.ciclo_menstrual_alterado ? "text-red-600" : "text-slate-600"}`}>
-                                        {checkin.ciclo_menstrual_alterado ? "SIM" : "NÃO"}
-                                    </span>
-                                </div>
+                                {sexo === 'M' && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Ereção Matinal:</span>
+                                        <span className={`font-black text-xs ${checkin.erecao_matinal ? "text-green-600" : "text-slate-600"}`}>
+                                            {checkin.erecao_matinal ? "SIM" : "NÃO"}
+                                        </span>
+                                    </div>
+                                )}
+                                {sexo === 'F' && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Alteração Ciclo:</span>
+                                        <span className={`font-black text-xs ${checkin.ciclo_menstrual_alterado ? "text-red-600" : "text-slate-600"}`}>
+                                            {checkin.ciclo_menstrual_alterado ? "SIM" : "NÃO"}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>

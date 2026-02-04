@@ -64,7 +64,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
             {/* Charts & Data */}
             {checkins && checkins.length > 0 ? (
-                <PatientCharts checkins={checkins} />
+                <PatientCharts checkins={checkins} sexo={patient.sexo} />
             ) : (
                 <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/10">
                     <Activity className="h-12 w-12 text-muted-foreground mb-4" />

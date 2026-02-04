@@ -75,7 +75,7 @@ export default async function PatientsListPage() {
                             let badgeColorClass = ""
 
                             if (lastCheckin) {
-                                status = calculateHealthStatus(lastCheckin)
+                                status = calculateHealthStatus(lastCheckin, patient.sexo)
                                 badgeVariant = getBadgeVariant(status)
 
                                 if (status === 'Crítico') {

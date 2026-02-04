@@ -13,30 +13,32 @@ export interface CheckinData {
     ciclo_menstrual_alterado?: boolean;
 }
 
-export function calculateHealthStatus(data: CheckinData | null | undefined): HealthStatus {
+export function calculateHealthStatus(data: CheckinData | null | undefined, sexo?: string): HealthStatus {
     if (!data) return 'Sem Dados';
 
-    // 1. CRITICAL (Red)
+    const isWoman = sexo === 'F';
+    const isMan = sexo === 'M';
+
     const isCritical =
         data.lesao === true ||
-        data.ciclo_menstrual_alterado === true ||
-        data.qualidade_sono <= 3 ||
-        data.dor_muscular >= 9 ||
-        data.cansaco >= 9 ||
-        data.humor <= 2 ||
-        data.libido <= 2;
+        (isWoman && data.ciclo_menstrual_alterado === true) ||
+        (data.qualidade_sono !== null && data.qualidade_sono <= 3) ||
+        (data.dor_muscular !== null && data.dor_muscular >= 9) ||
+        (data.cansaco !== null && data.cansaco >= 9) ||
+        (data.humor !== null && data.humor <= 2) ||
+        (data.libido !== null && data.libido <= 2);
 
     if (isCritical) return 'Crítico';
 
     // 2. WARNING (Yellow)
     const isWarning =
-        data.qualidade_sono <= 5 ||
-        data.dor_muscular >= 7 ||
-        data.cansaco >= 7 ||
-        data.estresse >= 8 ||
-        data.humor <= 4 ||
-        data.libido <= 5 ||
-        data.erecao_matinal === false;
+        (data.qualidade_sono !== null && data.qualidade_sono <= 5) ||
+        (data.dor_muscular !== null && data.dor_muscular >= 7) ||
+        (data.cansaco !== null && data.cansaco >= 7) ||
+        (data.estresse !== null && data.estresse >= 8) ||
+        (data.humor !== null && data.humor <= 4) ||
+        (data.libido !== null && data.libido <= 5) ||
+        (isMan && data.erecao_matinal === false);
 
     if (isWarning) return 'Atenção';
 

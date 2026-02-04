@@ -27,6 +27,7 @@ export default async function DoctorDashboard() {
         .from('patients')
         .select(`
             *,
+            sexo,
             weekly_checkins (
                 id,
                 data,
@@ -58,7 +59,7 @@ export default async function DoctorDashboard() {
             patientsWithRecentCheckin++
 
             // Logic matching the alerts logic
-            const status = calculateHealthStatus(recentCheckins[0])
+            const status = calculateHealthStatus(recentCheckins[0], patient.sexo)
             if (status === 'Crítico') criticalAlerts++
         }
     })
@@ -141,7 +142,7 @@ export default async function DoctorDashboard() {
                                 let badgeColorClass = ""
 
                                 if (lastCheckin) {
-                                    status = calculateHealthStatus(lastCheckin)
+                                    status = calculateHealthStatus(lastCheckin, patient.sexo)
                                     badgeVariant = getBadgeVariant(status)
 
                                     if (status === 'Crítico') {
