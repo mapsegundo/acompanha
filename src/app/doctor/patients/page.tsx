@@ -25,6 +25,8 @@ export default async function PatientsListPage() {
         .from('patients')
         .select(`
             *,
+            sport_modalities (nome),
+            season_phases (nome),
             weekly_checkins (
                 id,
                 data,
@@ -61,12 +63,13 @@ export default async function PatientsListPage() {
                             <TableHead className="w-[300px]">Paciente</TableHead>
                             <TableHead>Status Saúde</TableHead>
                             <TableHead>Modalidade</TableHead>
+                            <TableHead>Fase</TableHead>
                             <TableHead>Última Sincronização</TableHead>
                             <TableHead className="text-right">Ação</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {patients?.map((patient) => {
+                        {patients?.map((patient: any) => {
                             const lastCheckin = patient.weekly_checkins?.[patient.weekly_checkins.length - 1]
 
                             // Status Logic
@@ -108,7 +111,12 @@ export default async function PatientsListPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <span className="text-sm text-slate-600 font-medium">{patient.modalidade || '-'}</span>
+                                        <span className="text-sm text-slate-600 font-medium">{patient.sport_modalities?.nome || '-'}</span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-md">
+                                            {patient.season_phases?.nome || '-'}
+                                        </span>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">

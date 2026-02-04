@@ -28,6 +28,8 @@ export default async function DoctorDashboard() {
         .select(`
             *,
             sexo,
+            sport_modalities (nome),
+            season_phases (nome),
             weekly_checkins (
                 id,
                 data,
@@ -51,7 +53,7 @@ export default async function DoctorDashboard() {
     let criticalAlerts = 0
     let patientsWithRecentCheckin = 0
 
-    allPatients?.forEach(patient => {
+    allPatients?.forEach((patient: any) => {
         // Find latest check-in in the last 7 days
         const recentCheckins = patient.weekly_checkins?.filter((c: any) => c.data >= sevenDaysAgo.split('T')[0])
 
@@ -125,15 +127,16 @@ export default async function DoctorDashboard() {
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="w-[300px]">Paciente</TableHead>
+                                <TableHead className="w-[250px]">Paciente</TableHead>
                                 <TableHead>Status Saúde</TableHead>
                                 <TableHead>Modalidade</TableHead>
+                                <TableHead>Fase</TableHead>
                                 <TableHead>Última Sincronização</TableHead>
                                 <TableHead className="text-right">Ação</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {patients.map((patient) => {
+                            {patients.map((patient: any) => {
                                 const lastCheckin = patient.weekly_checkins?.[patient.weekly_checkins.length - 1]
 
                                 // Status Logic matching Patients list
@@ -175,7 +178,12 @@ export default async function DoctorDashboard() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <span className="text-sm text-slate-600 font-medium">{patient.modalidade || '-'}</span>
+                                            <span className="text-sm text-slate-600 font-medium">{patient.sport_modalities?.nome || '-'}</span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-md">
+                                                {patient.season_phases?.nome || '-'}
+                                            </span>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
