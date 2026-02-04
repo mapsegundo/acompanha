@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -41,8 +42,8 @@ export default function LoginPage() {
             <Card className="w-full max-w-md shadow-2xl border-none ring-1 ring-slate-200">
                 <CardHeader className="text-center space-y-2 pb-8">
                     <div className="flex justify-center mb-2">
-                        <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">
-                            <h1 className="text-white font-black italic tracking-tighter text-xl">AC</h1>
+                        <div className="p-1 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">
+                            <Image src="/logo.png" alt="Logo" width={48} height={48} className="rounded-xl" />
                         </div>
                     </div>
                     <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">LOG IN</CardTitle>

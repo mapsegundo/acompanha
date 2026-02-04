@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Acompanha - Monitoramento Clínico",
   description: "Plataforma de acompanhamento clínico e esportivo longitudinal.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

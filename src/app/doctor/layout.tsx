@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { LayoutDashboard, Users, LogOut, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export default async function DoctorLayout({
     children,
@@ -15,9 +16,12 @@ export default async function DoctorLayout({
         <div className="flex h-screen w-full flex-col md:flex-row bg-muted/20">
             <aside className="w-full md:w-64 bg-slate-950 text-white border-r border-slate-800 flex flex-col justify-between shadow-xl">
                 <div className="p-6">
-                    <h2 className="text-2xl font-black tracking-tighter mb-8 text-blue-500 flex items-center gap-2">
-                        ACOMPANHA <span className="text-[10px] text-white bg-blue-600 px-1.5 py-0.5 rounded-sm font-bold tracking-normal">MD</span>
-                    </h2>
+                    <div className="flex items-center gap-3 mb-8">
+                        <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-xl ring-1 ring-slate-800" />
+                        <h2 className="text-xl font-black tracking-tighter text-blue-500 flex items-center gap-2">
+                            ACOMPANHA <span className="text-[9px] text-white bg-blue-600 px-1.5 py-0.5 rounded-sm font-bold tracking-normal">MD</span>
+                        </h2>
+                    </div>
                     <nav className="flex flex-col gap-2">
                         <Link href="/doctor/dashboard">
                             <Button variant="ghost" className="w-full justify-start gap-3 hover:bg-slate-900 hover:text-blue-400 border-none transition-all">

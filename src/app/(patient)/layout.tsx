@@ -2,6 +2,7 @@ import Link from "next/link"
 import { LayoutDashboard, PlusCircle, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
+import Image from "next/image"
 
 export default async function PatientLayout({
     children,
@@ -15,7 +16,10 @@ export default async function PatientLayout({
         <div className="flex h-screen w-full flex-col md:flex-row bg-muted/20">
             <aside className="w-full md:w-64 bg-background border-r flex flex-col justify-between">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold tracking-tight mb-8 text-primary">ACOMPANHA</h2>
+                    <div className="flex items-center gap-3 mb-8">
+                        <Image src="/logo.png" alt="Logo" width={32} height={32} className="rounded-lg shadow-md" />
+                        <h2 className="text-xl font-black tracking-tight text-primary uppercase italic">ACOMPANHA</h2>
+                    </div>
                     <nav className="flex flex-col gap-2">
                         <Link href="/dashboard">
                             <Button variant="ghost" className="w-full justify-start gap-2">
