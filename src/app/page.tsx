@@ -29,7 +29,7 @@ export default function Home() {
       </main>
 
       <footer className="absolute bottom-8 text-[10px] text-slate-500 font-black uppercase tracking-widest opacity-50">
-        © 2026 Acompanha Health Systems • Longitudinal Monitoring
+        © 2026 Acompanha • Monitoramento Longitudinal
       </footer>
     </div>
   )
