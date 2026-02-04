@@ -18,6 +18,46 @@ create policy "Doctors can view own profile"
   on doctors for select
   using (auth.uid() = user_id);
 
+-- Doctors can view all other doctors
+create policy "Doctors can view all doctors"
+  on doctors for select
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+-- Doctors can insert new doctors
+create policy "Doctors can insert doctors"
+  on doctors for insert
+  with check (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+-- Doctors can update other doctors
+create policy "Doctors can update doctors"
+  on doctors for update
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+-- Doctors can delete other doctors
+create policy "Doctors can delete doctors"
+  on doctors for delete
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
 -- Update Patients policies so Doctors can view them
 -- (We need a way to say "If user is in doctors table, they can view all patients")
 

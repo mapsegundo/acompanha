@@ -1,4 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import {
     Table,
     TableBody,
@@ -9,39 +12,143 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/server"
+import { Input } from "@/components/ui/input"
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { calculateHealthStatus, getBadgeVariant } from "@/lib/monitoring"
-import { Search, MapPin, User, ArrowRight, Users } from "lucide-react"
+import { Search, ArrowRight, Users, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 
-export default async function PatientsListPage() {
-    const supabase = await createClient()
+type Patient = {
+    id: string
+    nome: string | null
+    email: string | null
+    sexo: string | null
+    sport_modalities: { nome: string } | null
+    season_phases: { nome: string } | null
+    weekly_checkins: any[]
+}
 
-    // Fetch all patients with their latest check-in
-    const { data: patients } = await supabase
-        .from('patients')
-        .select(`
-            *,
-            sport_modalities (nome),
-            season_phases (nome),
-            weekly_checkins (
-                id,
-                data,
-                qualidade_sono,
-                dor_muscular,
-                cansaco,
-                humor,
-                estresse,
-                libido,
-                erecao_matinal,
-                lesao,
-                ciclo_menstrual_alterado
+type SortConfig = {
+    key: 'nome' | 'status' | 'lastCheckin'
+    direction: 'asc' | 'desc'
+} | null
+
+export default function PatientsListPage() {
+    const [patients, setPatients] = useState<Patient[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [sortConfig, setSortConfig] = useState<SortConfig>(null)
+    const supabase = createClient()
+
+    useEffect(() => {
+        fetchPatients()
+    }, [])
+
+    async function fetchPatients() {
+        setLoading(true)
+        const { data } = await supabase
+            .from('patients')
+            .select(`
+                *,
+                sport_modalities (nome),
+                season_phases (nome),
+                weekly_checkins (
+                    id,
+                    data,
+                    qualidade_sono,
+                    dor_muscular,
+                    cansaco,
+                    humor,
+                    estresse,
+                    libido,
+                    erecao_matinal,
+                    lesao,
+                    ciclo_menstrual_alterado
+                )
+            `)
+            .order('nome')
+
+        if (data) setPatients(data as Patient[])
+        setLoading(false)
+    }
+
+    function handleSort(key: 'nome' | 'status' | 'lastCheckin') {
+        setSortConfig(prev => {
+            if (prev?.key === key) {
+                return prev.direction === 'asc' ? { key, direction: 'desc' } : null
+            }
+            return { key, direction: 'asc' }
+        })
+    }
+
+    const filteredAndSortedPatients = useMemo(() => {
+        let result = [...patients]
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase()
+            result = result.filter(patient =>
+                patient.nome?.toLowerCase().includes(query) ||
+                patient.email?.toLowerCase().includes(query)
             )
-        `)
-        .order('nome')
+        }
+
+        // Sort
+        if (sortConfig) {
+            result.sort((a, b) => {
+                if (sortConfig.key === 'nome') {
+                    const aName = a.nome || ''
+                    const bName = b.nome || ''
+                    return sortConfig.direction === 'asc'
+                        ? aName.localeCompare(bName)
+                        : bName.localeCompare(aName)
+                }
+
+                if (sortConfig.key === 'status') {
+                    const aCheckin = a.weekly_checkins?.[a.weekly_checkins.length - 1]
+                    const bCheckin = b.weekly_checkins?.[b.weekly_checkins.length - 1]
+                    const aStatus = aCheckin ? calculateHealthStatus(aCheckin, a.sexo ?? undefined) : 'Sem Dados'
+                    const bStatus = bCheckin ? calculateHealthStatus(bCheckin, b.sexo ?? undefined) : 'Sem Dados'
+                    const statusOrder: Record<string, number> = { 'Crítico': 0, 'Atenção': 1, 'Seguro': 2, 'Sem Dados': 3 }
+                    const aOrder = statusOrder[aStatus] ?? 3
+                    const bOrder = statusOrder[bStatus] ?? 3
+                    return sortConfig.direction === 'asc' ? aOrder - bOrder : bOrder - aOrder
+                }
+
+                if (sortConfig.key === 'lastCheckin') {
+                    const aCheckin = a.weekly_checkins?.[a.weekly_checkins.length - 1]
+                    const bCheckin = b.weekly_checkins?.[b.weekly_checkins.length - 1]
+                    const aDate = aCheckin?.data || ''
+                    const bDate = bCheckin?.data || ''
+                    return sortConfig.direction === 'asc'
+                        ? aDate.localeCompare(bDate)
+                        : bDate.localeCompare(aDate)
+                }
+
+                return 0
+            })
+        }
+
+        return result
+    }, [patients, searchQuery, sortConfig])
+
+    const SortIcon = ({ columnKey }: { columnKey: 'nome' | 'status' | 'lastCheckin' }) => {
+        if (sortConfig?.key !== columnKey) return <ArrowUpDown className="h-4 w-4 ml-1 text-muted-foreground" />
+        return sortConfig.direction === 'asc'
+            ? <ArrowUp className="h-4 w-4 ml-1" />
+            : <ArrowDown className="h-4 w-4 ml-1" />
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-muted-foreground">Carregando...</div>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-6">
@@ -50,26 +157,66 @@ export default async function PatientsListPage() {
                 <p className="text-muted-foreground">Listagem completa de atletas monitorados e sua saúde atual.</p>
             </div>
 
+            {/* Search Bar */}
+            <div className="flex items-center gap-4">
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Buscar por nome ou email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                    />
+                </div>
+            </div>
+
             <Card className="overflow-hidden border-none shadow-md ring-1 ring-border">
                 <div className="bg-muted/50 p-4 border-b flex items-center justify-between">
                     <div className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                         <Users className="h-4 w-4" />
-                        {patients?.length || 0} Atletas
+                        {filteredAndSortedPatients.length} {filteredAndSortedPatients.length === 1 ? 'Atleta' : 'Atletas'}
                     </div>
                 </div>
                 <Table>
                     <TableHeader className="bg-muted/30">
                         <TableRow>
-                            <TableHead className="w-[300px]">Paciente</TableHead>
-                            <TableHead>Status Saúde</TableHead>
+                            <TableHead className="w-[300px]">
+                                <Button
+                                    variant="ghost"
+                                    className="h-auto p-0 hover:bg-transparent font-semibold"
+                                    onClick={() => handleSort('nome')}
+                                >
+                                    Paciente
+                                    <SortIcon columnKey="nome" />
+                                </Button>
+                            </TableHead>
+                            <TableHead>
+                                <Button
+                                    variant="ghost"
+                                    className="h-auto p-0 hover:bg-transparent font-semibold"
+                                    onClick={() => handleSort('status')}
+                                >
+                                    Status Saúde
+                                    <SortIcon columnKey="status" />
+                                </Button>
+                            </TableHead>
                             <TableHead>Modalidade</TableHead>
                             <TableHead>Fase</TableHead>
-                            <TableHead>Última Sincronização</TableHead>
+                            <TableHead>
+                                <Button
+                                    variant="ghost"
+                                    className="h-auto p-0 hover:bg-transparent font-semibold"
+                                    onClick={() => handleSort('lastCheckin')}
+                                >
+                                    Última Sincronização
+                                    <SortIcon columnKey="lastCheckin" />
+                                </Button>
+                            </TableHead>
                             <TableHead className="text-right">Ação</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {patients?.map((patient: any) => {
+                        {filteredAndSortedPatients.map((patient: any) => {
                             const lastCheckin = patient.weekly_checkins?.[patient.weekly_checkins.length - 1]
 
                             // Status Logic
@@ -141,12 +288,14 @@ export default async function PatientsListPage() {
                                 </TableRow>
                             )
                         })}
-                        {!patients?.length && (
+                        {filteredAndSortedPatients.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center py-20 text-muted-foreground">
+                                <TableCell colSpan={6} className="text-center py-20 text-muted-foreground">
                                     <div className="flex flex-col items-center gap-2 opacity-50">
-                                        <User className="h-10 w-10" />
-                                        <p className="font-medium">Nenhum atleta cadastrado na base.</p>
+                                        <Search className="h-10 w-10" />
+                                        <p className="font-medium">
+                                            {searchQuery ? "Nenhum paciente encontrado para esta busca." : "Nenhum atleta cadastrado na base."}
+                                        </p>
                                     </div>
                                 </TableCell>
                             </TableRow>

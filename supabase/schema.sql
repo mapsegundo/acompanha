@@ -1,22 +1,7 @@
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- Create patients table
-create table if not exists patients (
-  id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users not null,
-  email text,
-  nome text,
-  idade integer,
-  sexo text,
-  peso numeric,
-  sport_modalities_id uuid references sport_modalities(id),
-  season_phases_id uuid references season_phases(id),
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  unique(user_id)
-);
-
--- Lookup tables
+-- Lookup tables (defined first for FK references)
 create table if not exists sport_modalities (
   id uuid primary key default uuid_generate_v4(),
   nome text not null unique,
@@ -27,6 +12,21 @@ create table if not exists season_phases (
   id uuid primary key default uuid_generate_v4(),
   nome text not null unique,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Create patients table
+create table if not exists patients (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references auth.users not null,
+  email text,
+  nome text,
+  idade integer,
+  sexo text,
+  peso numeric,
+  sport_modalities_id uuid references sport_modalities(id) on delete set null,
+  season_phases_id uuid references season_phases(id) on delete set null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(user_id)
 );
 
 -- Seed sport_modalities
@@ -119,5 +119,62 @@ create policy "Patients can update own checkins"
 alter table sport_modalities enable row level security;
 alter table season_phases enable row level security;
 
+-- Everyone can view modalities and phases
 create policy "Anyone can view sport_modalities" on sport_modalities for select using (true);
 create policy "Anyone can view season_phases" on season_phases for select using (true);
+
+-- Doctors can manage sport_modalities
+create policy "Doctors can insert sport_modalities"
+  on sport_modalities for insert
+  with check (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+create policy "Doctors can update sport_modalities"
+  on sport_modalities for update
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+create policy "Doctors can delete sport_modalities"
+  on sport_modalities for delete
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+-- Doctors can manage season_phases
+create policy "Doctors can insert season_phases"
+  on season_phases for insert
+  with check (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+create policy "Doctors can update season_phases"
+  on season_phases for update
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
+
+create policy "Doctors can delete season_phases"
+  on season_phases for delete
+  using (
+    exists (
+      select 1 from doctors
+      where doctors.user_id = auth.uid()
+    )
+  );
