@@ -54,7 +54,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={`${inter.className} antialiased min-h-screen bg-background text-foreground`}>
         {children}
-        <Toaster />
+        <Toaster position="top-right" />
       </body>
     </html>
   );
