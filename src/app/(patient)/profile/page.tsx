@@ -152,7 +152,7 @@ export default function ProfilePage() {
                                 <FormItem>
                                     <FormLabel>Nome Completo</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Seu nome" {...field} />
+                                        <Input placeholder="Seu nome" {...field} className="h-12" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -167,7 +167,7 @@ export default function ProfilePage() {
                                     <FormLabel>Modalidade Esportiva</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="w-full h-12">
                                                 <SelectValue placeholder="Selecione sua modalidade" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                                     <FormItem>
                                         <FormLabel>Idade</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="Anos" {...field} />
+                                            <Input type="number" placeholder="Anos" {...field} className="h-12" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                                     <FormItem>
                                         <FormLabel>Peso (kg)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" step="0.1" placeholder="Ex: 75.5" {...field} />
+                                            <Input type="number" step="0.1" placeholder="Ex: 75.5" {...field} className="h-12" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                                     <FormLabel>Fase da Temporada</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="w-full h-12">
                                                 <SelectValue placeholder="Selecione a fase atual" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -271,7 +271,7 @@ export default function ProfilePage() {
 
                         <Button
                             type="submit"
-                            className="w-full"
+                            className="w-full h-12 font-bold uppercase tracking-tight"
                             disabled={form.formState.isSubmitting}
                         >
                             {form.formState.isSubmitting ? (

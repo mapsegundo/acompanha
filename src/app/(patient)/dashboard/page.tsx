@@ -38,8 +38,6 @@ export default async function PatientDashboard() {
         .eq('user_id', user.id)
         .single()
 
-    const isProfileIncomplete = !patient || !patient.nome || patient.nome === 'Paciente Demo' || !patient.modalidade
-
     // 3. Get Checkins
     let checkins: WeeklyCheckin[] = []
 
@@ -63,26 +61,9 @@ export default async function PatientDashboard() {
 
     return (
         <div className="space-y-6">
-            {isProfileIncomplete && (
-                <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
-                    <UserCircle className="h-5 w-5 text-orange-600" />
-                    <AlertTitle className="text-orange-800 dark:text-orange-400 font-bold">Complete seu perfil</AlertTitle>
-                    <AlertDescription className="text-orange-700 dark:text-orange-300">
-                        Para que o acompanhamento seja preciso, precisamos que você cadastre suas informações (nome, modalidade, etc.) antes de realizar o check-in.
-                        <div className="mt-3">
-                            <Link href="/profile">
-                                <Button size="sm" variant="outline" className="gap-2 border-orange-300 hover:bg-orange-100 dark:border-orange-800 dark:hover:bg-orange-900/40">
-                                    Ir para Meu Perfil <ArrowRight className="h-4 w-4" />
-                                </Button>
-                            </Link>
-                        </div>
-                    </AlertDescription>
-                </Alert>
-            )}
-
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Meus Acompanhamentos</h1>
-                <Link href={isProfileIncomplete ? "/profile" : "/checkin"}>
+                <Link href="/checkin">
                     <Button className="gap-2">
                         <Plus className="h-4 w-4" /> Novo
                     </Button>

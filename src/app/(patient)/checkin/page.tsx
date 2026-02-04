@@ -39,6 +39,7 @@ const formSchema = z.object({
     estresse: z.number().min(0).max(10),
     humor: z.number().min(0).max(10),
     duracao_treino: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
+    ciclo_menstrual_alterado: z.boolean(),
     libido: z.number().min(0).max(10),
     erecao_matinal: z.boolean(),
     lesao: z.boolean(),
@@ -68,6 +69,7 @@ function CheckinForm() {
             estresse: 5,
             humor: 5,
             duracao_treino: 0,
+            ciclo_menstrual_alterado: false,
             libido: 5,
             erecao_matinal: false,
             lesao: false,
@@ -91,10 +93,9 @@ function CheckinForm() {
                 .eq('user_id', user.id)
                 .single()
 
-            // If profile incomplete, flag it (component will redirect or show warning)
-            if (!patient || !patient.nome || patient.nome === 'Paciente Demo' || !patient.modalidade) {
-                toast.warning("Complete seu perfil para realizar o check-in.")
-                router.push('/profile') // Redirect to profile
+            if (!patient) {
+                toast.error("Perfil não encontrado.")
+                router.push('/login')
                 return
             }
 
@@ -117,6 +118,7 @@ function CheckinForm() {
                         estresse: checkin.estresse,
                         humor: checkin.humor,
                         duracao_treino: Number(checkin.duracao_treino),
+                        ciclo_menstrual_alterado: checkin.ciclo_menstrual_alterado || false,
                         libido: checkin.libido,
                         erecao_matinal: checkin.erecao_matinal,
                         lesao: checkin.lesao,
@@ -234,7 +236,7 @@ function CheckinForm() {
                                     <FormItem className="flex flex-col">
                                         <FormLabel>Data do Check-in</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} className="max-w-[200px]" />
+                                            <Input type="date" {...field} className="max-w-[200px] h-12" />
                                         </FormControl>
                                         <FormDescription>Se este check-in é de dias anteriores, ajuste a data.</FormDescription>
                                         <FormMessage />
@@ -252,7 +254,7 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Peso Atual (kg)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.1" {...field} />
+                                                <Input type="number" step="0.1" {...field} className="h-12" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -368,6 +370,24 @@ function CheckinForm() {
 
                             <FormField
                                 control={form.control}
+                                name="ciclo_menstrual_alterado"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base font-bold">Alteração recente do ciclo menstrual?</FormLabel>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
                                 name="libido"
                                 render={({ field }) => (
                                     <FormItem>
@@ -394,7 +414,7 @@ function CheckinForm() {
                                 render={({ field }) => (
                                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                         <div className="space-y-0.5">
-                                            <FormLabel className="text-base">Ereção Matinal</FormLabel>
+                                            <FormLabel className="text-base font-bold">Ereção Matinal</FormLabel>
                                             <FormDescription>
                                                 Você apresentou ereção matinal na maioria dos dias?
                                             </FormDescription>
@@ -423,7 +443,7 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Horas de Treino (7d)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.5" {...field} />
+                                                <Input type="number" step="0.5" {...field} className="h-12" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -436,7 +456,7 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Duração Média (min)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} />
+                                                <Input type="number" {...field} className="h-12" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -472,7 +492,7 @@ function CheckinForm() {
                                 render={({ field }) => (
                                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                         <div className="space-y-0.5">
-                                            <FormLabel className="text-base">Possui Lesão?</FormLabel>
+                                            <FormLabel className="text-base font-bold">Alguma lesão, dor ou incômodo?</FormLabel>
                                         </div>
                                         <FormControl>
                                             <Switch

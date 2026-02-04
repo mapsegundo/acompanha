@@ -91,7 +91,7 @@ export default function LoginPage() {
                         </p>
                         <Link href="/signup">
                             <Button variant="ghost" className="mt-2 text-blue-600 font-black hover:bg-blue-50 hover:text-blue-700">
-                                CRIAR CONTA PREMIUM
+                                CRIAR NOVA CONTA
                             </Button>
                         </Link>
                     </div>

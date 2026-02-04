@@ -19,6 +19,7 @@ interface Checkin {
     estresse: number
     humor: number
     duracao_treino: number
+    ciclo_menstrual_alterado: boolean
     libido: number
     erecao_matinal: boolean
     lesao: boolean
@@ -173,6 +174,12 @@ export function PatientCharts({ checkins }: PatientChartsProps) {
                                     <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Ereção Matinal:</span>
                                     <span className={`font-black text-xs ${checkin.erecao_matinal ? "text-green-600" : "text-slate-600"}`}>
                                         {checkin.erecao_matinal ? "SIM" : "NÃO"}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight">Alteração Ciclo:</span>
+                                    <span className={`font-black text-xs ${checkin.ciclo_menstrual_alterado ? "text-red-600" : "text-slate-600"}`}>
+                                        {checkin.ciclo_menstrual_alterado ? "SIM" : "NÃO"}
                                     </span>
                                 </div>
                             </div>

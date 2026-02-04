@@ -60,6 +60,7 @@ create table if not exists weekly_checkins (
   humor integer check (humor between 0 and 10),
   duracao_treino numeric,
   peso_variacao_30d numeric,
+  ciclo_menstrual_alterado boolean default false,
   libido integer check (libido between 0 and 10),
   erecao_matinal boolean,
   lesao boolean,

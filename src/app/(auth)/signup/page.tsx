@@ -44,43 +44,30 @@ export default function SignupPage() {
         e.preventDefault()
         setLoading(true)
 
-        // 1. Create Auth User
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        // 1. Create Auth User with Profile Data in metadata
+        // The database trigger will handle the insertion into public.patients
+        const { error: authError } = await supabase.auth.signUp({
             email,
             password,
-        })
-
-        if (authError) {
-            toast.error("Erro no cadastro", { description: authError.message })
-            setLoading(false)
-            return
-        }
-
-        const user = authData.user
-
-        if (user) {
-            // 2. Create Patient Profile
-            const { error: profileError } = await supabase
-                .from('patients')
-                .insert([{
-                    user_id: user.id,
-                    email,
+            options: {
+                data: {
                     nome,
                     idade: parseInt(idade),
                     sexo,
                     peso: parseFloat(peso),
                     sport_modalities_id: modalidadeId,
                     season_phases_id: faseId
-                }])
-
-            if (profileError) {
-                toast.error("Usuário criado, mas erro no perfil", { description: profileError.message })
-            } else {
-                toast.success("Conta criada!", {
-                    description: "Verifique seu e-mail para confirmar o cadastro."
-                })
-                setStep(3) // Success step
+                }
             }
+        })
+
+        if (authError) {
+            toast.error("Erro no cadastro", { description: authError.message })
+        } else {
+            toast.success("Conta criada!", {
+                description: "Verifique seu e-mail para confirmar o cadastro."
+            })
+            setStep(3) // Success step
         }
 
         setLoading(false)
@@ -96,7 +83,7 @@ export default function SignupPage() {
                         </div>
                     </div>
                     <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">CADASTRO</CardTitle>
-                    <CardDescription className="font-bold text-slate-500 italic">Crie sua conta premium em 2 passos rápidos</CardDescription>
+                    <CardDescription className="font-bold text-slate-500 italic">Crie sua conta em 2 passos rápidos</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {step === 1 && (
@@ -214,7 +201,7 @@ export default function SignupPage() {
                                 </p>
                             </div>
                             <div className="p-4 bg-muted/30 rounded-lg text-xs text-slate-500 leading-relaxed font-bold">
-                                Por favor, clique no link enviado para ativar sua conta premium e começar seu monitoramento completo.
+                                Por favor, clique no link enviado para ativar sua conta e começar seu monitoramento completo.
                             </div>
                             <Link href="/login" className="block w-full">
                                 <Button variant="outline" className="w-full h-12 border-slate-200 font-black text-xs rounded-xl">
