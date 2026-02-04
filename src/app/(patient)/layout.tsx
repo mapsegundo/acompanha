@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LayoutDashboard, PlusCircle, LogOut, User } from "lucide-react"
+import { Activity, ClipboardPlus, LogOut, CircleUserRound, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
@@ -23,19 +23,19 @@ export default async function PatientLayout({
                     <nav className="flex flex-col gap-2">
                         <Link href="/dashboard">
                             <Button variant="ghost" className="w-full justify-start gap-2">
-                                <LayoutDashboard className="h-4 w-4" />
+                                <Activity className="h-4 w-4 text-blue-500" />
                                 Acompanhamentos
                             </Button>
                         </Link>
                         <Link href="/checkin">
                             <Button variant="ghost" className="w-full justify-start gap-2">
-                                <PlusCircle className="h-4 w-4" />
+                                <ClipboardPlus className="h-4 w-4 text-emerald-500" />
                                 Novo Check-in
                             </Button>
                         </Link>
                         <Link href="/profile">
                             <Button variant="ghost" className="w-full justify-start gap-2">
-                                <PlusCircle className="h-4 w-4" />
+                                <CircleUserRound className="h-4 w-4 text-orange-500" />
                                 Meu Perfil
                             </Button>
                         </Link>

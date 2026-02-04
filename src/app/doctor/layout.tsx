@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { LayoutDashboard, Users, LogOut, Bell, User } from "lucide-react"
+import { Activity, Users, LogOut, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
@@ -25,7 +25,7 @@ export default async function DoctorLayout({
                     <nav className="flex flex-col gap-2">
                         <Link href="/doctor/dashboard">
                             <Button variant="ghost" className="w-full justify-start gap-3 hover:bg-slate-900 hover:text-blue-400 border-none transition-all">
-                                <LayoutDashboard className="h-4 w-4" />
+                                <Activity className="h-4 w-4 text-blue-500" />
                                 Visão Geral
                             </Button>
                         </Link>
@@ -37,7 +37,7 @@ export default async function DoctorLayout({
                         </Link>
                         <Link href="/doctor/alerts">
                             <Button variant="ghost" className="w-full justify-start gap-3 hover:bg-slate-900 hover:text-blue-400 border-none transition-all">
-                                <Bell className="h-4 w-4" />
+                                <Bell className="h-4 w-4 text-yellow-500" />
                                 Alertas
                             </Button>
                         </Link>
