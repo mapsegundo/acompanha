@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { calculateHealthStatus } from "@/lib/monitoring"
 
 interface AlertItem {
     id: string
@@ -35,7 +36,11 @@ export default async function AlertsPage() {
                 dor_muscular,
                 cansaco,
                 estresse,
-                humor
+                humor,
+                libido,
+                erecao_matinal,
+                lesao,
+                ciclo_menstrual_alterado
             )
         `)
 
@@ -50,47 +55,47 @@ export default async function AlertsPage() {
 
         const latest = recentCheckins[0] as any
 
-        // Trigger Logic
+        const status = calculateHealthStatus(latest)
 
-        // 1. Critical High Risk
-        if (latest.qualidade_sono <= 3 || latest.dor_muscular >= 8 || latest.cansaco >= 9 || latest.humor <= 3) {
+        if (status === 'Crítico') {
+            const reasons = []
+            if (latest.lesao) reasons.push('lesão/dor relatada')
+            if (latest.ciclo_menstrual_alterado) reasons.push('alteração no ciclo menstrual')
+            if (latest.qualidade_sono <= 3) reasons.push('sono péssimo')
+            if (latest.cansaco >= 9) reasons.push('cansaço extremo')
+            if (latest.dor_muscular >= 9) reasons.push('dor muscular aguda')
+            if (latest.humor <= 2) reasons.push('humor muito baixo')
+            if (latest.libido <= 2) reasons.push('libido muito baixa')
+
             activeAlerts.push({
                 id: `crit-${latest.id}`,
                 patientId: patient.id,
                 patientName: patient.nome || "Atleta",
                 type: "Risco Crítico",
                 severity: "Vermelho",
-                message: `Relatou ${latest.qualidade_sono <= 3 ? 'sono péssimo' : ''} ${latest.dor_muscular >= 8 ? 'dor muscular aguda' : ''} ${latest.cansaco >= 9 ? 'cansaço extremo' : ''} ${latest.humor <= 3 ? 'humor muito baixo' : ''}.`,
+                message: `Métricas críticas detectadas: ${reasons.join(', ')}.`,
                 date: latest.data,
                 metric: "Saúde Geral"
             })
-        }
+        } else if (status === 'Atenção') {
+            const reasons = []
+            if (latest.qualidade_sono <= 5) reasons.push('sono insuficiente')
+            if (latest.dor_muscular >= 7) reasons.push('dor persistente')
+            if (latest.cansaco >= 7) reasons.push('fadiga elevada')
+            if (latest.estresse >= 8) reasons.push('estresse alto')
+            if (latest.humor <= 4) reasons.push('humor deprimido')
+            if (latest.libido <= 5) reasons.push('libido reduzida')
+            if (latest.erecao_matinal === false) reasons.push('ausência de ereção matinal')
 
-        // 2. Stress / Mental Health warning
-        else if (latest.estresse >= 8 || latest.humor <= 5) {
             activeAlerts.push({
-                id: `ment-${latest.id}`,
+                id: `warn-${latest.id}`,
                 patientId: patient.id,
                 patientName: patient.nome || "Atleta",
-                type: "Saúde Mental",
+                type: "Atenção Necessária",
                 severity: "Amarelo",
-                message: "Níveis de estresse elevados ou humor deprimido detectados no último check-in.",
+                message: `Sinais de alerta identificados: ${reasons.join(', ')}.`,
                 date: latest.data,
-                metric: "Psicológico"
-            })
-        }
-
-        // 3. Recovery Warning
-        else if (latest.qualidade_sono <= 5 || latest.dor_muscular >= 7) {
-            activeAlerts.push({
-                id: `rec-${latest.id}`,
-                patientId: patient.id,
-                patientName: patient.nome || "Atleta",
-                type: "Recuperação Lenta",
-                severity: "Amarelo",
-                message: "Qualidade de sono abaixo da média ou dores musculares persistentes.",
-                date: latest.data,
-                metric: "Recuperação"
+                metric: "Monitoramento"
             })
         }
     })

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { format, parseISO, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { calculateHealthStatus, getBadgeVariant } from "@/lib/monitoring"
 
 export default async function DoctorDashboard() {
     const supabase = await createClient()
@@ -32,7 +33,12 @@ export default async function DoctorDashboard() {
                 qualidade_sono,
                 dor_muscular,
                 cansaco,
-                humor
+                humor,
+                estresse,
+                libido,
+                erecao_matinal,
+                lesao,
+                ciclo_menstrual_alterado
             )
         `)
         .order('created_at', { ascending: false })
@@ -51,11 +57,9 @@ export default async function DoctorDashboard() {
         if (recentCheckins && recentCheckins.length > 0) {
             patientsWithRecentCheckin++
 
-            // Logic matching the alerts page
-            const hasCritical = recentCheckins.some((c: any) =>
-                c.qualidade_sono <= 3 || c.dor_muscular >= 8 || c.cansaco >= 9 || c.humor <= 3
-            )
-            if (hasCritical) criticalAlerts++
+            // Logic matching the alerts logic
+            const status = calculateHealthStatus(recentCheckins[0])
+            if (status === 'Crítico') criticalAlerts++
         }
     })
 
@@ -137,20 +141,14 @@ export default async function DoctorDashboard() {
                                 let badgeColorClass = ""
 
                                 if (lastCheckin) {
-                                    const isCritical = lastCheckin.qualidade_sono <= 3 || lastCheckin.dor_muscular >= 8 || lastCheckin.cansaco >= 9 || lastCheckin.humor <= 3
-                                    const isWarning = lastCheckin.qualidade_sono <= 5 || lastCheckin.dor_muscular >= 6 || lastCheckin.humor <= 5
+                                    status = calculateHealthStatus(lastCheckin)
+                                    badgeVariant = getBadgeVariant(status)
 
-                                    if (isCritical) {
-                                        status = 'Crítico'
-                                        badgeVariant = 'destructive'
+                                    if (status === 'Crítico') {
                                         badgeColorClass = "bg-red-100 text-red-700 border-red-200"
-                                    } else if (isWarning) {
-                                        status = 'Atenção'
-                                        badgeVariant = 'secondary'
+                                    } else if (status === 'Atenção') {
                                         badgeColorClass = "bg-orange-100 text-orange-700 border-orange-200"
                                     } else {
-                                        status = 'Seguro'
-                                        badgeVariant = 'default'
                                         badgeColorClass = "bg-green-100 text-green-700 border-green-200"
                                     }
                                 }

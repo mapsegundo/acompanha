@@ -14,6 +14,7 @@ import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { calculateHealthStatus, getBadgeVariant } from "@/lib/monitoring"
 import { Search, MapPin, User, ArrowRight, Users } from "lucide-react"
 
 export default async function PatientsListPage() {
@@ -30,7 +31,12 @@ export default async function PatientsListPage() {
                 qualidade_sono,
                 dor_muscular,
                 cansaco,
-                humor
+                humor,
+                estresse,
+                libido,
+                erecao_matinal,
+                lesao,
+                ciclo_menstrual_alterado
             )
         `)
         .order('nome')
@@ -69,20 +75,14 @@ export default async function PatientsListPage() {
                             let badgeColorClass = ""
 
                             if (lastCheckin) {
-                                const isCritical = lastCheckin.qualidade_sono <= 3 || lastCheckin.dor_muscular >= 8 || lastCheckin.cansaco >= 9 || lastCheckin.humor <= 3
-                                const isWarning = lastCheckin.qualidade_sono <= 5 || lastCheckin.dor_muscular >= 6 || lastCheckin.humor <= 5
+                                status = calculateHealthStatus(lastCheckin)
+                                badgeVariant = getBadgeVariant(status)
 
-                                if (isCritical) {
-                                    status = 'Crítico'
-                                    badgeVariant = 'destructive'
+                                if (status === 'Crítico') {
                                     badgeColorClass = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400"
-                                } else if (isWarning) {
-                                    status = 'Atenção'
-                                    badgeVariant = 'secondary'
+                                } else if (status === 'Atenção') {
                                     badgeColorClass = "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400"
                                 } else {
-                                    status = 'Seguro'
-                                    badgeVariant = 'default'
                                     badgeColorClass = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400"
                                 }
                             }

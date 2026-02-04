@@ -2,23 +2,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Plus, Calendar, Activity, UserCircle, ArrowRight } from "lucide-react"
+import { Plus, Calendar, Activity } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
-import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert"
+import { calculateHealthStatus, getStatusColor, getBadgeVariant } from "@/lib/monitoring"
 
 interface WeeklyCheckin {
     id: string
     created_at: string
     data: string
     peso: number
-    cansaco: number
-    dor_muscular: number
     qualidade_sono: number
-    horas_treino_7d: number
+    dor_muscular: number
+    cansaco: number
+    humor: number
+    estresse: number
+    libido: number
+    erecao_matinal: boolean
     lesao: boolean
+    ciclo_menstrual_alterado?: boolean
+    horas_treino_7d: number
 }
 
 export default async function PatientDashboard() {
@@ -72,33 +77,20 @@ export default async function PatientDashboard() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {checkins.map((checkin) => {
-                    // Determine Status (This logic implies backend or edge function should calculate it)
-                    // For now, let's infer based on 'qualidade_sono' and 'dor_muscular' as simple heuristic if no explicit 'status' field,
-                    // BUT: user prompt implies there is mock with status. Database schema might not have 'status' column yet.
-                    // Let's assume we want to show raw data for now or a visual indicator.
-
-                    // Simple heuristic for UI demo if status column doesn't exist on checkin table
-                    const isGood = checkin.qualidade_sono >= 7 && checkin.dor_muscular <= 3
-                    const isBad = checkin.qualidade_sono <= 4 || checkin.dor_muscular >= 8
-
-                    const statusColor = isGood ? 'Verde' : isBad ? 'Vermelho' : 'Amarelo'
-                    const statusBadge = isGood ? 'default' : isBad ? 'destructive' : 'secondary'
-                    const borderColors = {
-                        'Verde': '#22c55e',
-                        'Amarelo': '#eab308',
-                        'Vermelho': '#ef4444'
-                    }
+                    const status = calculateHealthStatus(checkin)
+                    const statusColor = getStatusColor(status)
+                    const statusBadge = getBadgeVariant(status)
 
                     return (
-                        <Card key={checkin.id} className="hover:shadow-lg transition-shadow border-l-4"
-                            style={{ borderLeftColor: borderColors[statusColor] }}>
+                        <Card key={checkin.id} className="hover:shadow-lg transition-all border-l-4"
+                            style={{ borderLeftColor: statusColor }}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
                                     {format(parseISO(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
                                 </CardTitle>
-                                <Badge variant={statusBadge}>
-                                    {statusColor}
+                                <Badge variant={statusBadge} className="font-bold uppercase tracking-widest text-[10px]">
+                                    {status}
                                 </Badge>
                             </CardHeader>
                             <CardContent>
@@ -112,7 +104,7 @@ export default async function PatientDashboard() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Treino: {checkin.horas_treino_7d}h</span>
-                                        {checkin.lesao && <span className="text-red-500 font-semibold">Lesão Relatada</span>}
+                                        {checkin.lesao && <span className="text-red-500 font-semibold truncate">Lesão/Incômodo</span>}
                                     </div>
                                 </div>
                                 <div className="mt-4 pt-4 border-t flex justify-end">
