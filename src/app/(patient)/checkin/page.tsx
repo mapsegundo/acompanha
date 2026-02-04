@@ -39,11 +39,11 @@ const formSchema = z.object({
     estresse: z.number().min(0).max(10),
     humor: z.number().min(0).max(10),
     duracao_treino: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
-    ciclo_menstrual_alterado: z.boolean().nullable().optional(),
+    ciclo_menstrual_alterado: z.boolean(),
     libido: z.number().min(0).max(10),
-    erecao_matinal: z.boolean().nullable().optional(),
-    lesao: z.boolean().nullable().optional(),
-    local_lesao: z.string().optional().nullable(),
+    erecao_matinal: z.boolean(),
+    lesao: z.boolean(),
+    local_lesao: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -298,10 +298,10 @@ function CheckinForm() {
                                             <FormControl>
                                                 <Slider
                                                     min={0} max={10} step={1}
-                                                    value={[field.value]}
+                                                    value={[field.value || 5]}
                                                     onValueChange={(vals) => field.onChange(vals[0])}
                                                     className="py-4"
-                                                    rangeClassName={getRangeColor(field.value, true)}
+                                                    rangeClassName={getRangeColor(field.value || 5, true)}
                                                 />
                                             </FormControl>
                                             <div className="flex justify-between text-xs text-muted-foreground px-1">
@@ -326,10 +326,10 @@ function CheckinForm() {
                                             <FormControl>
                                                 <Slider
                                                     min={0} max={10} step={1}
-                                                    value={[field.value]}
+                                                    value={[field.value ?? 5]}
                                                     onValueChange={(vals) => field.onChange(vals[0])}
                                                     className="py-4"
-                                                    rangeClassName={getRangeColor(field.value, false)}
+                                                    rangeClassName={getRangeColor(field.value ?? 5, false)}
                                                 />
                                             </FormControl>
                                             <div className="flex justify-between text-xs text-muted-foreground px-1">
@@ -359,7 +359,13 @@ function CheckinForm() {
                                             </span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, false)} />
+                                            <Slider
+                                                min={0} max={10} step={1}
+                                                value={[field.value ?? 5]}
+                                                onValueChange={(v) => field.onChange(v[0])}
+                                                className="py-4"
+                                                rangeClassName={getRangeColor(field.value ?? 5, false)}
+                                            />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Baixo</span><span>Muito Alto</span>
@@ -381,7 +387,13 @@ function CheckinForm() {
                                             </span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, true)} />
+                                            <Slider
+                                                min={0} max={10} step={1}
+                                                value={[field.value ?? 5]}
+                                                onValueChange={(v) => field.onChange(v[0])}
+                                                className="py-4"
+                                                rangeClassName={getRangeColor(field.value ?? 5, true)}
+                                            />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Deprimido</span><span>Feliz</span>
@@ -402,7 +414,7 @@ function CheckinForm() {
                                             </div>
                                             <FormControl>
                                                 <Switch
-                                                    checked={field.value}
+                                                    checked={!!field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
                                             </FormControl>
@@ -423,7 +435,13 @@ function CheckinForm() {
                                             </span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, true)} />
+                                            <Slider
+                                                min={0} max={10} step={1}
+                                                value={[field.value ?? 5]}
+                                                onValueChange={(v) => field.onChange(v[0])}
+                                                className="py-4"
+                                                rangeClassName={getRangeColor(field.value ?? 5, true)}
+                                            />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Baixa</span><span>Alta</span>
@@ -447,7 +465,7 @@ function CheckinForm() {
                                             </div>
                                             <FormControl>
                                                 <Switch
-                                                    checked={field.value}
+                                                    checked={!!field.value}
                                                     onCheckedChange={field.onChange}
                                                 />
                                             </FormControl>
@@ -503,7 +521,13 @@ function CheckinForm() {
                                             </span>
                                         </FormLabel>
                                         <FormControl>
-                                            <Slider min={0} max={10} step={1} value={[field.value]} onValueChange={(v) => field.onChange(v[0])} className="py-4" rangeClassName={getRangeColor(field.value, false)} />
+                                            <Slider
+                                                min={0} max={10} step={1}
+                                                value={[field.value ?? 0]}
+                                                onValueChange={(v) => field.onChange(v[0])}
+                                                className="py-4"
+                                                rangeClassName={getRangeColor(field.value ?? 0, false)}
+                                            />
                                         </FormControl>
                                         <div className="flex justify-between text-xs text-muted-foreground">
                                             <span>Sem Dor</span><span>Muita Dor</span>
@@ -523,7 +547,7 @@ function CheckinForm() {
                                         </div>
                                         <FormControl>
                                             <Switch
-                                                checked={field.value}
+                                                checked={!!field.value}
                                                 onCheckedChange={field.onChange}
                                             />
                                         </FormControl>
