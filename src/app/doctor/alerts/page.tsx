@@ -17,6 +17,15 @@ interface AlertItem {
     message: string
     date: string
     metric: string
+    details?: {
+        sono: number
+        cansaco: number
+        estresse: number
+        humor: number
+        dor: number
+        libido: number
+        lesao: boolean
+    }
 }
 
 export default async function AlertsPage() {
@@ -60,13 +69,35 @@ export default async function AlertsPage() {
 
         if (status === 'Crítico') {
             const reasons = []
-            if (latest.lesao) reasons.push('lesão/dor relatada')
-            if (latest.ciclo_menstrual_alterado && patient.sexo === 'F') reasons.push('alteração no ciclo menstrual')
-            if (latest.qualidade_sono <= 3) reasons.push('sono péssimo')
-            if (latest.cansaco >= 9) reasons.push('cansaço extremo')
-            if (latest.dor_muscular >= 9) reasons.push('dor muscular aguda')
-            if (latest.humor <= 2) reasons.push('humor muito baixo')
-            if (latest.libido <= 2) reasons.push('libido muito baixa')
+            const metrics = []
+            if (latest.lesao) {
+                reasons.push('lesão/dor relatada')
+                metrics.push({ label: 'Lesão', value: 'Sim', critical: true })
+            }
+            if (latest.ciclo_menstrual_alterado && patient.sexo === 'F') {
+                reasons.push('alteração no ciclo menstrual')
+                metrics.push({ label: 'Ciclo Alterado', value: 'Sim', critical: true })
+            }
+            if (latest.qualidade_sono <= 3) {
+                reasons.push('sono péssimo')
+                metrics.push({ label: 'Sono', value: `${latest.qualidade_sono}/10`, critical: true })
+            }
+            if (latest.cansaco >= 9) {
+                reasons.push('cansaço extremo')
+                metrics.push({ label: 'Cansaço', value: `${latest.cansaco}/10`, critical: true })
+            }
+            if (latest.dor_muscular >= 9) {
+                reasons.push('dor muscular aguda')
+                metrics.push({ label: 'Dor', value: `${latest.dor_muscular}/10`, critical: true })
+            }
+            if (latest.humor <= 2) {
+                reasons.push('humor muito baixo')
+                metrics.push({ label: 'Humor', value: `${latest.humor}/10`, critical: true })
+            }
+            if (latest.libido <= 2) {
+                reasons.push('libido muito baixa')
+                metrics.push({ label: 'Libido', value: `${latest.libido}/10`, critical: true })
+            }
 
             activeAlerts.push({
                 id: `crit-${latest.id}`,
@@ -76,17 +107,48 @@ export default async function AlertsPage() {
                 severity: "Vermelho",
                 message: `Métricas críticas detectadas: ${reasons.join(', ')}.`,
                 date: latest.data,
-                metric: "Saúde Geral"
+                metric: "Saúde Geral",
+                details: {
+                    sono: latest.qualidade_sono,
+                    cansaco: latest.cansaco,
+                    estresse: latest.estresse,
+                    humor: latest.humor,
+                    dor: latest.dor_muscular,
+                    libido: latest.libido,
+                    lesao: latest.lesao
+                }
             })
         } else if (status === 'Atenção') {
             const reasons = []
-            if (latest.qualidade_sono <= 5) reasons.push('sono insuficiente')
-            if (latest.dor_muscular >= 7) reasons.push('dor persistente')
-            if (latest.cansaco >= 7) reasons.push('fadiga elevada')
-            if (latest.estresse >= 8) reasons.push('estresse alto')
-            if (latest.humor <= 4) reasons.push('humor deprimido')
-            if (latest.libido <= 5) reasons.push('libido reduzida')
-            if (latest.erecao_matinal === false && patient.sexo === 'M') reasons.push('ausência de ereção matinal')
+            const metrics = []
+            if (latest.qualidade_sono <= 5) {
+                reasons.push('sono insuficiente')
+                metrics.push({ label: 'Sono', value: `${latest.qualidade_sono}/10`, critical: false })
+            }
+            if (latest.dor_muscular >= 7) {
+                reasons.push('dor persistente')
+                metrics.push({ label: 'Dor', value: `${latest.dor_muscular}/10`, critical: false })
+            }
+            if (latest.cansaco >= 7) {
+                reasons.push('fadiga elevada')
+                metrics.push({ label: 'Cansaço', value: `${latest.cansaco}/10`, critical: false })
+            }
+            if (latest.estresse >= 8) {
+                reasons.push('estresse alto')
+                metrics.push({ label: 'Estresse', value: `${latest.estresse}/10`, critical: false })
+            }
+            if (latest.humor <= 4) {
+                reasons.push('humor deprimido')
+                metrics.push({ label: 'Humor', value: `${latest.humor}/10`, critical: false })
+            }
+            if (latest.libido <= 5) {
+                reasons.push('libido reduzida')
+                metrics.push({ label: 'Libido', value: `${latest.libido}/10`, critical: false })
+            }
+            if (latest.erecao_matinal === false && patient.sexo === 'M') {
+                reasons.push('ausência de ereção matinal')
+                metrics.push({ label: 'Ereção Matinal', value: 'Não', critical: false })
+            }
 
             activeAlerts.push({
                 id: `warn-${latest.id}`,
@@ -96,7 +158,16 @@ export default async function AlertsPage() {
                 severity: "Amarelo",
                 message: `Sinais de alerta identificados: ${reasons.join(', ')}.`,
                 date: latest.data,
-                metric: "Monitoramento"
+                metric: "Monitoramento",
+                details: {
+                    sono: latest.qualidade_sono,
+                    cansaco: latest.cansaco,
+                    estresse: latest.estresse,
+                    humor: latest.humor,
+                    dor: latest.dor_muscular,
+                    libido: latest.libido,
+                    lesao: latest.lesao
+                }
             })
         }
     })

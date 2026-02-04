@@ -54,13 +54,16 @@ export default async function DoctorDashboard() {
     let patientsWithRecentCheckin = 0
 
     allPatients?.forEach((patient: any) => {
+        // Sort check-ins by date descending to get most recent first
+        const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
+
         // Find latest check-in in the last 7 days
-        const recentCheckins = patient.weekly_checkins?.filter((c: any) => c.data >= sevenDaysAgo.split('T')[0])
+        const recentCheckins = sortedCheckins.filter((c: any) => c.data >= sevenDaysAgo.split('T')[0])
 
         if (recentCheckins && recentCheckins.length > 0) {
             patientsWithRecentCheckin++
 
-            // Logic matching the alerts logic
+            // Logic matching the alerts logic - use the MOST RECENT check-in
             const status = calculateHealthStatus(recentCheckins[0], patient.sexo)
             if (status === 'Crítico') criticalAlerts++
         }
@@ -137,7 +140,9 @@ export default async function DoctorDashboard() {
                         </TableHeader>
                         <TableBody>
                             {patients.map((patient: any) => {
-                                const lastCheckin = patient.weekly_checkins?.[patient.weekly_checkins.length - 1]
+                                // Sort check-ins to get the MOST RECENT first
+                                const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
+                                const lastCheckin = sortedCheckins[0]
 
                                 // Status Logic matching Patients list
                                 let status: 'Crítico' | 'Atenção' | 'Seguro' | 'Sem Dados' = 'Sem Dados'

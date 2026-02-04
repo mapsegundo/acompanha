@@ -58,23 +58,30 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                 {/* Wellbeing Radar/Line Chart */}
                 <Card className="col-span-2 lg:col-span-1">
                     <CardHeader>
-                        <CardTitle>Bem-estar e Subjetivos (0-10)</CardTitle>
-                        <CardDescription>Monitoramento de qualidade de vida e recuperação.</CardDescription>
+                        <CardTitle>Bem-estar e Subjetivos</CardTitle>
+                        <CardDescription>Escala 0-10: valores altos = melhor para Sono/Humor/Libido, valores baixos = melhor para Cansaço/Estresse/Dor.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={subjectiveConfig} className="min-h-[300px] w-full">
-                            <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                            <LineChart data={data} margin={{ top: 10, right: 10, left: 5, bottom: 0 }}>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                                 <XAxis dataKey="formattedDate" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis domain={[0, 10]} hide />
+                                <YAxis
+                                    domain={[0, 10]}
+                                    ticks={[0, 2, 4, 6, 8, 10]}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    fontSize={11}
+                                    tickFormatter={(value) => `${value}`}
+                                />
                                 <ChartTooltip content={<ChartTooltipContent />} />
                                 <Legend />
-                                <Line type="monotone" dataKey="qualidade_sono" stroke="var(--color-qualidade_sono)" strokeWidth={2} dot={false} />
-                                <Line type="monotone" dataKey="cansaco" stroke="var(--color-cansaco)" strokeWidth={2} dot={false} />
-                                <Line type="monotone" dataKey="estresse" stroke="var(--color-estresse)" strokeWidth={2} dot={false} />
-                                <Line type="monotone" dataKey="humor" stroke="var(--color-humor)" strokeWidth={2} dot={false} />
-                                <Line type="monotone" dataKey="dor_muscular" stroke="var(--color-dor_muscular)" strokeWidth={2} dot={false} />
-                                <Line type="monotone" dataKey="libido" stroke="var(--color-libido)" strokeWidth={2} dot={false} />
+                                <Line type="monotone" dataKey="qualidade_sono" stroke="var(--color-qualidade_sono)" strokeWidth={2} dot={false} name="Sono" />
+                                <Line type="monotone" dataKey="cansaco" stroke="var(--color-cansaco)" strokeWidth={2} dot={false} name="Cansaço" />
+                                <Line type="monotone" dataKey="estresse" stroke="var(--color-estresse)" strokeWidth={2} dot={false} name="Estresse" />
+                                <Line type="monotone" dataKey="humor" stroke="var(--color-humor)" strokeWidth={2} dot={false} name="Humor" />
+                                <Line type="monotone" dataKey="dor_muscular" stroke="var(--color-dor_muscular)" strokeWidth={2} dot={false} name="Dor" />
+                                <Line type="monotone" dataKey="libido" stroke="var(--color-libido)" strokeWidth={2} dot={false} name="Libido" />
                             </LineChart>
                         </ChartContainer>
                     </CardContent>
@@ -88,11 +95,29 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={physicalConfig} className="min-h-[300px] w-full">
-                            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 0 }}>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                                 <XAxis dataKey="formattedDate" tickLine={false} axisLine={false} tickMargin={8} />
-                                <YAxis yAxisId="left" orientation="left" stroke="var(--color-peso)" domain={['dataMin - 1', 'dataMax + 1']} hide />
-                                <YAxis yAxisId="right" orientation="right" stroke="var(--color-horas_treino_7d)" hide />
+                                <YAxis
+                                    yAxisId="left"
+                                    orientation="left"
+                                    stroke="var(--color-peso)"
+                                    domain={['dataMin - 2', 'dataMax + 2']}
+                                    tickFormatter={(value) => `${value}kg`}
+                                    fontSize={11}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
+                                <YAxis
+                                    yAxisId="right"
+                                    orientation="right"
+                                    stroke="var(--color-horas_treino_7d)"
+                                    domain={[0, 'dataMax + 5']}
+                                    tickFormatter={(value) => `${value}h`}
+                                    fontSize={11}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
                                 <ChartTooltip content={<ChartTooltipContent />} />
                                 <Legend />
                                 <Bar yAxisId="left" dataKey="peso" fill="var(--color-peso)" radius={[4, 4, 0, 0]} name="Peso (kg)" />
