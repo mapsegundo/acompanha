@@ -298,10 +298,10 @@ function CheckinForm() {
                                             <FormControl>
                                                 <Slider
                                                     min={0} max={10} step={1}
-                                                    value={[field.value || 5]}
+                                                    value={[field.value ?? 5]}
                                                     onValueChange={(vals) => field.onChange(vals[0])}
                                                     className="py-4"
-                                                    rangeClassName={getRangeColor(field.value || 5, true)}
+                                                    rangeClassName={getRangeColor(field.value ?? 5, true)}
                                                 />
                                             </FormControl>
                                             <div className="flex justify-between text-xs text-muted-foreground px-1">

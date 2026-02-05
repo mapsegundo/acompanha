@@ -127,104 +127,106 @@ export default async function DoctorDashboard() {
                 </div>
 
                 <Card className="overflow-hidden border-none shadow-sm ring-1 ring-border">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="w-[250px]">Paciente</TableHead>
-                                <TableHead>Status Saúde</TableHead>
-                                <TableHead>Modalidade</TableHead>
-                                <TableHead>Fase</TableHead>
-                                <TableHead>Última Sincronização</TableHead>
-                                <TableHead className="text-right">Ação</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {patients.map((patient: any) => {
-                                // Sort check-ins to get the MOST RECENT first
-                                const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
-                                const lastCheckin = sortedCheckins[0]
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader className="bg-muted/50">
+                                <TableRow>
+                                    <TableHead className="w-[200px] min-w-[180px]">Paciente</TableHead>
+                                    <TableHead className="min-w-[100px]">Status</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Modalidade</TableHead>
+                                    <TableHead className="hidden md:table-cell">Fase</TableHead>
+                                    <TableHead className="hidden lg:table-cell">Última Sincronização</TableHead>
+                                    <TableHead className="text-right min-w-[100px]">Ação</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {patients.map((patient: any) => {
+                                    // Sort check-ins to get the MOST RECENT first
+                                    const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
+                                    const lastCheckin = sortedCheckins[0]
 
-                                // Status Logic matching Patients list
-                                let status: 'Crítico' | 'Atenção' | 'Seguro' | 'Sem Dados' = 'Sem Dados'
-                                let badgeVariant: 'destructive' | 'secondary' | 'default' | 'outline' = 'outline'
-                                let badgeColorClass = ""
+                                    // Status Logic matching Patients list
+                                    let status: 'Crítico' | 'Atenção' | 'Seguro' | 'Sem Dados' = 'Sem Dados'
+                                    let badgeVariant: 'destructive' | 'secondary' | 'default' | 'outline' = 'outline'
+                                    let badgeColorClass = ""
 
-                                if (lastCheckin) {
-                                    status = calculateHealthStatus(lastCheckin, patient.sexo)
-                                    badgeVariant = getBadgeVariant(status)
+                                    if (lastCheckin) {
+                                        status = calculateHealthStatus(lastCheckin, patient.sexo)
+                                        badgeVariant = getBadgeVariant(status)
 
-                                    if (status === 'Crítico') {
-                                        badgeColorClass = "bg-red-100 text-red-700 border-red-200"
-                                    } else if (status === 'Atenção') {
-                                        badgeColorClass = "bg-orange-100 text-orange-700 border-orange-200"
-                                    } else {
-                                        badgeColorClass = "bg-green-100 text-green-700 border-green-200"
+                                        if (status === 'Crítico') {
+                                            badgeColorClass = "bg-red-100 text-red-700 border-red-200"
+                                        } else if (status === 'Atenção') {
+                                            badgeColorClass = "bg-orange-100 text-orange-700 border-orange-200"
+                                        } else {
+                                            badgeColorClass = "bg-green-100 text-green-700 border-green-200"
+                                        }
                                     }
-                                }
 
-                                return (
-                                    <TableRow key={patient.id} className="hover:bg-muted/30 transition-colors group">
-                                        <TableCell className="font-medium">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-9 w-9 border border-border">
-                                                    <AvatarFallback className="bg-blue-50 text-blue-600 text-xs font-bold">
-                                                        {patient.nome?.substring(0, 2).toUpperCase() || 'P'}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-slate-900">{patient.nome || 'Sem Nome'}</span>
-                                                    <span className="text-xs text-muted-foreground font-normal">{patient.email}</span>
+                                    return (
+                                        <TableRow key={patient.id} className="hover:bg-muted/30 transition-colors group">
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-2 sm:gap-3">
+                                                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border border-border shrink-0">
+                                                        <AvatarFallback className="bg-blue-50 text-blue-600 text-xs font-bold">
+                                                            {patient.nome?.substring(0, 2).toUpperCase() || 'P'}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-sm font-bold text-slate-900 truncate">{patient.nome || 'Sem Nome'}</span>
+                                                        <span className="text-xs text-muted-foreground font-normal truncate hidden sm:block">{patient.email}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={badgeVariant === 'default' ? 'outline' : badgeVariant} className={`rounded-full px-3 py-0.5 text-[10px] uppercase font-black tracking-widest ${badgeColorClass}`}>
-                                                {status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-slate-600 font-medium">{patient.sport_modalities?.nome || '-'}</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-md">
-                                                {patient.season_phases?.nome || '-'}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-slate-700">
-                                                    {lastCheckin ? format(parseISO(lastCheckin.data), "dd/MM/yyyy") : 'Pendente'}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant={badgeVariant === 'default' ? 'outline' : badgeVariant} className={`rounded-full px-2 sm:px-3 py-0.5 text-[9px] sm:text-[10px] uppercase font-black tracking-wide sm:tracking-widest ${badgeColorClass}`}>
+                                                    {status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden sm:table-cell">
+                                                <span className="text-sm text-slate-600 font-medium">{patient.sport_modalities?.nome || '-'}</span>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">
+                                                <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-md">
+                                                    {patient.season_phases?.nome || '-'}
                                                 </span>
-                                                {lastCheckin && (
-                                                    <span className="text-[10px] text-muted-foreground uppercase font-bold">
-                                                        {format(parseISO(lastCheckin.data), "EEEE", { locale: ptBR })}
+                                            </TableCell>
+                                            <TableCell className="hidden lg:table-cell">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-semibold text-slate-700">
+                                                        {lastCheckin ? format(parseISO(lastCheckin.data), "dd/MM/yyyy") : 'Pendente'}
                                                     </span>
-                                                )}
+                                                    {lastCheckin && (
+                                                        <span className="text-[10px] text-muted-foreground uppercase font-bold">
+                                                            {format(parseISO(lastCheckin.data), "EEEE", { locale: ptBR })}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Link href={`/doctor/patients/${patient.id}`}>
+                                                    <Button variant="ghost" size="sm" className="group-hover:bg-blue-50 group-hover:text-blue-600 font-bold text-xs gap-1 sm:gap-2 transition-all px-2 sm:px-3">
+                                                        <span className="hidden sm:inline">Ver</span>
+                                                        <ArrowRight className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </Link>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                                {!patients?.length && (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <User className="h-8 w-8 opacity-20" />
+                                                <p>Nenhum paciente encontrado.</p>
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Link href={`/doctor/patients/${patient.id}`}>
-                                                <Button variant="ghost" size="sm" className="group-hover:bg-blue-50 group-hover:text-blue-600 font-bold text-xs gap-2 transition-all">
-                                                    Visualizar Prontuário
-                                                    <ArrowRight className="h-3.5 w-3.5" />
-                                                </Button>
-                                            </Link>
                                         </TableCell>
                                     </TableRow>
-                                )
-                            })}
-                            {!patients?.length && (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <User className="h-8 w-8 opacity-20" />
-                                            <p>Nenhum paciente encontrado.</p>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </Card>
             </div>
         </div>

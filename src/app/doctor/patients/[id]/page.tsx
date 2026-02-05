@@ -82,35 +82,39 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
     const phaseName = patient.season_phases?.nome || "Sem fase"
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
+        <div className="space-y-6">
+            {/* Header - Mobile First */}
+            <div className="space-y-4">
+                <div className="flex items-start gap-3">
                     <Link href="/doctor/patients">
-                        <Button variant="outline" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
+                        <Button variant="outline" size="icon" className="shrink-0 mt-1"><ArrowLeft className="h-4 w-4" /></Button>
                     </Link>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
                             {patient.nome || "Paciente Sem Nome"}
-                            <Badge variant="outline" className="text-sm font-normal text-muted-foreground">
+                        </h1>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
                                 <Target className="h-3 w-3 mr-1" />
                                 {modalityName}
                             </Badge>
-                            <Badge variant="secondary" className="text-sm font-normal">
+                            <Badge variant="secondary" className="text-xs font-normal">
                                 <Calendar className="h-3 w-3 mr-1" />
                                 {phaseName}
                             </Badge>
-                        </h1>
-                        <p className="text-muted-foreground flex items-center gap-2 text-sm mt-1">
-                            <User className="h-4 w-4" /> {patient.email}
-                            <span className="mx-2">•</span>
-                            Idade: {patient.idade || "N/A"}
-                            <span className="mx-2">•</span>
-                            Peso: {patient.peso ? `${patient.peso} kg` : "N/A"}
-                        </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground mt-2">
+                            <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" /> {patient.email}
+                            </span>
+                            <span>•</span>
+                            <span>Idade: {patient.idade || "N/A"}</span>
+                            <span>•</span>
+                            <span>Peso: {patient.peso ? `${patient.peso}kg` : "N/A"}</span>
+                        </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex">
                     <ReportButton
                         patient={{
                             nome: patient.nome || "Paciente",

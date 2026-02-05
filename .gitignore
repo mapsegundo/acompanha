@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/testsprite_tests
+PRD.md
 
 # next.js
 /.next/

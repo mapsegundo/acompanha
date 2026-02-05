@@ -180,62 +180,62 @@ export default async function AlertsPage() {
     })
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900 italic">Alertas Clínicos</h1>
-                <p className="text-muted-foreground mt-1 font-medium italic">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 italic">Alertas Clínicos</h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1 font-medium italic">
                     Eventos detectados nos últimos 7 dias que requerem intervenção ou monitoramento próximo.
                 </p>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4">
                 {activeAlerts.map((alert) => (
-                    <Card key={alert.id} className={`overflow-hidden transition-all hover:shadow-lg border-l-8 ${alert.severity === 'Vermelho'
+                    <Card key={alert.id} className={`overflow-hidden transition-all hover:shadow-lg border-l-4 sm:border-l-8 ${alert.severity === 'Vermelho'
                         ? 'border-l-red-600 bg-red-50/40 dark:bg-red-950/20 shadow-red-100/50 dark:shadow-none'
                         : 'border-l-orange-500 bg-orange-50/40 dark:bg-orange-950/20 shadow-orange-100/50 dark:shadow-none'
                         }`}>
-                        <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div className="flex gap-5 items-start">
-                                <div className={`p-3 rounded-2xl hidden sm:flex items-center justify-center shrink-0 ${alert.severity === 'Vermelho' ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-orange-500 text-white shadow-lg shadow-orange-200'
+                        <div className="p-4 sm:p-6 flex flex-col gap-4">
+                            <div className="flex gap-3 sm:gap-5 items-start">
+                                <div className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${alert.severity === 'Vermelho' ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-orange-500 text-white shadow-lg shadow-orange-200'
                                     }`}>
-                                    {alert.severity === 'Vermelho' ? <Zap className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
+                                    {alert.severity === 'Vermelho' ? <Zap className="h-4 w-4 sm:h-6 sm:w-6" /> : <AlertTriangle className="h-4 w-4 sm:h-6 sm:w-6" />}
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-3">
-                                        <h3 className={`font-black text-xl tracking-tight ${alert.severity === 'Vermelho' ? 'text-red-900' : 'text-orange-900'}`}>
+                                <div className="space-y-2 flex-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                        <h3 className={`font-black text-base sm:text-xl tracking-tight ${alert.severity === 'Vermelho' ? 'text-red-900' : 'text-orange-900'}`}>
                                             {alert.type.toUpperCase()}
                                         </h3>
-                                        <Badge variant={alert.severity === 'Vermelho' ? 'destructive' : 'secondary'} className={`h-6 text-[10px] px-2 uppercase font-black tracking-widest ${alert.severity === 'Amarelo' ? 'bg-orange-200 text-orange-900 border-orange-300' : ''
+                                        <Badge variant={alert.severity === 'Vermelho' ? 'destructive' : 'secondary'} className={`h-5 sm:h-6 text-[9px] sm:text-[10px] px-1.5 sm:px-2 uppercase font-black tracking-wide sm:tracking-widest ${alert.severity === 'Amarelo' ? 'bg-orange-200 text-orange-900 border-orange-300' : ''
                                             }`}>
                                             {alert.severity === 'Vermelho' ? 'CRÍTICO' : 'ATENÇÃO'}
                                         </Badge>
                                     </div>
-                                    <p className="text-sm text-slate-700 leading-relaxed font-bold max-w-xl">
+                                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-bold">
                                         {alert.message}
                                     </p>
-                                    <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-xs pt-2">
-                                        <span className={`inline-flex items-center gap-1.5 font-black uppercase tracking-wider ${alert.severity === 'Vermelho' ? 'text-red-600' : 'text-orange-600'
+                                    <div className="flex flex-wrap items-center gap-y-1 gap-x-3 sm:gap-x-5 text-[10px] sm:text-xs pt-1 sm:pt-2">
+                                        <span className={`inline-flex items-center gap-1 sm:gap-1.5 font-black uppercase tracking-wider ${alert.severity === 'Vermelho' ? 'text-red-600' : 'text-orange-600'
                                             }`}>
-                                            <Activity className="h-3.5 w-3.5" /> {alert.metric}
+                                            <Activity className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> {alert.metric}
                                         </span>
-                                        <span className="flex items-center gap-1.5 text-slate-500 font-bold">
-                                            <Calendar className="h-3.5 w-3.5" /> {format(parseISO(alert.date), "dd 'de' MMMM", { locale: ptBR })}
+                                        <span className="flex items-center gap-1 sm:gap-1.5 text-slate-500 font-bold">
+                                            <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> {format(parseISO(alert.date), "dd/MM", { locale: ptBR })}
                                         </span>
-                                        <span className="flex items-center gap-1.5 text-slate-500 font-bold">
-                                            <User className="h-3.5 w-3.5" /> ATLETA: <span className="text-slate-900 underline decoration-slate-300 decoration-2 underline-offset-4 font-black">{alert.patientName.toUpperCase()}</span>
+                                        <span className="flex items-center gap-1 sm:gap-1.5 text-slate-500 font-bold">
+                                            <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="text-slate-900 font-black truncate max-w-[100px] sm:max-w-none">{alert.patientName}</span>
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:self-end">
                                 <Link href={`/doctor/patients/${alert.patientId}`}>
-                                    <Button variant="default" size="sm" className={`w-full sm:w-auto px-6 font-black gap-2 h-11 transition-all hover:scale-105 ${alert.severity === 'Vermelho' ? 'bg-red-600 hover:bg-red-700 shadow-md shadow-red-200' : 'bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-200'
+                                    <Button variant="default" size="sm" className={`w-full sm:w-auto px-4 sm:px-6 font-black gap-2 h-9 sm:h-11 text-xs sm:text-sm transition-all hover:scale-105 ${alert.severity === 'Vermelho' ? 'bg-red-600 hover:bg-red-700 shadow-md shadow-red-200' : 'bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-200'
                                         }`}>
-                                        ANALISAR PRONTUÁRIO
-                                        <ArrowRight className="h-4 w-4" />
+                                        VER PRONTUÁRIO
+                                        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                     </Button>
                                 </Link>
-                                <Button variant="ghost" size="sm" className="w-full sm:w-auto font-bold text-slate-500 hover:bg-slate-100 h-11">
+                                <Button variant="ghost" size="sm" className="w-full sm:w-auto font-bold text-slate-500 hover:bg-slate-100 h-9 sm:h-11 text-xs sm:text-sm">
                                     IGNORAR
                                 </Button>
                             </div>
