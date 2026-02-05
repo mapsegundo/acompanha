@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useId } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { Activity, Users, Bell, Settings, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,9 @@ interface MobileSidebarProps {
 
 export function MobileSidebar({ children }: MobileSidebarProps) {
     const [open, setOpen] = useState(false)
-    const sheetId = useId()
 
     return (
-        <Sheet open={open} onOpenChange={setOpen} key={sheetId}>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <Button
                     variant="ghost"
