@@ -54,6 +54,7 @@ export default function SignupPage() {
             email,
             password,
             options: {
+                captchaToken: captchaToken || undefined,
                 data: {
                     nome,
                     idade: parseInt(idade),
