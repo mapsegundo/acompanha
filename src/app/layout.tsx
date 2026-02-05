@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Acompanha",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image-v2.png",
         width: 1200,
         height: 630,
         alt: "Acompanha Dashboard",
@@ -41,7 +41,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Acompanha - Monitoramento Clínico",
     description: "Monitoramento longitudinal de indicadores de saúde e performance.",
-    images: ["/og-image.png"],
+    images: ["/og-image-v2.png"],
+  },
+  other: {
+    "fb:app_id": "966242223397117", // Optional: Replace with your actual Facebook App ID
   },
 };
 
