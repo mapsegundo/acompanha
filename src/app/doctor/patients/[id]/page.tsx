@@ -53,50 +53,62 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
     return (
         <div className="space-y-6">
-            {/* Header - Mobile First */}
-            <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                    <Link href="/doctor/patients">
-                        <Button variant="outline" size="icon" className="shrink-0 mt-1"><ArrowLeft className="h-4 w-4" /></Button>
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-                            {patient.nome || "Paciente Sem Nome"}
-                        </h1>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-                                <Target className="h-3 w-3 mr-1" />
-                                {modalityName}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs font-normal">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {phaseName}
-                            </Badge>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground mt-2">
-                            <span className="flex items-center gap-1">
-                                <User className="h-3 w-3" /> {patient.email}
-                            </span>
-                            <span>•</span>
-                            <span>Idade: {patient.idade || "N/A"}</span>
-                            <span>•</span>
-                            <span>Peso: {patient.peso ? `${patient.peso}kg` : "N/A"}</span>
+            {/* Header - Premium Redesign */}
+            <div className="bg-white border rounded-xl p-4 sm:p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                        <Link href="/doctor/patients" className="mt-1">
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-slate-100 transition-colors">
+                                <ArrowLeft className="h-5 w-5 text-slate-600" />
+                            </Button>
+                        </Link>
+                        <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                                    {patient.nome || "Paciente Sem Nome"}
+                                </h1>
+                                <div className="flex gap-2">
+                                    <Badge variant="outline" className="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-slate-200">
+                                        <Target className="h-3 w-3 mr-1" />
+                                        {modalityName}
+                                    </Badge>
+                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-100 text-[10px] font-bold uppercase tracking-wider">
+                                        <Calendar className="h-3 w-3 mr-1" />
+                                        {phaseName}
+                                    </Badge>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 font-medium">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="p-1 bg-slate-100 rounded-md">
+                                        <User className="h-3.5 w-3.5" />
+                                    </div>
+                                    {patient.email}
+                                </div>
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100 italic">
+                                    <span>{patient.idade || "N/A"} anos</span>
+                                    <span className="text-slate-300">•</span>
+                                    <span>{patient.peso ? `${patient.peso}kg` : "N/A"}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex">
-                    <ReportButton
-                        patient={{
-                            nome: patient.nome || "Paciente",
-                            email: patient.email || "",
-                            idade: patient.idade,
-                            sexo: patient.sexo,
-                            peso: patient.peso,
-                            modalidade: modalityName,
-                            fase: phaseName
-                        }}
-                        checkins={checkins || []}
-                    />
+
+                    <div className="flex items-center gap-2 self-end md:self-center">
+                        <ReportButton
+                            patient={{
+                                nome: patient.nome || "Paciente",
+                                email: patient.email || "",
+                                idade: patient.idade,
+                                sexo: patient.sexo,
+                                peso: patient.peso,
+                                modalidade: modalityName,
+                                fase: phaseName
+                            }}
+                            checkins={checkins || []}
+                        />
+                    </div>
                 </div>
             </div>
 

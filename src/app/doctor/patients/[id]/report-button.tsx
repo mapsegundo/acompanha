@@ -177,16 +177,20 @@ export function ReportButton({ patient, checkins }: ReportButtonProps) {
     }
 
     return (
-        <Button variant="outline" className="gap-2" onClick={generateReport} disabled={loading}>
+        <Button
+            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-none shadow-md shadow-blue-200/50 transition-all duration-200 active:scale-95"
+            onClick={generateReport}
+            disabled={loading}
+        >
             {loading ? (
                 <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Gerando...
+                    <span className="font-semibold tracking-tight">Gerando Relatório...</span>
                 </>
             ) : (
                 <>
                     <FileDown className="h-4 w-4" />
-                    Gerar Relatório
+                    <span className="font-semibold tracking-tight">Gerar Relatório</span>
                 </>
             )}
         </Button>

@@ -252,11 +252,16 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
     return (
         <div className="space-y-6">
             {/* Section: Subjective Metrics */}
-            <div>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-primary" />
-                    Indicadores Subjetivos
-                </h3>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                        <Brain className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 leading-tight">Indicadores</h3>
+                        <p className="text-xs text-slate-500 font-medium tracking-tight">Percepção pessoal e bem-estar subjetivo</p>
+                    </div>
+                </div>
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     <MetricChart
                         data={data}
@@ -307,11 +312,16 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
             </div>
 
             {/* Section: Physical Metrics */}
-            <div>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <Weight className="h-5 w-5 text-primary" />
-                    Indicadores Físicos
-                </h3>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <div className="p-2 bg-orange-50 rounded-lg">
+                        <Weight className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 leading-tight">Dados Físicos</h3>
+                        <p className="text-xs text-slate-500 font-medium tracking-tight">Antropometria e carga de treinamento</p>
+                    </div>
+                </div>
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                     <WeightChart data={data} />
                     <TrainingChart data={data} />
@@ -319,8 +329,16 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
             </div>
 
             {/* Section: Complete Data Table */}
-            <div>
-                <h3 className="text-lg font-bold mb-4">Histórico Completo</h3>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <div className="p-2 bg-slate-50 rounded-lg">
+                        <Activity className="h-5 w-5 text-slate-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 leading-tight">Histórico Completo</h3>
+                        <p className="text-xs text-slate-500 font-medium tracking-tight">Todos os registros detalhados por data</p>
+                    </div>
+                </div>
                 <Card className="overflow-hidden">
                     <div className="overflow-x-auto">
                         <Table>
