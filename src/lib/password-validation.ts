@@ -12,7 +12,8 @@ export interface PasswordValidation {
 }
 
 const MIN_PASSWORD_LENGTH = 8
-const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{};\':"|<>?,./`~'
+// Regex for special characters required by Supabase Auth
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/
 
 export function validatePassword(password: string): PasswordValidation {
     const requirements = {
@@ -20,7 +21,7 @@ export function validatePassword(password: string): PasswordValidation {
         hasUppercase: /[A-Z]/.test(password),
         hasLowercase: /[a-z]/.test(password),
         hasNumber: /[0-9]/.test(password),
-        hasSpecialChar: new RegExp(`[${SPECIAL_CHARS.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`).test(password),
+        hasSpecialChar: SPECIAL_CHAR_REGEX.test(password),
     }
 
     const errors: string[] = []
