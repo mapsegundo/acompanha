@@ -9,7 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, User, Dumbbell, ShieldCheck } from "lucide-react"
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react"
+import { validatePassword } from "@/lib/password-validation"
+import { PasswordStrengthIndicator } from "@/components/password-strength-indicator"
+import { Turnstile } from "@/components/turnstile"
 
 export default function SignupPage() {
     const [step, setStep] = useState(1)
@@ -25,10 +28,11 @@ export default function SignupPage() {
     const [peso, setPeso] = useState("")
     const [modalidadeId, setModalidadeId] = useState("")
     const [faseId, setFaseId] = useState("")
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
     // Options from DB
-    const [modalities, setModalities] = useState<any[]>([])
-    const [phases, setPhases] = useState<any[]>([])
+    const [modalities, setModalities] = useState<{ id: string; nome: string }[]>([])
+    const [phases, setPhases] = useState<{ id: string; nome: string }[]>([])
 
     useEffect(() => {
         const fetchOptions = async () => {
@@ -38,7 +42,7 @@ export default function SignupPage() {
             if (phs) setPhases(phs)
         }
         fetchOptions()
-    }, [])
+    }, [supabase])
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -105,6 +109,10 @@ export default function SignupPage() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
+                                    <PasswordStrengthIndicator
+                                        validation={validatePassword(password)}
+                                        show={password.length > 0}
+                                    />
                                 </div>
                                 <div className="space-y-2 pt-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Seu Perfil</Label>
@@ -136,7 +144,7 @@ export default function SignupPage() {
                             </div>
                             <Button
                                 onClick={() => setStep(2)}
-                                disabled={!email || !password || !nome || !idade || !sexo}
+                                disabled={!email || !validatePassword(password).isValid || !nome || !idade || !sexo}
                                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-xs gap-2 shadow-lg shadow-blue-100 rounded-xl"
                             >
                                 PRÓXIMO PASSO <ArrowRight className="h-4 w-4" />
@@ -175,11 +183,19 @@ export default function SignupPage() {
                                     </Select>
                                 </div>
                             </div>
+                            <div className="flex justify-center">
+                                <Turnstile
+                                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                                    onVerify={(token) => setCaptchaToken(token)}
+                                    onExpire={() => setCaptchaToken(null)}
+                                    theme="light"
+                                />
+                            </div>
                             <div className="flex gap-3">
                                 <Button variant="outline" type="button" onClick={() => setStep(1)} className="h-12 border-slate-200 font-black text-xs gap-2 rounded-xl flex-1">
                                     <ArrowLeft className="h-4 w-4" /> VOLTAR
                                 </Button>
-                                <Button type="submit" disabled={loading || !peso || !modalidadeId || !faseId} className="h-12 bg-blue-600 hover:bg-blue-700 font-black text-xs gap-2 shadow-lg shadow-blue-100 rounded-xl flex-[2]">
+                                <Button type="submit" disabled={loading || !peso || !modalidadeId || !faseId || !captchaToken} className="h-12 bg-blue-600 hover:bg-blue-700 font-black text-xs gap-2 shadow-lg shadow-blue-100 rounded-xl flex-[2]">
                                     {loading ? "PROCESSANDO..." : "CONCLUIR CADASTRO"}
                                 </Button>
                             </div>

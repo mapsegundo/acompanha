@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { ShieldAlert, CheckCircle2 } from "lucide-react"
+import { validatePassword } from "@/lib/password-validation"
+import { PasswordStrengthIndicator } from "@/components/password-strength-indicator"
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState("")
@@ -26,8 +28,11 @@ export default function ResetPasswordPage() {
             return
         }
 
-        if (password.length < 6) {
-            toast.error("A senha deve ter pelo menos 6 caracteres")
+        const passwordValidation = validatePassword(password)
+        if (!passwordValidation.isValid) {
+            toast.error("Senha não atende aos requisitos", {
+                description: passwordValidation.errors[0]
+            })
             return
         }
 
@@ -76,6 +81,10 @@ export default function ResetPasswordPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <PasswordStrengthIndicator
+                                    validation={validatePassword(password)}
+                                    show={password.length > 0}
                                 />
                             </div>
                             <div className="space-y-2">

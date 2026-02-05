@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
+import { Turnstile } from "@/components/turnstile"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null)
     const supabase = createClient()
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -23,6 +25,9 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
+            options: {
+                captchaToken: captchaToken || undefined,
+            }
         })
 
         if (error) {
@@ -80,7 +85,15 @@ export default function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-                        <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl" disabled={loading}>
+                        <div className="flex justify-center">
+                            <Turnstile
+                                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                                onVerify={(token) => setCaptchaToken(token)}
+                                onExpire={() => setCaptchaToken(null)}
+                                theme="light"
+                            />
+                        </div>
+                        <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl" disabled={loading || !captchaToken}>
                             {loading ? "Entrando..." : "ENTRAR AGORA"}
                         </Button>
                     </form>

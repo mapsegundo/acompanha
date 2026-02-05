@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import Link from "next/link"
 import { ArrowLeft, Mail, KeyRound } from "lucide-react"
+import { Turnstile } from "@/components/turnstile"
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(false)
     const [sent, setSent] = useState(false)
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null)
     const supabase = createClient()
 
     const handleReset = async (e: React.FormEvent) => {
@@ -67,7 +69,15 @@ export default function ForgotPasswordPage() {
                                     />
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl" disabled={loading}>
+                            <div className="flex justify-center">
+                                <Turnstile
+                                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                                    onVerify={(token) => setCaptchaToken(token)}
+                                    onExpire={() => setCaptchaToken(null)}
+                                    theme="light"
+                                />
+                            </div>
+                            <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl" disabled={loading || !captchaToken}>
                                 {loading ? "ENVIANDO..." : "ENVIAR LINK DE RECUPERAÇÃO"}
                             </Button>
                         </form>

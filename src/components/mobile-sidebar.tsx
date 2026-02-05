@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import Link from "next/link"
-import { Activity, Users, Bell, Settings, Menu, X } from "lucide-react"
+import { Activity, Users, Bell, Settings, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import Image from "next/image"
@@ -13,9 +13,10 @@ interface MobileSidebarProps {
 
 export function MobileSidebar({ children }: MobileSidebarProps) {
     const [open, setOpen] = useState(false)
+    const sheetId = useId()
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
+        <Sheet open={open} onOpenChange={setOpen} key={sheetId}>
             <SheetTrigger asChild>
                 <Button
                     variant="ghost"
