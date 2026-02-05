@@ -132,7 +132,7 @@ export default function SignupPage() {
                                             onChange={(e) => setIdade(e.target.value)}
                                         />
                                         <Select value={sexo} onValueChange={setSexo}>
-                                            <SelectTrigger className="h-12 border-slate-200 font-medium">
+                                            <SelectTrigger className="w-full h-12 border-slate-200 font-medium flex items-center">
                                                 <SelectValue placeholder="Gênero" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -167,7 +167,7 @@ export default function SignupPage() {
                                         onChange={(e) => setPeso(e.target.value)}
                                     />
                                     <Select value={modalidadeId} onValueChange={setModalidadeId}>
-                                        <SelectTrigger className="h-12 border-slate-200 font-medium">
+                                        <SelectTrigger className="w-full h-12 border-slate-200 font-medium flex items-center">
                                             <SelectValue placeholder="Modalidade Esportiva" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -175,7 +175,7 @@ export default function SignupPage() {
                                         </SelectContent>
                                     </Select>
                                     <Select value={faseId} onValueChange={setFaseId}>
-                                        <SelectTrigger className="h-12 border-slate-200 font-medium">
+                                        <SelectTrigger className="w-full h-12 border-slate-200 font-medium flex items-center">
                                             <SelectValue placeholder="Fase da Temporada" />
                                         </SelectTrigger>
                                         <SelectContent>
