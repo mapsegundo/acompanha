@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
     Table,
@@ -10,7 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { CartesianGrid, Line, LineChart, XAxis, YAxis, BarChart, Bar, ResponsiveContainer, ReferenceLine } from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis, BarChart, Bar, ReferenceLine } from "recharts"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -35,6 +35,10 @@ interface Checkin {
     local_lesao: string | null
 }
 
+interface ChartData extends Checkin {
+    formattedDate: string
+}
+
 interface PatientChartsProps {
     checkins: Checkin[]
     sexo: string
@@ -47,11 +51,12 @@ function MetricChart({
     title,
     icon: Icon,
     color,
-    invertColors = false,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    invertColors: _invertColors = false,
     unit = "/10",
     domain = [0, 10]
 }: {
-    data: any[]
+    data: ChartData[]
     dataKey: string
     title: string
     icon: React.ElementType
@@ -65,7 +70,7 @@ function MetricChart({
     } satisfies ChartConfig
 
     // Calculate average for reference line
-    const values = data.map(d => d[dataKey]).filter(v => v != null)
+    const values = data.map(d => d[dataKey as keyof ChartData] as number).filter(v => v != null)
     const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0
 
     return (
@@ -125,7 +130,7 @@ function MetricChart({
 }
 
 // Weight chart with bar visualization
-function WeightChart({ data }: { data: any[] }) {
+function WeightChart({ data }: { data: ChartData[] }) {
     const config = {
         peso: { label: "Peso (kg)", color: "#2563eb" }
     } satisfies ChartConfig
@@ -180,7 +185,7 @@ function WeightChart({ data }: { data: any[] }) {
 }
 
 // Training hours chart
-function TrainingChart({ data }: { data: any[] }) {
+function TrainingChart({ data }: { data: ChartData[] }) {
     const config = {
         horas_treino_7d: { label: "Horas (7d)", color: "#f97316" }
     } satisfies ChartConfig

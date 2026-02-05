@@ -81,7 +81,7 @@ export default function ProfilePage() {
                     nome: patient.nome === 'Paciente Demo' ? '' : patient.nome || "",
                     sport_modalities_id: patient.sport_modalities_id || "",
                     idade: patient.idade ? String(patient.idade) : "",
-                    sexo: (patient.sexo as any) || "M",
+                    sexo: (patient.sexo as "M" | "F") || "M",
                     season_phases_id: patient.season_phases_id || "",
                     peso: patient.peso ? String(patient.peso) : ""
                 })

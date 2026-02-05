@@ -1,41 +1,11 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, User, Activity, Calendar, Target, FileDown } from "lucide-react"
+import { ArrowLeft, User, Activity, Calendar, Target } from "lucide-react"
 import Link from "next/link"
 import { PatientCharts } from "./charts"
 import { Badge } from "@/components/ui/badge"
 import { ReportButton } from "./report-button"
-
-// Define types for joined data
-interface PatientData {
-    id: string
-    nome: string | null
-    email: string | null
-    idade: number | null
-    sexo: string | null
-    peso: number | null
-    sport_modalities: { nome: string } | null
-    season_phases: { nome: string } | null
-}
-
-interface CheckinData {
-    id: string
-    data: string
-    peso: number
-    cansaco: number
-    horas_treino_7d: number
-    qualidade_sono: number
-    dor_muscular: number
-    estresse: number
-    humor: number
-    duracao_treino: number
-    ciclo_menstrual_alterado: boolean
-    libido: number
-    erecao_matinal: boolean
-    lesao: boolean
-    local_lesao: string | null
-}
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params

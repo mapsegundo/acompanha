@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, Info, Calendar, ArrowRight, Activity, Moon, Zap, User } from "lucide-react"
+import { AlertTriangle, Calendar, ArrowRight, Activity, Zap, User } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
@@ -56,14 +56,35 @@ export default async function AlertsPage() {
 
     const activeAlerts: AlertItem[] = []
 
-    patients?.forEach(patient => {
+    interface WeeklyCheckin {
+        id: string
+        data: string
+        qualidade_sono: number
+        dor_muscular: number
+        cansaco: number
+        estresse: number
+        humor: number
+        libido: number
+        erecao_matinal: boolean | null
+        lesao: boolean
+        ciclo_menstrual_alterado: boolean | null
+    }
+
+    interface Patient {
+        id: string
+        nome: string
+        sexo: 'M' | 'F'
+        weekly_checkins: WeeklyCheckin[]
+    }
+
+    patients?.forEach((patient: Patient) => {
         const recentCheckins = patient.weekly_checkins
-            ?.filter((c: any) => c.data >= sevenDaysAgoOffset)
-            .sort((a: any, b: any) => b.data.localeCompare(a.data)) // Get most recent first
+            ?.filter((c) => c.data >= sevenDaysAgoOffset)
+            .sort((a, b) => b.data.localeCompare(a.data)) // Get most recent first
 
         if (!recentCheckins || recentCheckins.length === 0) return
 
-        const latest = recentCheckins[0] as any
+        const latest = recentCheckins[0]
 
         const status = calculateHealthStatus(latest, patient.sexo)
 

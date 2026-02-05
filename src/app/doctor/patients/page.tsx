@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import { Card } from "@/components/ui/card"
 import {
     Table,
     TableBody,
@@ -20,6 +20,12 @@ import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { calculateHealthStatus, getBadgeVariant } from "@/lib/monitoring"
 import { Search, ArrowRight, Users, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { CheckinData } from "@/lib/monitoring"
+
+interface WeeklyCheckin extends CheckinData {
+    id: string
+    data: string
+}
 
 type Patient = {
     id: string
@@ -28,13 +34,20 @@ type Patient = {
     sexo: string | null
     sport_modalities: { nome: string } | null
     season_phases: { nome: string } | null
-    weekly_checkins: any[]
+    weekly_checkins: WeeklyCheckin[]
 }
 
 type SortConfig = {
     key: 'nome' | 'status' | 'lastCheckin'
     direction: 'asc' | 'desc'
 } | null
+
+function SortIcon({ columnKey, sortConfig }: { columnKey: 'nome' | 'status' | 'lastCheckin', sortConfig: SortConfig }) {
+    if (sortConfig?.key !== columnKey) return <ArrowUpDown className="h-4 w-4 ml-1 text-muted-foreground" />
+    return sortConfig.direction === 'asc'
+        ? <ArrowUp className="h-4 w-4 ml-1" />
+        : <ArrowDown className="h-4 w-4 ml-1" />
+}
 
 export default function PatientsListPage() {
     const [patients, setPatients] = useState<Patient[]>([])
@@ -43,11 +56,7 @@ export default function PatientsListPage() {
     const [sortConfig, setSortConfig] = useState<SortConfig>(null)
     const supabase = createClient()
 
-    useEffect(() => {
-        fetchPatients()
-    }, [])
-
-    async function fetchPatients() {
+    const fetchPatients = useCallback(async () => {
         setLoading(true)
         const { data } = await supabase
             .from('patients')
@@ -73,7 +82,12 @@ export default function PatientsListPage() {
 
         if (data) setPatients(data as Patient[])
         setLoading(false)
-    }
+    }, [supabase])
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchPatients()
+    }, [fetchPatients])
 
     function handleSort(key: 'nome' | 'status' | 'lastCheckin') {
         setSortConfig(prev => {
@@ -135,13 +149,6 @@ export default function PatientsListPage() {
         return result
     }, [patients, searchQuery, sortConfig])
 
-    const SortIcon = ({ columnKey }: { columnKey: 'nome' | 'status' | 'lastCheckin' }) => {
-        if (sortConfig?.key !== columnKey) return <ArrowUpDown className="h-4 w-4 ml-1 text-muted-foreground" />
-        return sortConfig.direction === 'asc'
-            ? <ArrowUp className="h-4 w-4 ml-1" />
-            : <ArrowDown className="h-4 w-4 ml-1" />
-    }
-
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -188,7 +195,7 @@ export default function PatientsListPage() {
                                         onClick={() => handleSort('nome')}
                                     >
                                         Paciente
-                                        <SortIcon columnKey="nome" />
+                                        <SortIcon columnKey="nome" sortConfig={sortConfig} />
                                     </Button>
                                 </TableHead>
                                 <TableHead className="min-w-[90px]">
@@ -198,7 +205,7 @@ export default function PatientsListPage() {
                                         onClick={() => handleSort('status')}
                                     >
                                         Status
-                                        <SortIcon columnKey="status" />
+                                        <SortIcon columnKey="status" sortConfig={sortConfig} />
                                     </Button>
                                 </TableHead>
                                 <TableHead className="hidden sm:table-cell">Modalidade</TableHead>
@@ -210,16 +217,16 @@ export default function PatientsListPage() {
                                         onClick={() => handleSort('lastCheckin')}
                                     >
                                         Última Sync
-                                        <SortIcon columnKey="lastCheckin" />
+                                        <SortIcon columnKey="lastCheckin" sortConfig={sortConfig} />
                                     </Button>
                                 </TableHead>
                                 <TableHead className="text-right min-w-[70px]">Ação</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredAndSortedPatients.map((patient: any) => {
+                            {filteredAndSortedPatients.map((patient) => {
                                 // Sort to get most recent check-in first
-                                const sortedCheckins = [...(patient.weekly_checkins || [])].sort((a: any, b: any) => b.data.localeCompare(a.data))
+                                const sortedCheckins = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))
                                 const lastCheckin = sortedCheckins[0]
 
                                 // Status Logic
@@ -228,7 +235,7 @@ export default function PatientsListPage() {
                                 let badgeColorClass = ""
 
                                 if (lastCheckin) {
-                                    status = calculateHealthStatus(lastCheckin, patient.sexo)
+                                    status = calculateHealthStatus(lastCheckin, patient.sexo ?? undefined)
                                     badgeVariant = getBadgeVariant(status)
 
                                     if (status === 'Crítico') {

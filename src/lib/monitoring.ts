@@ -8,9 +8,9 @@ export interface CheckinData {
     humor: number;
     estresse: number;
     libido: number;
-    erecao_matinal: boolean;
+    erecao_matinal: boolean | null;
     lesao: boolean;
-    ciclo_menstrual_alterado?: boolean;
+    ciclo_menstrual_alterado?: boolean | null;
 }
 
 export function calculateHealthStatus(data: CheckinData | null | undefined, sexo?: string): HealthStatus {

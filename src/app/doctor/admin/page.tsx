@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -60,11 +60,7 @@ export default function AdminPage() {
 
     const supabase = createClient()
 
-    useEffect(() => {
-        fetchData()
-    }, [])
-
-    async function fetchData() {
+    const fetchData = useCallback(async () => {
         setLoading(true)
 
         const [modalitiesRes, phasesRes, doctorsRes] = await Promise.all([
@@ -78,7 +74,12 @@ export default function AdminPage() {
         if (doctorsRes.data) setDoctors(doctorsRes.data)
 
         setLoading(false)
-    }
+    }, [supabase])
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchData()
+    }, [fetchData])
 
     // Modality functions
     async function saveModality() {

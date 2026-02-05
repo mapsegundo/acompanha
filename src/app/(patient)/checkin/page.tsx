@@ -159,7 +159,7 @@ function CheckinForm() {
                 return
             }
 
-            const payload: any = {
+            const payload: Record<string, unknown> = {
                 patient_id: patient.id,
                 data: values.data,
                 peso: Number(values.peso),

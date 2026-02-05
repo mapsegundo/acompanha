@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     Table,
     TableBody,
@@ -15,7 +15,22 @@ import { Button } from "@/components/ui/button"
 import { format, parseISO, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { calculateHealthStatus, getBadgeVariant } from "@/lib/monitoring"
+import { calculateHealthStatus, getBadgeVariant, CheckinData } from "@/lib/monitoring"
+
+interface WeeklyCheckin extends CheckinData {
+    id: string
+    data: string
+}
+
+interface PatientWithCheckins {
+    id: string
+    nome: string
+    email: string
+    sexo: 'M' | 'F'
+    sport_modalities: { nome: string } | null
+    season_phases: { nome: string } | null
+    weekly_checkins: WeeklyCheckin[]
+}
 
 export default async function DoctorDashboard() {
     const supabase = await createClient()
@@ -53,21 +68,21 @@ export default async function DoctorDashboard() {
     let criticalAlerts = 0
     let patientsWithRecentCheckin = 0
 
-    allPatients?.forEach((patient: any) => {
-        // Sort check-ins by date descending to get most recent first
-        const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
+        ; (allPatients as PatientWithCheckins[] | null)?.forEach((patient) => {
+            // Sort check-ins by date descending to get most recent first
+            const sortedCheckins = patient.weekly_checkins?.sort((a, b) => b.data.localeCompare(a.data)) || []
 
-        // Find latest check-in in the last 7 days
-        const recentCheckins = sortedCheckins.filter((c: any) => c.data >= sevenDaysAgo.split('T')[0])
+            // Find latest check-in in the last 7 days
+            const recentCheckins = sortedCheckins.filter((c) => c.data >= sevenDaysAgo.split('T')[0])
 
-        if (recentCheckins && recentCheckins.length > 0) {
-            patientsWithRecentCheckin++
+            if (recentCheckins && recentCheckins.length > 0) {
+                patientsWithRecentCheckin++
 
-            // Logic matching the alerts logic - use the MOST RECENT check-in
-            const status = calculateHealthStatus(recentCheckins[0], patient.sexo)
-            if (status === 'Crítico') criticalAlerts++
-        }
-    })
+                // Logic matching the alerts logic - use the MOST RECENT check-in
+                const status = calculateHealthStatus(recentCheckins[0], patient.sexo)
+                if (status === 'Crítico') criticalAlerts++
+            }
+        })
 
     const responseRate = totalPatients > 0
         ? Math.round((patientsWithRecentCheckin / totalPatients) * 100)
@@ -140,9 +155,9 @@ export default async function DoctorDashboard() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {patients.map((patient: any) => {
+                                {(patients as PatientWithCheckins[]).map((patient) => {
                                     // Sort check-ins to get the MOST RECENT first
-                                    const sortedCheckins = patient.weekly_checkins?.sort((a: any, b: any) => b.data.localeCompare(a.data)) || []
+                                    const sortedCheckins = patient.weekly_checkins?.sort((a, b) => b.data.localeCompare(a.data)) || []
                                     const lastCheckin = sortedCheckins[0]
 
                                     // Status Logic matching Patients list
