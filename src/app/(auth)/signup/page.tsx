@@ -54,6 +54,7 @@ export default function SignupPage() {
             email,
             password,
             options: {
+                emailRedirectTo: `${location.origin}/auth/callback?next=/dashboard`,
                 captchaToken: captchaToken || undefined,
                 data: {
                     nome,
