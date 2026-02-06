@@ -346,7 +346,6 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                                 <TableHeader className="bg-red-50/30">
                                     <TableRow>
                                         <TableHead className="font-bold text-red-900 w-[120px]">Data</TableHead>
-                                        <TableHead className="text-center font-bold text-red-900 w-[100px]">Peso</TableHead>
                                         <TableHead className="font-bold text-red-900">Relato do Paciente</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -355,9 +354,6 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                                         <TableRow key={checkin.id} className="hover:bg-red-50/10 transition-colors">
                                             <TableCell className="font-bold whitespace-nowrap">
                                                 {format(new Date(checkin.data), "dd/MM/yy")}
-                                            </TableCell>
-                                            <TableCell className="text-center font-medium text-slate-600">
-                                                {checkin.peso}kg
                                             </TableCell>
                                             <TableCell>
                                                 <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg text-sm text-slate-700 leading-relaxed italic">

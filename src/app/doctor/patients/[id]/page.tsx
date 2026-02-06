@@ -51,6 +51,10 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
     // @ts-expect-error Supabase FK join types are complex, but we know the structure
     const phaseName = patient.season_phases?.nome || "Sem fase"
 
+    // Get most recent weight from check-ins
+    const latestCheckin = checkins && checkins.length > 0 ? checkins[checkins.length - 1] : null
+    const currentWeight = latestCheckin?.peso || patient.peso
+
     return (
         <div className="space-y-6">
             {/* Header - Premium Redesign */}
@@ -89,7 +93,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100 italic">
                                     <span>{patient.idade || "N/A"} anos</span>
                                     <span className="text-slate-300">•</span>
-                                    <span>{patient.peso ? `${patient.peso}kg` : "N/A"}</span>
+                                    <span>{currentWeight ? `${currentWeight}kg` : "N/A"}</span>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +106,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                                 email: patient.email || "",
                                 idade: patient.idade,
                                 sexo: patient.sexo,
-                                peso: patient.peso,
+                                peso: currentWeight,
                                 modalidade: modalityName,
                                 fase: phaseName
                             }}
