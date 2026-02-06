@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, User, Activity, Calendar, Target } from "lucide-react"
 import Link from "next/link"
 import { PatientCharts } from "./charts"
+import { PatientNotes } from "./patient-notes"
 import { Badge } from "@/components/ui/badge"
 import { ReportButton } from "./report-button"
 
@@ -126,6 +127,9 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                     <p className="text-muted-foreground">Este paciente ainda não realizou nenhum acompanhamento.</p>
                 </div>
             )}
+
+            {/* Clinical Notes */}
+            <PatientNotes patientId={id} isDoctor={true} />
         </div>
     )
 }

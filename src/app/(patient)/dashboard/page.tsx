@@ -8,6 +8,7 @@ import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
 import { calculateHealthStatus, getStatusColor, getBadgeVariant } from "@/lib/monitoring"
+import { SharedNotes } from "./shared-notes"
 
 interface WeeklyCheckin {
     id: string
@@ -74,6 +75,9 @@ export default async function PatientDashboard() {
                     </Button>
                 </Link>
             </div>
+
+            {/* Shared Notes from Doctor */}
+            {patient && <SharedNotes patientId={patient.id} />}
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {checkins.map((checkin) => {
