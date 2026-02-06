@@ -115,13 +115,37 @@ export function ReportButton({ patient, checkins }: ReportButtonProps) {
                 headStyles: { fillColor: [37, 99, 235] },
             })
 
+            // Injury History Table (New Section)
+            const historyTableEndY = (doc as any).lastAutoTable?.finalY || 140
+            const injuryCheckins = checkins.filter(c => c.lesao).reverse()
+
+            if (injuryCheckins.length > 0) {
+                doc.setFontSize(14)
+                doc.setFont("helvetica", "bold")
+                doc.text("Histórico de Lesões", 14, historyTableEndY + 14)
+
+                autoTable(doc, {
+                    startY: historyTableEndY + 20,
+                    head: [['Data', 'Relato do Paciente']],
+                    body: injuryCheckins.map(c => [
+                        format(new Date(c.data), "dd/MM/yy", { locale: ptBR }),
+                        c.local_lesao || "Lesão relatada sem descrição adicional."
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [220, 38, 38], fontSize: 9 }, // Red header for injuries
+                    bodyStyles: { fontSize: 9, fontStyle: 'italic' },
+                    columnStyles: {
+                        0: { cellWidth: 25 },
+                    }
+                })
+            }
+
             // Check-in History Table
-            // @ts-expect-error jspdf-autotable adds finalY to doc
-            const tableEndY = doc.lastAutoTable?.finalY || 140
+            const tableEndY = (doc as any).lastAutoTable?.finalY || 140
 
             doc.setFontSize(14)
             doc.setFont("helvetica", "bold")
-            doc.text("Histórico de Check-ins", 14, tableEndY + 14)
+            doc.text("Histórico de Check-ins (Todos)", 14, tableEndY + 14)
 
             // Get last 10 check-ins for the history table
             const historyCheckins = checkins.slice(-10).reverse()
