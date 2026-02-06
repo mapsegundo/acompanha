@@ -328,6 +328,51 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                 </div>
             </div>
 
+            {/* Section: Injury History - Only shown if there are injuries */}
+            {checkins.some(c => c.lesao) && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <div className="p-2 bg-red-50 rounded-lg">
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 leading-tight">Histórico de Lesões</h3>
+                            <p className="text-xs text-slate-500 font-medium tracking-tight">Detalhamento das intercorrências relatadas</p>
+                        </div>
+                    </div>
+                    <Card className="overflow-hidden border-red-100 shadow-sm shadow-red-50/50">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader className="bg-red-50/30">
+                                    <TableRow>
+                                        <TableHead className="font-bold text-red-900 w-[120px]">Data</TableHead>
+                                        <TableHead className="text-center font-bold text-red-900 w-[100px]">Peso</TableHead>
+                                        <TableHead className="font-bold text-red-900">Relato do Paciente</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {tableData.filter(c => c.lesao).map((checkin) => (
+                                        <TableRow key={checkin.id} className="hover:bg-red-50/10 transition-colors">
+                                            <TableCell className="font-bold whitespace-nowrap">
+                                                {format(new Date(checkin.data), "dd/MM/yy")}
+                                            </TableCell>
+                                            <TableCell className="text-center font-medium text-slate-600">
+                                                {checkin.peso}kg
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg text-sm text-slate-700 leading-relaxed italic">
+                                                    "{checkin.local_lesao || "Lesão relatada sem descrição adicional."}"
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </Card>
+                </div>
+            )}
+
             {/* Section: Complete Data Table */}
             <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
