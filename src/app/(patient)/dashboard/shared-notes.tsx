@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ClipboardPlus, FileText, User, Loader2 } from 'lucide-react'
+import { ClipboardPlus, User, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -24,10 +24,6 @@ export function SharedNotes({ patientId }: SharedNotesProps) {
     const [notes, setNotes] = useState<SharedNote[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const supabase = createClient()
-
-    useEffect(() => {
-        fetchNotes()
-    }, [patientId])
 
     async function fetchNotes() {
         setIsLoading(true)
@@ -54,6 +50,11 @@ export function SharedNotes({ patientId }: SharedNotesProps) {
         }
         setIsLoading(false)
     }
+
+    useEffect(() => {
+        fetchNotes()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     if (isLoading) {
         return (

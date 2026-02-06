@@ -357,7 +357,7 @@ export function PatientCharts({ checkins, sexo }: PatientChartsProps) {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg text-sm text-slate-700 leading-relaxed italic">
-                                                    "{checkin.local_lesao || "Lesão relatada sem descrição adicional."}"
+                                                    &quot;{checkin.local_lesao || "Lesão relatada sem descrição adicional."}&quot;
                                                 </div>
                                             </TableCell>
                                         </TableRow>

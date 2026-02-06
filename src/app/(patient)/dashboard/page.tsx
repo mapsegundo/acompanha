@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
-import { calculateHealthStatus, getStatusColor, getBadgeVariant } from "@/lib/monitoring"
+import { calculateHealthStatus, getStatusColor, getBadgeVariant, getRecoveryColor, getRecoveryBadgeVariant, getRecoveryBadgeColorClasses, type RecoveryStatus } from "@/lib/monitoring"
 import { SharedNotes } from "./shared-notes"
 
 interface WeeklyCheckin {
@@ -21,9 +21,11 @@ interface WeeklyCheckin {
     humor: number
     estresse: number
     libido: number
-    erecao_matinal: boolean
-    lesao: boolean
-    ciclo_menstrual_alterado?: boolean
+    erecao_matinal?: boolean | null
+    lesao?: boolean | null
+    ciclo_menstrual_alterado?: boolean | null
+    recovery_score?: number | null
+    recovery_status?: RecoveryStatus | null
     horas_treino_7d: number
 }
 
@@ -81,9 +83,17 @@ export default async function PatientDashboard() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {checkins.map((checkin) => {
-                    const status = calculateHealthStatus(checkin, patient.sexo)
-                    const statusColor = getStatusColor(status)
-                    const statusBadge = getBadgeVariant(status)
+                    // Use recovery_status if available, fallback to old calculation
+                    const status = checkin.recovery_status || calculateHealthStatus(checkin, patient.sexo)
+                    const statusColor = checkin.recovery_status
+                        ? getRecoveryColor(checkin.recovery_status as RecoveryStatus)
+                        : getStatusColor(status)
+                    const statusBadge = checkin.recovery_status
+                        ? getRecoveryBadgeVariant(checkin.recovery_status as RecoveryStatus)
+                        : getBadgeVariant(status)
+                    const badgeColorClass = checkin.recovery_status
+                        ? getRecoveryBadgeColorClasses(checkin.recovery_status as RecoveryStatus)
+                        : ''
 
                     return (
                         <Card key={checkin.id} className="hover:shadow-lg transition-all border-l-4"
@@ -93,7 +103,7 @@ export default async function PatientDashboard() {
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
                                     {format(parseISO(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
                                 </CardTitle>
-                                <Badge variant={statusBadge} className="font-bold uppercase tracking-widest text-[10px]">
+                                <Badge variant={statusBadge} className={`font-bold uppercase tracking-widest text-[10px] ${badgeColorClass}`}>
                                     {status}
                                 </Badge>
                             </CardHeader>

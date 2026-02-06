@@ -15,11 +15,13 @@ import { Button } from "@/components/ui/button"
 import { format, parseISO, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { calculateHealthStatus, getBadgeVariant, CheckinData } from "@/lib/monitoring"
+import { calculateHealthStatus, getBadgeVariant, CheckinData, type RecoveryStatus } from "@/lib/monitoring"
 
 interface WeeklyCheckin extends CheckinData {
     id: string
     data: string
+    recovery_score?: number | null
+    recovery_status?: RecoveryStatus | null
 }
 
 interface PatientWithCheckins {
@@ -56,7 +58,9 @@ export default async function DoctorDashboard() {
                 libido,
                 erecao_matinal,
                 lesao,
-                ciclo_menstrual_alterado
+                ciclo_menstrual_alterado,
+                recovery_score,
+                recovery_status
             )
         `)
         .order('created_at', { ascending: false })
@@ -148,6 +152,7 @@ export default async function DoctorDashboard() {
                                 <TableRow>
                                     <TableHead className="w-[200px] min-w-[180px]">Paciente</TableHead>
                                     <TableHead className="min-w-[100px]">Status</TableHead>
+                                    <TableHead className="hidden md:table-cell">Score</TableHead>
                                     <TableHead className="hidden sm:table-cell">Modalidade</TableHead>
                                     <TableHead className="hidden md:table-cell">Fase</TableHead>
                                     <TableHead className="hidden lg:table-cell">Última Sincronização</TableHead>
@@ -197,6 +202,18 @@ export default async function DoctorDashboard() {
                                                 <Badge variant={badgeVariant === 'default' ? 'outline' : badgeVariant} className={`rounded-full px-2 sm:px-3 py-0.5 text-[9px] sm:text-[10px] uppercase font-black tracking-wide sm:tracking-widest ${badgeColorClass}`}>
                                                     {status}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">
+                                                {lastCheckin?.recovery_score !== null && lastCheckin?.recovery_score !== undefined ? (
+                                                    <span
+                                                        className="text-lg font-bold"
+                                                        style={{ color: lastCheckin.recovery_status === 'Seguro' ? '#22c55e' : lastCheckin.recovery_status === 'Atenção' ? '#f97316' : '#ef4444' }}
+                                                    >
+                                                        {lastCheckin.recovery_score}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground">-</span>
+                                                )}
                                             </TableCell>
                                             <TableCell className="hidden sm:table-cell">
                                                 <span className="text-sm text-slate-600 font-medium">{patient.sport_modalities?.nome || '-'}</span>

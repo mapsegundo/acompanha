@@ -9,6 +9,11 @@ import autoTable from "jspdf-autotable"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
+// Extend jsPDF type to include autoTable properties
+interface jsPDFWithAutoTable extends jsPDF {
+    lastAutoTable?: { finalY: number }
+}
+
 interface PatientInfo {
     nome: string
     email: string
@@ -116,7 +121,7 @@ export function ReportButton({ patient, checkins }: ReportButtonProps) {
             })
 
             // Injury History Table (New Section)
-            const historyTableEndY = (doc as any).lastAutoTable?.finalY || 140
+            const historyTableEndY = (doc as jsPDFWithAutoTable).lastAutoTable?.finalY || 140
             const injuryCheckins = checkins.filter(c => c.lesao).reverse()
 
             if (injuryCheckins.length > 0) {
@@ -141,7 +146,7 @@ export function ReportButton({ patient, checkins }: ReportButtonProps) {
             }
 
             // Check-in History Table
-            const tableEndY = (doc as any).lastAutoTable?.finalY || 140
+            const tableEndY = (doc as jsPDFWithAutoTable).lastAutoTable?.finalY || 140
 
             doc.setFontSize(14)
             doc.setFont("helvetica", "bold")

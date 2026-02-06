@@ -7,6 +7,8 @@ import { PatientCharts } from "./charts"
 import { PatientNotes } from "./patient-notes"
 import { Badge } from "@/components/ui/badge"
 import { ReportButton } from "./report-button"
+import { calculateRecoveryScore, getRecoveryColor } from "@/lib/monitoring"
+import { Info } from 'lucide-react'
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -72,6 +74,38 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                                     {patient.nome || "Paciente Sem Nome"}
                                 </h1>
+
+                                {/* Recovery Score Badge */}
+                                {latestCheckin?.recovery_score !== null && latestCheckin?.recovery_score !== undefined && (() => {
+                                    const recovery = calculateRecoveryScore(latestCheckin)
+                                    const color = getRecoveryColor(recovery.status)
+                                    return (
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="flex items-center justify-center w-12 h-12 rounded-full border-3"
+                                                style={{ borderColor: color, borderWidth: '3px' }}
+                                            >
+                                                <span
+                                                    className="text-lg font-bold"
+                                                    style={{ color }}
+                                                >
+                                                    {recovery.score}
+                                                </span>
+                                            </div>
+                                            <Link
+                                                href="/doctor/recovery-score-info"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7">
+                                                    <Info className="h-3 w-3 mr-1" />
+                                                    Como calculamos?
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    )
+                                })()}
+
                                 <div className="flex gap-2">
                                     <Badge variant="outline" className="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-slate-200">
                                         <Target className="h-3 w-3 mr-1" />

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -34,11 +34,6 @@ export function PatientNotes({ patientId, isDoctor }: PatientNotesProps) {
     const [isLoading, setIsLoading] = useState(true)
     const supabase = createClient()
 
-    // Fetch notes on mount
-    useEffect(() => {
-        fetchNotes()
-    }, [patientId])
-
     async function fetchNotes() {
         setIsLoading(true)
         const { data, error } = await supabase
@@ -66,6 +61,12 @@ export function PatientNotes({ patientId, isDoctor }: PatientNotesProps) {
         }
         setIsLoading(false)
     }
+
+    // Fetch notes on mount
+    useEffect(() => {
+        fetchNotes()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     async function handleSubmit() {
         if (!newNote.trim()) return
