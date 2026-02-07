@@ -39,6 +39,7 @@ export default function AdminPage() {
     const [phases, setPhases] = useState<Phase[]>([])
     const [doctors, setDoctors] = useState<Doctor[]>([])
     const [loading, setLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
 
     // Dialog states
     const [modalityDialog, setModalityDialog] = useState(false)
@@ -88,6 +89,7 @@ export default function AdminPage() {
             return
         }
 
+        setIsSaving(true)
         if (editingModality) {
             const { error } = await supabase
                 .from('sport_modalities')
@@ -117,6 +119,7 @@ export default function AdminPage() {
                 fetchData()
             }
         }
+        setIsSaving(false)
     }
 
     // Phase functions
@@ -126,6 +129,7 @@ export default function AdminPage() {
             return
         }
 
+        setIsSaving(true)
         if (editingPhase) {
             const { error } = await supabase
                 .from('season_phases')
@@ -155,6 +159,7 @@ export default function AdminPage() {
                 fetchData()
             }
         }
+        setIsSaving(false)
     }
 
     // Doctor functions
@@ -164,6 +169,7 @@ export default function AdminPage() {
             return
         }
 
+        setIsSaving(true)
         if (editingDoctor) {
             const { error } = await supabase
                 .from('doctors')
@@ -180,19 +186,34 @@ export default function AdminPage() {
                 fetchData()
             }
         } else {
-            const { error } = await supabase
-                .from('doctors')
-                .insert(doctorForm)
+            // Criar médico via API route (busca usuário existente e vincula)
+            try {
+                const response = await fetch('/api/admin/doctors', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(doctorForm)
+                })
 
-            if (error) {
-                toast.error("Erro ao criar médico", { description: error.message })
-            } else {
-                toast.success("Médico criado!")
-                setDoctorDialog(false)
-                setDoctorForm({ email: "", nome: "", crm: "", especialidade: "" })
-                fetchData()
+                const result = await response.json()
+
+                if (!response.ok || result.error) {
+                    toast.error("Erro ao vincular médico", { description: result.error })
+                } else {
+                    toast.success("Médico vinculado!", {
+                        description: "Usuário existente foi vinculado como médico com sucesso."
+                    })
+                    setDoctorDialog(false)
+                    setDoctorForm({ email: "", nome: "", crm: "", especialidade: "" })
+                    fetchData()
+                }
+            } catch (error) {
+                console.error('Erro ao chamar API:', error)
+                toast.error("Erro ao vincular médico", {
+                    description: "Falha na comunicação com o servidor"
+                })
             }
         }
+        setIsSaving(false)
     }
 
     async function handleDelete() {
@@ -449,8 +470,10 @@ export default function AdminPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setModalityDialog(false)}>Cancelar</Button>
-                        <Button onClick={saveModality}>Salvar</Button>
+                        <Button variant="outline" onClick={() => setModalityDialog(false)} disabled={isSaving}>Cancelar</Button>
+                        <Button onClick={saveModality} disabled={isSaving}>
+                            {isSaving ? "Processando..." : "Salvar"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -476,8 +499,10 @@ export default function AdminPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setPhaseDialog(false)}>Cancelar</Button>
-                        <Button onClick={savePhase}>Salvar</Button>
+                        <Button variant="outline" onClick={() => setPhaseDialog(false)} disabled={isSaving}>Cancelar</Button>
+                        <Button onClick={savePhase} disabled={isSaving}>
+                            {isSaving ? "Processando..." : "Salvar"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -531,8 +556,10 @@ export default function AdminPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setDoctorDialog(false)}>Cancelar</Button>
-                        <Button onClick={saveDoctor}>Salvar</Button>
+                        <Button variant="outline" onClick={() => setDoctorDialog(false)} disabled={isSaving}>Cancelar</Button>
+                        <Button onClick={saveDoctor} disabled={isSaving}>
+                            {isSaving ? "Processando..." : "Salvar"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

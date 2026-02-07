@@ -284,9 +284,7 @@ export default async function AlertsPage() {
                                         <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                     </Button>
                                 </Link>
-                                <Button variant="ghost" size="sm" className="w-full sm:w-auto font-bold text-slate-500 hover:bg-slate-100 h-9 sm:h-11 text-xs sm:text-sm">
-                                    IGNORAR
-                                </Button>
+
                             </div>
                         </div>
                     </Card>
