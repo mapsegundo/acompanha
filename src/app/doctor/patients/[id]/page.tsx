@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { ReportButton } from "./report-button"
 import { calculateRecoveryScore, getRecoveryColor } from "@/lib/monitoring"
 import { Info } from 'lucide-react'
+import { PatientSummary } from "./patient-summary"
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -150,6 +151,11 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                     </div>
                 </div>
             </div>
+
+            {/* Patient Progress Summary */}
+            {checkins && checkins.length > 0 && (
+                <PatientSummary checkins={checkins} />
+            )}
 
             {/* Charts & Data */}
             {checkins && checkins.length > 0 ? (
