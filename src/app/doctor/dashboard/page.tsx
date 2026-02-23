@@ -9,7 +9,13 @@ import { Button } from "@/components/ui/button"
 import { format, parseISO, startOfDay, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { calculateHealthStatus, getBadgeVariant, type CheckinData, type RecoveryStatus } from "@/lib/monitoring"
+import {
+  calculateHealthStatus,
+  getBadgeVariant,
+  getHealthBadgeColorClasses,
+  type CheckinData,
+  type RecoveryStatus,
+} from "@/lib/monitoring"
 import { ClickableTableRow } from "@/components/dashboard/clickable-table-row"
 
 export const dynamic = "force-dynamic"
@@ -104,7 +110,7 @@ export default async function DoctorDashboard({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold italic tracking-tight text-[#0f172a]">Painel Médico</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#0f172a]">Painel Médico</h1>
         <p className="text-muted-foreground">Visão geral do desempenho e saúde dos seus pacientes.</p>
       </div>
 
@@ -200,7 +206,10 @@ export default async function DoctorDashboard({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={variant} className="font-bold uppercase py-0 px-2 text-[10px]">
+                        <Badge
+                          variant={variant}
+                          className={`font-bold uppercase py-0 px-2 text-[10px] ${getHealthBadgeColorClasses(status)}`}
+                        >
                           {status}
                         </Badge>
                       </TableCell>

@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/client"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { calculateHealthStatus, getBadgeVariant, type CheckinData, type RecoveryStatus } from "@/lib/monitoring"
+import { calculateHealthStatus, getBadgeVariant, getHealthBadgeColorClasses, type CheckinData, type RecoveryStatus } from "@/lib/monitoring"
 import { Search, ArrowRight, ArrowUpDown, ChevronLeft, ChevronRight, Users } from "lucide-react"
 import { ClickableTableRow } from "@/components/dashboard/clickable-table-row"
 
@@ -169,7 +169,7 @@ export default function PatientsListPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold italic tracking-tight text-[#0f172a]">Meus Pacientes</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#0f172a]">Meus Pacientes</h1>
         <p className="text-muted-foreground">Listagem completa de atletas monitorados e sua saúde atual.</p>
       </div>
 
@@ -273,7 +273,10 @@ export default function PatientsListPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={variant} className="font-bold uppercase py-0 px-2 text-[10px]">
+                      <Badge
+                        variant={variant}
+                        className={`font-bold uppercase py-0 px-2 text-[10px] ${getHealthBadgeColorClasses(status)}`}
+                      >
                         {status}
                       </Badge>
                     </TableCell>

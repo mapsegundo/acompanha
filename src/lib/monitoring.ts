@@ -42,6 +42,19 @@ export function getBadgeVariant(status: HealthStatus): "destructive" | "secondar
   }
 }
 
+export function getHealthBadgeColorClasses(status: HealthStatus): string {
+  switch (status) {
+    case "Seguro":
+      return "bg-green-100 text-green-700 border-green-200 hover:bg-green-100"
+    case "Atenção":
+      return "bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-100"
+    case "Crítico":
+      return "bg-red-100 text-red-700 border-red-200 hover:bg-red-100"
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-100"
+  }
+}
+
 export type RecoveryStatus = "Seguro" | "Atenção" | "Crítico"
 
 export interface RecoveryScoreResult {
