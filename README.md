@@ -1,91 +1,157 @@
-# 🏥 ACOMPANHA
+# ACOMPANHA
 
-> **Plataforma de acompanhamento clínico e esportivo longitudinal para alta performance.**
+Plataforma web para acompanhamento clinico e esportivo longitudinal, conectando medicos e pacientes com check-ins semanais, alertas e analise de tendencia.
 
-[![Site](https://img.shields.io/badge/Official_Site-acompanha.online-blue?style=for-the-badge&logo=vercel)](https://acompanha.online)
-[![Next.js](https://img.shields.io/badge/Next.js_14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+Site: https://acompanha.online
 
----
+## Visao geral
 
-## 🚀 Sobre o Projeto
+O sistema possui dois portais:
 
-O **Acompanha** é um MVP (Mínimo Produto Viável) projetado para transformar a relação entre médicos e atletas/pacientes. Através de registros semanais precisos, a plataforma permite identificar tendências de saúde, fadiga e bem-estar antes que se tornem problemas clínicos.
+- Portal do paciente: registro semanal de saude, medicao corporal, comparacao de fotos, evolucao e documentos.
+- Portal medico: dashboard de risco, lista de pacientes, prontuario completo, notas clinicas, documentos e relatorio PDF.
 
-### 🌟 Diferenciais
-- **Monitoramento Longitudinal**: Dados que contam uma história ao longo do tempo.
-- **Recovery Score Inteligente**: Score preditivo (0-100) que combina 6 fatores fisiológicos para avaliar capacidade de recuperação.
-- **Alertas Inteligentes**: Sistema de cores (Verde/Amarelo/Vermelho) para triagem rápida.
-- **Identidade Visual Moderna**: Interface focada em usabilidade e clareza de dados.
+## Funcionalidades principais
 
-## 🛠️ Tecnologias
+### Paciente
 
-- **Frontend**: Next.js 14 (App Router), Tailwind CSS, Typography & Components do shadcn/ui.
-- **Backend/DB**: Supabase (Auth, Postgres, RLS, Triggers).
-- **Charts**: Recharts para visualizações interativas.
-- **PDF Reports**: jsPDF + autoTable para geração de relatórios clínicos.
-- **Icons**: Lucide React.
+- Autenticacao: login, cadastro, recuperacao e reset de senha.
+- Check-in semanal em etapas.
+- Dashboard com historico de check-ins e status de saude.
+- Pagina de evolucao com grafico de peso, gordura e massa magra.
+- Modulo de medicoes corporais com foto.
+- Comparacao de fotos e medidas lado a lado.
+- Pagina de documentos enviados pelo medico.
+- Notas compartilhadas pelo medico.
 
-## 📱 Funcionalidades
+### Medico
 
-### Para Atletas (Pacientes)
-- **Check-in Dinâmico**: Registro semanal completo de sono, estresse, libido, dor muscular, humor e saúde física.
-- **Dashboard de Evolução**: Visualize suas métricas e Recovery Score em tempo real.
-- **Perfil Personalizado**: Controle total sobre seus dados pessoais e histórico.
-- **Orientações Médicas**: Acesso a notas compartilhadas pelo médico responsável.
+- Dashboard com total de pacientes, alertas criticos e taxa de resposta.
+- Lista de pacientes com busca, ordenacao, paginacao e filtro por ativos/inativos.
+- Ativar e desativar paciente no prontuario.
+- Prontuario com:
+  - resumo semanal comparativo,
+  - graficos de metricas,
+  - historico detalhado,
+  - medicoes corporais,
+  - comparacao de fotos,
+  - notas clinicas.
+- Gestao de documentos por paciente (upload, download e exclusao).
+- Relatorio PDF do paciente.
+- Pagina de alertas clinicos com priorizacao por severidade.
 
-### Para Médicos (MD)
-- **Recovery Score System**: 
-  - Score automático (0-100) calculado via trigger SQL
-  - Pesos científicos: Sono (25%), Cansaço (20%), Estresse (15%), Humor (15%), Dor (15%), Libido (10%)
-  - Status visual: Seguro (≥80), Atenção (60-79), Crítico (<60)
-  - Página dedicada explicando metodologia completa
-- **Central de Alertas**: Foco imediato em pacientes com sinais críticos.
-- **Análise Profunda**: 
-  - Gráficos de evolução temporal (peso, sono, cansaço, etc.)
-  - Tabela de histórico de lesões com relatos detalhados
-  - Visualização de tendências e padrões
-- **Gestão de Pacientes**: Lista organizada por risco clínico e última interação.
-- **Notas Clínicas**: 
-  - Sistema completo de anotações por paciente
-  - Controle de visibilidade (privado/compartilhado)
-  - Normalização automática de joins do Supabase
-- **Relatórios PDF**: 
-  - Geração automática com dados do paciente
-  - Estatísticas resumidas dos últimos check-ins
-  - Histórico completo de lesões relatadas
-  - Tabelas detalhadas de métricas ao longo do tempo
+### Admin
 
-## 🏗️ Configuração Local
+- Cadastro e gerenciamento de modalidades e fases de temporada.
+- Vinculacao de medico existente via endpoint administrativo.
 
-1.  **Clone o repositório**
-2.  **Instale as dependências**: `npm install`
-3.  **Ambiente**: Crie um `.env.local` com as chaves do Supabase.
-4.  **Database**: Execute os scripts em `supabase/migrations/` no seu projeto Supabase (inclui triggers para Recovery Score).
-5.  **Execução**: `npm run dev`
-6.  **Lint/Type Check**: `npm run lint` e `npx tsc --noEmit`
+## Regras clinicas e score
 
-## 📊 Recovery Score
+As regras de classificacao de status clinico estao centralizadas em:
 
-O Recovery Score é calculado automaticamente via SQL trigger a cada check-in:
+- `src/lib/clinical-rules.ts`
 
-```sql
-Recovery Score = 
-  (0.25 × sono) + 
-  (0.20 × (10 - cansaço)) + 
-  (0.15 × (10 - estresse)) + 
-  (0.15 × humor) + 
-  (0.15 × (10 - dor)) + 
-  (0.10 × libido)
+Essa e a fonte unica para thresholds e avaliacao de status (`Crítico`, `Atenção`, `Seguro`, `Sem Dados`), usada por dashboard, lista de pacientes e alertas.
+
+O Recovery Score e calculado em:
+
+- `src/lib/monitoring.ts`
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- Tailwind CSS 4 + shadcn/ui + Radix
+- Supabase (Auth, Postgres, Storage, RLS)
+- Recharts
+- jsPDF + jspdf-autotable
+
+## Requisitos
+
+- Node.js 20+
+- npm 10+
+- Projeto Supabase configurado
+
+## Configuracao local
+
+### 1) Instalar dependencias
+
+```bash
+npm install
 ```
 
-**Interpretação:**
-- **80-100 (Verde)**: Seguro - Capacidade total de recuperação
-- **60-79 (Amarelo)**: Atenção - Monitoramento recomendado  
-- **0-59 (Vermelho)**: Crítico - Intervenção necessária
+### 2) Configurar variaveis de ambiente
 
----
+Use o arquivo de exemplo:
 
-Desenvolvido para profissionais que buscam excelência no acompanhamento de saúde.
+```bash
+cp .env.local.example .env.local
+```
 
-**Acesse agora:** [https://acompanha.online](https://acompanha.online)
+Variaveis usadas:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (apenas servidor)
+
+Opcional (quando habilitado no projeto):
+
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+
+### 3) Aplicar migrations no Supabase
+
+Executar os SQLs da pasta `supabase/migrations`:
+
+- `apply_admin_rls.sql`
+- `fix_doctor_rls_circular.sql`
+- `measurements_migration.sql`
+- `patient_notes_migration.sql`
+- `patient_notes_delete_policy.sql`
+- `patient_status_and_documents.sql`
+- `recovery_score_migration.sql`
+- `recalculate_recovery_scores.sql`
+
+### 4) Rodar o projeto
+
+```bash
+npm run dev
+```
+
+## Qualidade
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
+
+## Estrutura relevante
+
+```text
+src/
+  app/
+    (auth)/
+    (patient)/
+    doctor/
+    api/
+  components/
+    dashboard/
+    measurements/
+    ui/
+  lib/
+    clinical-rules.ts
+    monitoring.ts
+    supabase/
+supabase/
+  migrations/
+```
+
+## Seguranca
+
+- Nunca expor `SUPABASE_SERVICE_ROLE_KEY` no cliente.
+- O endpoint admin usa service role e deve ser acessivel somente por usuarios autorizados.
+- RLS e policies estao versionadas nas migrations SQL.
+
+## Status do projeto
+
+Produto em evolucao continua, com foco em qualidade clinica, UX e consistencia de regras de negocio.
