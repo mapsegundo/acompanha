@@ -34,10 +34,13 @@ type Patient = {
     nome: string | null
     email: string | null
     sexo: string | null
+    ativo: boolean
     sport_modalities: { nome: string } | null
     season_phases: { nome: string } | null
     weekly_checkins: WeeklyCheckin[]
 }
+
+type StatusFilter = 'ativos' | 'inativos' | 'todos'
 
 type SortConfig = {
     key: 'nome' | 'status' | 'lastCheckin'
@@ -56,6 +59,7 @@ export default function PatientsListPage() {
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [sortConfig, setSortConfig] = useState<SortConfig>(null)
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>('ativos')
     const supabase = createClient()
 
     const fetchPatients = useCallback(async () => {
@@ -105,6 +109,13 @@ export default function PatientsListPage() {
     const filteredAndSortedPatients = useMemo(() => {
         let result = [...patients]
 
+        // Filter by active status
+        if (statusFilter === 'ativos') {
+            result = result.filter(p => p.ativo !== false)
+        } else if (statusFilter === 'inativos') {
+            result = result.filter(p => p.ativo === false)
+        }
+
         // Filter by search query
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase()
@@ -151,7 +162,7 @@ export default function PatientsListPage() {
         }
 
         return result
-    }, [patients, searchQuery, sortConfig])
+    }, [patients, searchQuery, sortConfig, statusFilter])
 
     if (loading) {
         return (
@@ -168,8 +179,8 @@ export default function PatientsListPage() {
                 <p className="text-sm sm:text-base text-muted-foreground">Listagem completa de atletas monitorados e sua saúde atual.</p>
             </div>
 
-            {/* Search Bar */}
-            <div className="flex items-center gap-4">
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -178,6 +189,20 @@ export default function PatientsListPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10"
                     />
+                </div>
+                <div className="flex rounded-lg border bg-muted/30 p-0.5 shrink-0">
+                    {(['ativos', 'inativos', 'todos'] as StatusFilter[]).map((f) => (
+                        <button
+                            key={f}
+                            onClick={() => setStatusFilter(f)}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-md capitalize transition-all ${statusFilter === f
+                                    ? 'bg-white shadow-sm text-slate-900'
+                                    : 'text-muted-foreground hover:text-slate-700'
+                                }`}
+                        >
+                            {f}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -253,7 +278,7 @@ export default function PatientsListPage() {
                                 }
 
                                 return (
-                                    <TableRow key={patient.id} className="hover:bg-muted/30 transition-colors group">
+                                    <TableRow key={patient.id} className={`hover:bg-muted/30 transition-colors group ${patient.ativo === false ? 'opacity-50' : ''}`}>
                                         <TableCell className="font-medium">
                                             <div className="flex items-center gap-2 sm:gap-3">
                                                 <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border border-border shrink-0">

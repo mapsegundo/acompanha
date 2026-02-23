@@ -11,6 +11,9 @@ import { calculateRecoveryScore, getRecoveryColor } from "@/lib/monitoring"
 import { Info } from 'lucide-react'
 import { PatientSummary } from "./patient-summary"
 import { PatientMeasurements } from "./patient-measurements"
+import { PatientToggleStatus } from "./patient-toggle-status"
+import { PatientDocuments } from "./patient-documents"
+import { PatientPhotoComparison } from "./patient-photo-comparison"
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -26,6 +29,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             idade,
             sexo,
             peso,
+            ativo,
             sport_modalities ( nome ),
             season_phases ( nome )
         `)
@@ -137,6 +141,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                     </div>
 
                     <div className="flex items-center gap-2 self-end md:self-center">
+                        <PatientToggleStatus patientId={id} initialAtivo={patient.ativo !== false} />
                         <ReportButton
                             patient={{
                                 nome: patient.nome || "Paciente",
@@ -171,6 +176,12 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
             {/* Body Measurements */}
             <PatientMeasurements patientId={id} />
+
+            {/* Photo Comparison */}
+            <PatientPhotoComparison patientId={id} />
+
+            {/* Documents */}
+            <PatientDocuments patientId={id} />
 
             {/* Clinical Notes */}
             <PatientNotes patientId={id} isDoctor={true} />
