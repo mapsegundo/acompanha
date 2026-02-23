@@ -53,9 +53,16 @@ export default function DocumentosPage() {
     }, [loadDocuments])
 
     async function handleDownload(doc: Document) {
-        const { data } = await supabase.storage
+        console.log("Gerando link para:", doc.file_url)
+        const { data, error } = await supabase.storage
             .from('patient-documents')
             .createSignedUrl(doc.file_url, 3600)
+
+        if (error) {
+            console.error("Erro Supabase Storage:", error)
+            toast.error("Erro ao gerar link de download")
+            return
+        }
 
         if (data?.signedUrl) {
             window.open(data.signedUrl, '_blank')

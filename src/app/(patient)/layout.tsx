@@ -3,6 +3,7 @@ import { Activity, ClipboardPlus, LogOut, CircleUserRound, User, Ruler, Trending
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
+import { PatientMobileSidebar } from "@/components/patient-mobile-sidebar"
 
 export default async function PatientLayout({
     children,
@@ -13,8 +14,12 @@ export default async function PatientLayout({
     const { data: { user } } = await supabase.auth.getUser()
 
     return (
-        <div className="flex h-screen w-full flex-col md:flex-row bg-muted/20">
-            <aside className="w-full md:w-64 bg-background border-r flex flex-col justify-between">
+        <div className="flex min-h-screen w-full flex-col md:flex-row bg-muted/20">
+            {/* Mobile hamburger */}
+            <PatientMobileSidebar userEmail={user?.email} />
+
+            {/* Desktop sidebar - hidden on mobile */}
+            <aside className="hidden md:flex w-64 bg-background border-r flex-col justify-between">
                 <div className="p-6">
                     <div className="flex items-center gap-3 mb-8">
                         <Image src="/logo.png" alt="Logo" width={32} height={32} className="rounded-lg shadow-md" />
@@ -79,7 +84,8 @@ export default async function PatientLayout({
                     </form>
                 </div>
             </aside>
-            <main className="flex-1 overflow-y-auto p-4 md:p-8">
+
+            <main className="flex-1 overflow-y-auto p-4 pt-16 md:pt-8 md:p-8">
                 {children}
             </main>
         </div>

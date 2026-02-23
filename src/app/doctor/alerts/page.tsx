@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { calculateHealthStatus, getCriticalRiskMessage, getWarningRiskMessage } from "@/lib/monitoring"
+import { getCriticalRiskMessage, getWarningRiskMessage } from "@/lib/monitoring"
+import { evaluateClinicalStatus } from "@/lib/clinical-rules"
 
 interface AlertItem {
     id: string
@@ -86,66 +87,17 @@ export default async function AlertsPage() {
 
         const latest = recentCheckins[0]
 
-        const status = calculateHealthStatus(latest, patient.sexo)
+        const evaluation = evaluateClinicalStatus(latest, patient.sexo)
 
-        if (status === 'Crítico') {
-            const reasons = []
-            const riskMessages: string[] = []
-            const metrics = []
-
-            if (latest.lesao) {
-                reasons.push('lesão/dor relatada')
-                riskMessages.push(getCriticalRiskMessage('lesao'))
-                metrics.push({ label: 'Lesão', value: 'Sim', critical: true })
-            }
-            if (latest.ciclo_menstrual_alterado && patient.sexo === 'F') {
-                reasons.push('alteração no ciclo menstrual')
-                riskMessages.push(getCriticalRiskMessage('ciclo_alterado'))
-                metrics.push({ label: 'Ciclo Alterado', value: 'Sim', critical: true })
-            }
-            if (latest.qualidade_sono <= 3) {
-                reasons.push('sono péssimo')
-                riskMessages.push(getCriticalRiskMessage('sono_critico'))
-                metrics.push({ label: 'Sono', value: `${latest.qualidade_sono}/10`, critical: true })
-            }
-            if (latest.cansaco >= 8) {
-                reasons.push('cansaço extremo')
-                riskMessages.push(getCriticalRiskMessage('cansaco_critico'))
-                metrics.push({ label: 'Cansaço', value: `${latest.cansaco}/10`, critical: true })
-            }
-            if (latest.dor_muscular >= 8) {
-                reasons.push('dor muscular aguda')
-                riskMessages.push(getCriticalRiskMessage('dor_critica'))
-                metrics.push({ label: 'Dor', value: `${latest.dor_muscular}/10`, critical: true })
-            }
-            if (latest.estresse >= 8) {
-                reasons.push('estresse muito alto')
-                riskMessages.push(getCriticalRiskMessage('estresse_critico'))
-                metrics.push({ label: 'Estresse', value: `${latest.estresse}/10`, critical: true })
-            }
-            if (latest.humor <= 2) {
-                reasons.push('humor muito baixo')
-                riskMessages.push(getCriticalRiskMessage('humor_critico'))
-                metrics.push({ label: 'Humor', value: `${latest.humor}/10`, critical: true })
-            }
-            if (latest.libido <= 2) {
-                reasons.push('libido muito baixa')
-                riskMessages.push(getCriticalRiskMessage('libido_critica'))
-                metrics.push({ label: 'Libido', value: `${latest.libido}/10`, critical: true })
-            }
-            if (latest.erecao_matinal === false && patient.sexo === 'M') {
-                reasons.push('ausência de ereção matinal')
-                riskMessages.push(getCriticalRiskMessage('erecao_matinal_ausente'))
-                metrics.push({ label: 'Ereção Matinal', value: 'Não', critical: true })
-            }
-
+        if (evaluation.status === 'Crítico') {
+            const riskMessages = evaluation.criticalReasons.map((reason) => getCriticalRiskMessage(reason))
             activeAlerts.push({
                 id: `crit-${latest.id}`,
                 patientId: patient.id,
                 patientName: patient.nome || "Atleta",
                 type: "Risco Crítico",
                 severity: "Vermelho",
-                message: riskMessages.join(' '),
+                message: riskMessages.length > 0 ? riskMessages.join(' ') : "Métrica crítica detectada.",
                 date: latest.data,
                 metric: "Saúde Geral",
                 details: {
@@ -158,54 +110,15 @@ export default async function AlertsPage() {
                     lesao: latest.lesao
                 }
             })
-        } else if (status === 'Atenção') {
-            const reasons = []
-            const riskMessages: string[] = []
-            const metrics = []
-
-            if (latest.qualidade_sono <= 5) {
-                reasons.push('sono insuficiente')
-                riskMessages.push(getWarningRiskMessage('sono_atencao'))
-                metrics.push({ label: 'Sono', value: `${latest.qualidade_sono}/10`, critical: false })
-            }
-            if (latest.dor_muscular >= 7) {
-                reasons.push('dor persistente')
-                riskMessages.push(getWarningRiskMessage('dor_atencao'))
-                metrics.push({ label: 'Dor', value: `${latest.dor_muscular}/10`, critical: false })
-            }
-            if (latest.cansaco >= 7) {
-                reasons.push('fadiga elevada')
-                riskMessages.push(getWarningRiskMessage('cansaco_atencao'))
-                metrics.push({ label: 'Cansaço', value: `${latest.cansaco}/10`, critical: false })
-            }
-            if (latest.estresse >= 8) {
-                reasons.push('estresse alto')
-                riskMessages.push(getWarningRiskMessage('estresse_atencao'))
-                metrics.push({ label: 'Estresse', value: `${latest.estresse}/10`, critical: false })
-            }
-            if (latest.humor <= 4) {
-                reasons.push('humor deprimido')
-                riskMessages.push(getWarningRiskMessage('humor_atencao'))
-                metrics.push({ label: 'Humor', value: `${latest.humor}/10`, critical: false })
-            }
-            if (latest.libido <= 5) {
-                reasons.push('libido reduzida')
-                riskMessages.push(getWarningRiskMessage('libido_atencao'))
-                metrics.push({ label: 'Libido', value: `${latest.libido}/10`, critical: false })
-            }
-            if (latest.erecao_matinal === false && patient.sexo === 'M') {
-                reasons.push('ausência de ereção matinal')
-                riskMessages.push(getWarningRiskMessage('erecao_matinal_atencao'))
-                metrics.push({ label: 'Ereção Matinal', value: 'Não', critical: false })
-            }
-
+        } else if (evaluation.status === 'Atenção') {
+            const riskMessages = evaluation.warningReasons.map((reason) => getWarningRiskMessage(reason))
             activeAlerts.push({
                 id: `warn-${latest.id}`,
                 patientId: patient.id,
                 patientName: patient.nome || "Atleta",
                 type: "Atenção Necessária",
                 severity: "Amarelo",
-                message: riskMessages.join(' '),
+                message: riskMessages.length > 0 ? riskMessages.join(' ') : "Sinal de alerta identificado.",
                 date: latest.data,
                 metric: "Monitoramento",
                 details: {

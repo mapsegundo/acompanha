@@ -149,16 +149,16 @@ export function PatientDocuments({ patientId }: PatientDocumentsProps) {
     }
 
     return (
-        <Card className="border-none shadow-md ring-1 ring-border overflow-hidden">
+        <Card className="border-l-4 border-l-indigo-400">
             <CardHeader
-                className="bg-muted/50 border-b cursor-pointer hover:bg-muted/70 transition-colors"
+                className="pb-3 cursor-pointer"
                 onClick={() => setExpanded(!expanded)}
             >
                 <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-base">
-                        <FileText className="h-5 w-5 text-indigo-500" />
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-indigo-500" />
                         Documentos
-                        <span className="text-xs font-normal text-muted-foreground">({documents.length})</span>
+                        <span className="text-xs text-muted-foreground font-normal ml-1">({documents.length})</span>
                     </CardTitle>
                     <div className="flex items-center gap-2">
                         {expanded && (
@@ -262,9 +262,9 @@ export function PatientDocuments({ patientId }: PatientDocumentsProps) {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => handleDelete(doc)}
-                                            className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                                         >
-                                            <Trash2 className="h-4 w-4" />
+                                            <Trash2 className="h-4 w-4 text-red-400" />
                                         </Button>
                                     </div>
                                 </div>

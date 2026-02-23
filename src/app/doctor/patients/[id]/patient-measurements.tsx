@@ -3,9 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Ruler, Calendar, ImageIcon, ChevronDown, ChevronUp } from "lucide-react"
 import { format, parseISO } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import Image from "next/image"
+import { withSignedMeasurementUrls } from "@/lib/measurement-photos"
 
 interface BodyMeasurement {
     id: string
@@ -70,18 +71,16 @@ export function PatientMeasurements({ patientId }: PatientMeasurementsProps) {
                 .order('data', { ascending: false })
 
             if (!error && data) {
-                setMeasurements(data as BodyMeasurement[])
+                const typedData = data as BodyMeasurement[]
+                setMeasurements(typedData)
 
-                // Generate signed URLs for photos
+                const rowsWithSignedUrls = await withSignedMeasurementUrls(supabase, typedData)
                 const urls: Record<string, string> = {}
-                for (const m of data) {
-                    if (m.foto_url) {
-                        const { data: signed } = await supabase.storage
-                            .from('measurements')
-                            .createSignedUrl(m.foto_url, 3600)
-                        if (signed) urls[m.id] = signed.signedUrl
+                rowsWithSignedUrls.forEach((row) => {
+                    if (row.signedUrl) {
+                        urls[row.id] = row.signedUrl
                     }
-                }
+                })
                 setSignedUrls(urls)
             }
             setLoading(false)
@@ -176,11 +175,13 @@ export function PatientMeasurements({ patientId }: PatientMeasurementsProps) {
                                         {/* Photo */}
                                         {signedUrls[m.id] && (
                                             <div className="w-full md:w-48 shrink-0">
-                                                <img
+                                                <Image
                                                     src={signedUrls[m.id]}
                                                     alt={`Progresso ${format(parseISO(m.data), "dd/MM/yyyy")}`}
-                                                    className="w-full rounded-lg object-cover"
-                                                    style={{ maxHeight: '240px' }}
+                                                    width={768}
+                                                    height={1024}
+                                                    unoptimized
+                                                    className="w-full rounded-lg object-cover max-h-[240px]"
                                                 />
                                             </div>
                                         )}

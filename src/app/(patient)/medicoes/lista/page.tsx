@@ -1,11 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import Image from "next/image"
 import { Plus, Calendar, Ruler, ImageIcon, SplitSquareVertical } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
+import { withSignedMeasurementUrls } from "@/lib/measurement-photos"
 
 interface BodyMeasurement {
     id: string
@@ -57,19 +59,7 @@ export default async function MedicoesListaPage() {
         }
     }
 
-    // Generate signed URLs for photos
-    const measurementsWithUrls = await Promise.all(
-        measurements.map(async (m) => {
-            let signedUrl: string | null = null
-            if (m.foto_url) {
-                const { data } = await supabase.storage
-                    .from('measurements')
-                    .createSignedUrl(m.foto_url, 3600)
-                if (data) signedUrl = data.signedUrl
-            }
-            return { ...m, signedImageUrl: signedUrl }
-        })
-    )
+    const measurementsWithUrls = await withSignedMeasurementUrls(supabase, measurements)
 
     const formatValue = (val: number | null, unit: string) => {
         if (val === null || val === undefined) return '-'
@@ -98,24 +88,27 @@ export default async function MedicoesListaPage() {
                 {measurementsWithUrls.map((measurement) => (
                     <Card key={measurement.id} className="hover:shadow-lg transition-all border-l-4 border-l-purple-500 overflow-hidden">
                         {/* Photo thumbnail */}
-                        {measurement.signedImageUrl && (
+                        {measurement.signedUrl && (
                             <div className="relative w-full h-40 bg-muted">
-                                <img
-                                    src={measurement.signedImageUrl}
+                                <Image
+                                    src={measurement.signedUrl}
                                     alt={`Progresso ${format(parseISO(measurement.data), "dd/MM/yyyy")}`}
+                                    fill
+                                    unoptimized
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     className="w-full h-full object-cover"
                                 />
                             </div>
                         )}
 
-                        <CardContent className={`space-y-3 ${measurement.signedImageUrl ? 'pt-4' : 'pt-6'}`}>
+                        <CardContent className={`space-y-3 ${measurement.signedUrl ? 'pt-4' : 'pt-6'}`}>
                             {/* Date Header */}
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                                     <Calendar className="h-4 w-4" />
                                     {format(parseISO(measurement.data), "dd 'de' MMMM", { locale: ptBR })}
                                 </div>
-                                {!measurement.signedImageUrl && (
+                                {!measurement.signedUrl && (
                                     <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">
                                         <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
                                     </div>

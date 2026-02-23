@@ -97,14 +97,18 @@ export default function SignupPage() {
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Informações de Acesso</Label>
+                                    <Label htmlFor="signup-email" className="text-xs font-bold text-slate-500 ml-1">Email</Label>
                                     <Input
+                                        id="signup-email"
                                         placeholder="Seu melhor e-mail"
                                         type="email"
                                         className="h-12 border-slate-200 font-medium"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
+                                    <Label htmlFor="signup-password" className="text-xs font-bold text-slate-500 ml-1">Senha</Label>
                                     <Input
+                                        id="signup-password"
                                         placeholder="Crie uma senha forte"
                                         type="password"
                                         className="h-12 border-slate-200 font-medium"
@@ -118,22 +122,27 @@ export default function SignupPage() {
                                 </div>
                                 <div className="space-y-2 pt-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Seu Perfil</Label>
+                                    <Label htmlFor="signup-nome" className="text-xs font-bold text-slate-500 ml-1">Nome completo</Label>
                                     <Input
+                                        id="signup-nome"
                                         placeholder="Seu nome completo"
                                         className="h-12 border-slate-200 font-medium"
                                         value={nome}
                                         onChange={(e) => setNome(e.target.value)}
                                     />
                                     <div className="grid grid-cols-2 gap-3">
+                                        <Label htmlFor="signup-idade" className="sr-only">Idade</Label>
                                         <Input
+                                            id="signup-idade"
                                             placeholder="Idade"
                                             type="number"
                                             className="h-12 border-slate-200 font-medium"
                                             value={idade}
                                             onChange={(e) => setIdade(e.target.value)}
                                         />
+                                        <Label htmlFor="signup-sexo" className="sr-only">Gênero</Label>
                                         <Select value={sexo} onValueChange={setSexo}>
-                                            <SelectTrigger className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
+                                            <SelectTrigger id="signup-sexo" aria-label="Gênero" className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
                                                 <SelectValue placeholder="Gênero" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -159,7 +168,9 @@ export default function SignupPage() {
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Informações Esportivas</Label>
+                                    <Label htmlFor="signup-peso" className="text-xs font-bold text-slate-500 ml-1">Peso atual</Label>
                                     <Input
+                                        id="signup-peso"
                                         placeholder="Peso atual (kg)"
                                         type="number"
                                         step="0.1"
@@ -167,16 +178,18 @@ export default function SignupPage() {
                                         value={peso}
                                         onChange={(e) => setPeso(e.target.value)}
                                     />
+                                    <Label htmlFor="signup-modalidade" className="sr-only">Modalidade esportiva</Label>
                                     <Select value={modalidadeId} onValueChange={setModalidadeId}>
-                                        <SelectTrigger className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
+                                        <SelectTrigger id="signup-modalidade" aria-label="Modalidade esportiva" className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
                                             <SelectValue placeholder="Modalidade Esportiva" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {modalities.map(m => <SelectItem key={m.id} value={m.id}>{m.nome}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    <Label htmlFor="signup-fase" className="sr-only">Fase da temporada</Label>
                                     <Select value={faseId} onValueChange={setFaseId}>
-                                        <SelectTrigger className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
+                                        <SelectTrigger id="signup-fase" aria-label="Fase da temporada" className="w-full !h-12 !min-h-[3rem] border-slate-200 font-medium flex items-center">
                                             <SelectValue placeholder="Fase da Temporada" />
                                         </SelectTrigger>
                                         <SelectContent>
