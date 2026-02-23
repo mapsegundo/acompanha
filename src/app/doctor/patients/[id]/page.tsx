@@ -10,6 +10,7 @@ import { ReportButton } from "./report-button"
 import { calculateRecoveryScore, getRecoveryColor } from "@/lib/monitoring"
 import { Info } from 'lucide-react'
 import { PatientSummary } from "./patient-summary"
+import { PatientMeasurements } from "./patient-measurements"
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -167,6 +168,9 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                     <p className="text-muted-foreground">Este paciente ainda não realizou nenhum acompanhamento.</p>
                 </div>
             )}
+
+            {/* Body Measurements */}
+            <PatientMeasurements patientId={id} />
 
             {/* Clinical Notes */}
             <PatientNotes patientId={id} isDoctor={true} />

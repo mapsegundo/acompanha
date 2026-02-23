@@ -62,14 +62,14 @@ function CheckinForm() {
         mode: "onChange",
         defaultValues: {
             data: format(new Date(), 'yyyy-MM-dd'),
-            peso: 0,
+            peso: '' as unknown as number,
             cansaco: 5,
-            horas_treino_7d: 0,
+            horas_treino_7d: '' as unknown as number,
             qualidade_sono: 5,
             dor_muscular: 0,
             estresse: 5,
             humor: 5,
-            duracao_treino: 0,
+            duracao_treino: '' as unknown as number,
             ciclo_menstrual_alterado: false,
             libido: 5,
             erecao_matinal: false,
@@ -236,7 +236,7 @@ function CheckinForm() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto py-8">
+        <div className="max-w-2xl mx-auto py-4 pb-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">
                     {checkinId ? 'Editar Acompanhamento' : 'Novo Acompanhamento'}
@@ -277,7 +277,13 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Peso Atual (kg)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.1" {...field} className="h-12" />
+                                                <Input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    placeholder="Ex: 80.5"
+                                                    {...field}
+                                                    className="h-12"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -480,15 +486,21 @@ function CheckinForm() {
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                             <h2 className="text-xl font-semibold">Treino & Lesões</h2>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="horas_treino_7d"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Horas de Treino (7d)</FormLabel>
+                                            <FormLabel>Horas de Treino (últimos 7 dias)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" step="0.5" {...field} className="h-12" />
+                                                <Input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    placeholder="Ex: 5.5"
+                                                    {...field}
+                                                    className="h-12"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -499,9 +511,15 @@ function CheckinForm() {
                                     name="duracao_treino"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Duração Média (min)</FormLabel>
+                                            <FormLabel>Duração Média por Treino (min)</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} className="h-12" />
+                                                <Input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    placeholder="Ex: 60"
+                                                    {...field}
+                                                    className="h-12"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

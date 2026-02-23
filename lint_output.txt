@@ -1,0 +1,790 @@
+﻿
+> acompanha@1.0.0 lint
+> eslint
+
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\checkin\page.tsx
+  65:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\evolucao\page.tsx
+  162:23  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\evolucao\page.tsx:162:23
+  160 |     }, [router, supabase])
+  161 |
+> 162 |     useEffect(() => { loadData() }, [loadData])
+      |                       ^^^^^^^^ Avoid calling setState() directly within an effect
+  163 |
+  164 |     const metric = METRICS.find((m) => m.key === activeMetric)!
+  165 |     const chartData = measurements  react-hooks/set-state-in-effect
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx
+    9:10  warning  'Button' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   96:23  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:96:23
+  94 |     }, [router, supabase])
+  95 |
+> 96 |     useEffect(() => { loadData() }, [loadData])
+     |                       ^^^^^^^^ Avoid calling setState() directly within an effect
+  97 |
+  98 |     const leftM = measurements.find((m) => m.id === leftId) ?? null
+  99 |     const rightM = measurements.find((m) => m.id === rightId) ?? null                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/set-state-in-effect
+  166:15  warning  'diff' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  191:18  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:191:18
+  189 |             {/* Selectors */}
+  190 |             <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+> 191 |                 <SideSelector
+      |                  ^^^^^^^^^^^^ This component is created during render
+  192 |                     value={leftId}
+  193 |                     onChange={setLeftId}
+  194 |                     open={leftOpen}
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:109:5
+  107 |     const withPhotos = measurements.filter((m) => m.signedUrl)
+  108 |
+> 109 |     function SideSelector({
+      |     ^^^^^^^^^^^^^^^^^^^^^^^
+> 110 |         value,
+      | ^^^^^^^^^^^^^^
+> 111 |         onChange,
+      ÔÇª
+      | ^^^^^^^^^^^^^^
+> 158 |         )
+      | ^^^^^^^^^^^^^^
+> 159 |     }
+      | ^^^^^^ The component is created during render here
+  160 |
+  161 |     if (isLoading) {
+  162 |         return <div className="flex justify-center py-12 text-muted-foreground text-sm">Carregando...</div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/static-components
+  199:18  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:199:18
+  197 |                 />
+  198 |                 <span className="text-muted-foreground text-sm font-bold shrink-0">vs</span>
+> 199 |                 <SideSelector
+      |                  ^^^^^^^^^^^^ This component is created during render
+  200 |                     value={rightId}
+  201 |                     onChange={setRightId}
+  202 |                     open={rightOpen}
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:109:5
+  107 |     const withPhotos = measurements.filter((m) => m.signedUrl)
+  108 |
+> 109 |     function SideSelector({
+      |     ^^^^^^^^^^^^^^^^^^^^^^^
+> 110 |         value,
+      | ^^^^^^^^^^^^^^
+> 111 |         onChange,
+      ÔÇª
+      | ^^^^^^^^^^^^^^
+> 158 |         )
+      | ^^^^^^^^^^^^^^
+> 159 |     }
+      | ^^^^^^ The component is created during render here
+  160 |
+  161 |     if (isLoading) {
+  162 |         return <div className="flex justify-center py-12 text-muted-foreground text-sm">Carregando...</div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/static-components
+  277:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:277:34
+  275 |                             <div className="px-4 py-2">
+  276 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-2 pb-1">Composi├º├úo</p>
+> 277 |                                 <StatRow label="Peso" left={leftM.peso_corporal} right={rightM.peso_corporal} unit="kg" />
+      |                                  ^^^^^^^ This component is created during render
+  278 |                                 <StatRow label="Gordura" left={leftM.gordura_corporal} right={rightM.gordura_corporal} unit="%" />
+  279 |                                 <StatRow label="Massa Magra" left={leftM.massa_magra} right={rightM.massa_magra} unit="kg" />
+  280 |
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                                       react-hooks/static-components
+  278:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:278:34
+  276 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-2 pb-1">Composi├º├úo</p>
+  277 |                                 <StatRow label="Peso" left={leftM.peso_corporal} right={rightM.peso_corporal} unit="kg" />
+> 278 |                                 <StatRow label="Gordura" left={leftM.gordura_corporal} right={rightM.gordura_corporal} unit="%" />
+      |                                  ^^^^^^^ This component is created during render
+  279 |                                 <StatRow label="Massa Magra" left={leftM.massa_magra} right={rightM.massa_magra} unit="kg" />
+  280 |
+  281 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Tronco</p>
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                 react-hooks/static-components
+  279:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:279:34
+  277 |                                 <StatRow label="Peso" left={leftM.peso_corporal} right={rightM.peso_corporal} unit="kg" />
+  278 |                                 <StatRow label="Gordura" left={leftM.gordura_corporal} right={rightM.gordura_corporal} unit="%" />
+> 279 |                                 <StatRow label="Massa Magra" left={leftM.massa_magra} right={rightM.massa_magra} unit="kg" />
+      |                                  ^^^^^^^ This component is created during render
+  280 |
+  281 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Tronco</p>
+  282 |                                 <StatRow label="Pesco├ºo" left={leftM.pescoco} right={rightM.pescoco} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                 react-hooks/static-components
+  282:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:282:34
+  280 |
+  281 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Tronco</p>
+> 282 |                                 <StatRow label="Pesco├ºo" left={leftM.pescoco} right={rightM.pescoco} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  283 |                                 <StatRow label="Ombro" left={leftM.ombro} right={rightM.ombro} unit="cm" />
+  284 |                                 <StatRow label="Peito" left={leftM.peito} right={rightM.peito} unit="cm" />
+  285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                                   react-hooks/static-components
+  283:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:283:34
+  281 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Tronco</p>
+  282 |                                 <StatRow label="Pesco├ºo" left={leftM.pescoco} right={rightM.pescoco} unit="cm" />
+> 283 |                                 <StatRow label="Ombro" left={leftM.ombro} right={rightM.ombro} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  284 |                                 <StatRow label="Peito" left={leftM.peito} right={rightM.peito} unit="cm" />
+  285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+  286 |                                 <StatRow label="Abdome" left={leftM.abdomen} right={rightM.abdomen} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                  react-hooks/static-components
+  284:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:284:34
+  282 |                                 <StatRow label="Pesco├ºo" left={leftM.pescoco} right={rightM.pescoco} unit="cm" />
+  283 |                                 <StatRow label="Ombro" left={leftM.ombro} right={rightM.ombro} unit="cm" />
+> 284 |                                 <StatRow label="Peito" left={leftM.peito} right={rightM.peito} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+  286 |                                 <StatRow label="Abdome" left={leftM.abdomen} right={rightM.abdomen} unit="cm" />
+  287 |                                 <StatRow label="Quadris" left={leftM.quadris} right={rightM.quadris} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                              react-hooks/static-components
+  285:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:285:34
+  283 |                                 <StatRow label="Ombro" left={leftM.ombro} right={rightM.ombro} unit="cm" />
+  284 |                                 <StatRow label="Peito" left={leftM.peito} right={rightM.peito} unit="cm" />
+> 285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  286 |                                 <StatRow label="Abdome" left={leftM.abdomen} right={rightM.abdomen} unit="cm" />
+  287 |                                 <StatRow label="Quadris" left={leftM.quadris} right={rightM.quadris} unit="cm" />
+  288 |
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                                                                react-hooks/static-components
+  286:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:286:34
+  284 |                                 <StatRow label="Peito" left={leftM.peito} right={rightM.peito} unit="cm" />
+  285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+> 286 |                                 <StatRow label="Abdome" left={leftM.abdomen} right={rightM.abdomen} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  287 |                                 <StatRow label="Quadris" left={leftM.quadris} right={rightM.quadris} unit="cm" />
+  288 |
+  289 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Bra├ºos</p>
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                              react-hooks/static-components
+  287:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:287:34
+  285 |                                 <StatRow label="Cintura" left={leftM.cintura} right={rightM.cintura} unit="cm" />
+  286 |                                 <StatRow label="Abdome" left={leftM.abdomen} right={rightM.abdomen} unit="cm" />
+> 287 |                                 <StatRow label="Quadris" left={leftM.quadris} right={rightM.quadris} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  288 |
+  289 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Bra├ºos</p>
+  290 |                                 <StatRow label="B├¡ceps E" left={leftM.biceps_esquerdo} right={rightM.biceps_esquerdo} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                       react-hooks/static-components
+  290:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:290:34
+  288 |
+  289 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Bra├ºos</p>
+> 290 |                                 <StatRow label="B├¡ceps E" left={leftM.biceps_esquerdo} right={rightM.biceps_esquerdo} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  291 |                                 <StatRow label="B├¡ceps D" left={leftM.biceps_direito} right={rightM.biceps_direito} unit="cm" />
+  292 |                                 <StatRow label="Antebra├ºo E" left={leftM.antebraco_esquerdo} right={rightM.antebraco_esquerdo} unit="cm" />
+  293 |                                 <StatRow label="Antebra├ºo D" left={leftM.antebraco_direito} right={rightM.antebraco_direito} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                     react-hooks/static-components
+  291:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:291:34
+  289 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Bra├ºos</p>
+  290 |                                 <StatRow label="B├¡ceps E" left={leftM.biceps_esquerdo} right={rightM.biceps_esquerdo} unit="cm" />
+> 291 |                                 <StatRow label="B├¡ceps D" left={leftM.biceps_direito} right={rightM.biceps_direito} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  292 |                                 <StatRow label="Antebra├ºo E" left={leftM.antebraco_esquerdo} right={rightM.antebraco_esquerdo} unit="cm" />
+  293 |                                 <StatRow label="Antebra├ºo D" left={leftM.antebraco_direito} right={rightM.antebraco_direito} unit="cm" />
+  294 |
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                     react-hooks/static-components
+  292:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:292:34
+  290 |                                 <StatRow label="B├¡ceps E" left={leftM.biceps_esquerdo} right={rightM.biceps_esquerdo} unit="cm" />
+  291 |                                 <StatRow label="B├¡ceps D" left={leftM.biceps_direito} right={rightM.biceps_direito} unit="cm" />
+> 292 |                                 <StatRow label="Antebra├ºo E" left={leftM.antebraco_esquerdo} right={rightM.antebraco_esquerdo} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  293 |                                 <StatRow label="Antebra├ºo D" left={leftM.antebraco_direito} right={rightM.antebraco_direito} unit="cm" />
+  294 |
+  295 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Pernas</p>
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                     react-hooks/static-components
+  293:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:293:34
+  291 |                                 <StatRow label="B├¡ceps D" left={leftM.biceps_direito} right={rightM.biceps_direito} unit="cm" />
+  292 |                                 <StatRow label="Antebra├ºo E" left={leftM.antebraco_esquerdo} right={rightM.antebraco_esquerdo} unit="cm" />
+> 293 |                                 <StatRow label="Antebra├ºo D" left={leftM.antebraco_direito} right={rightM.antebraco_direito} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  294 |
+  295 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Pernas</p>
+  296 |                                 <StatRow label="Coxa E" left={leftM.coxa_esquerda} right={rightM.coxa_esquerda} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                           react-hooks/static-components
+  296:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:296:34
+  294 |
+  295 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Pernas</p>
+> 296 |                                 <StatRow label="Coxa E" left={leftM.coxa_esquerda} right={rightM.coxa_esquerda} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  297 |                                 <StatRow label="Coxa D" left={leftM.coxa_direita} right={rightM.coxa_direita} unit="cm" />
+  298 |                                 <StatRow label="Panturrilha E" left={leftM.panturrilha_esquerda} right={rightM.panturrilha_esquerda} unit="cm" />
+  299 |                                 <StatRow label="Panturrilha D" left={leftM.panturrilha_direita} right={rightM.panturrilha_direita} unit="cm" />
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                     react-hooks/static-components
+  297:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:297:34
+  295 |                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-3 pb-1">Pernas</p>
+  296 |                                 <StatRow label="Coxa E" left={leftM.coxa_esquerda} right={rightM.coxa_esquerda} unit="cm" />
+> 297 |                                 <StatRow label="Coxa D" left={leftM.coxa_direita} right={rightM.coxa_direita} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  298 |                                 <StatRow label="Panturrilha E" left={leftM.panturrilha_esquerda} right={rightM.panturrilha_esquerda} unit="cm" />
+  299 |                                 <StatRow label="Panturrilha D" left={leftM.panturrilha_direita} right={rightM.panturrilha_direita} unit="cm" />
+  300 |                             </div>
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>  react-hooks/static-components
+  298:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:298:34
+  296 |                                 <StatRow label="Coxa E" left={leftM.coxa_esquerda} right={rightM.coxa_esquerda} unit="cm" />
+  297 |                                 <StatRow label="Coxa D" left={leftM.coxa_direita} right={rightM.coxa_direita} unit="cm" />
+> 298 |                                 <StatRow label="Panturrilha E" left={leftM.panturrilha_esquerda} right={rightM.panturrilha_esquerda} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  299 |                                 <StatRow label="Panturrilha D" left={leftM.panturrilha_direita} right={rightM.panturrilha_direita} unit="cm" />
+  300 |                             </div>
+  301 |                         </div>
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                 react-hooks/static-components
+  299:34  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:299:34
+  297 |                                 <StatRow label="Coxa D" left={leftM.coxa_direita} right={rightM.coxa_direita} unit="cm" />
+  298 |                                 <StatRow label="Panturrilha E" left={leftM.panturrilha_esquerda} right={rightM.panturrilha_esquerda} unit="cm" />
+> 299 |                                 <StatRow label="Panturrilha D" left={leftM.panturrilha_direita} right={rightM.panturrilha_direita} unit="cm" />
+      |                                  ^^^^^^^ This component is created during render
+  300 |                             </div>
+  301 |                         </div>
+  302 |                     )}
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\comparar\page.tsx:165:5
+  163 |     }
+  164 |
+> 165 |     function StatRow({ label, left, right, unit }: { label: string; left: number | null; right: number | null; unit: string }) {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 166 |         const diff = left !== null && right !== null ? right - left : null
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 167 |         return (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 168 |             <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |                 <span className="text-left font-mono font-bold text-muted-foreground">{left ?? "ÔÇö"}{left !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |                 <span className="text-center font-medium text-muted-foreground">{label}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |                 <span className="text-right font-mono font-bold text-muted-foreground">{right ?? "ÔÇö"}{right !== null ? unit : ""}</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 172 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 173 |         )
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 174 |     }
+      | ^^^^^^ The component is created during render here
+  175 |
+  176 |     return (
+  177 |         <div className="space-y-5 max-w-2xl mx-auto" onClick={() => { if (leftOpen) setLeftOpen(false); if (rightOpen) setRightOpen(false) }}>                                                                                                                                                                                                                       react-hooks/static-components
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\lista\page.tsx
+  103:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\(patient)\medicoes\page.tsx
+    7:10  warning  'ptBR' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+   12:10  warning  'Separator' is defined but never used                                                                  @typescript-eslint/no-unused-vars
+   17:8   warning  'Image' is defined but never used                                                                      @typescript-eslint/no-unused-vars
+  114:5   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  116:46  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+  380:60  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+  390:63  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+
+C:\Users\marsh\Desktop\Conte├║do Trabalho\acompanha\src\app\doctor\patients\[id]\patient-measurements.tsx
+    6:10  warning  'ptBR' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  179:49  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+Ô£û 36 problems (27 errors, 9 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

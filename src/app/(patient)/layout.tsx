@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Activity, ClipboardPlus, LogOut, CircleUserRound, User } from "lucide-react"
+import { Activity, ClipboardPlus, LogOut, CircleUserRound, User, Ruler, TrendingUp, SplitSquareVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
@@ -31,6 +31,24 @@ export default async function PatientLayout({
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <ClipboardPlus className="h-4 w-4 text-emerald-500" />
                                 Novo Check-in
+                            </Button>
+                        </Link>
+                        <Link href="/medicoes/lista">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Ruler className="h-4 w-4 text-purple-500" />
+                                Medições
+                            </Button>
+                        </Link>
+                        <Link href="/evolucao">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <TrendingUp className="h-4 w-4 text-blue-400" />
+                                Evolução
+                            </Button>
+                        </Link>
+                        <Link href="/medicoes/comparar">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <SplitSquareVertical className="h-4 w-4 text-pink-500" />
+                                Comparar Fotos
                             </Button>
                         </Link>
                         <Link href="/profile">
