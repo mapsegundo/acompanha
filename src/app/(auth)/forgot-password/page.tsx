@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
                             <KeyRound className="text-white h-7 w-7" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">RECUPERAR SENHA</CardTitle>
+                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900">RECUPERAR SENHA</CardTitle>
                     <CardDescription className="font-bold text-slate-500 italic">
                         {sent ? "Link enviado com sucesso!" : "Enviaremos um link de redefinição para o seu e-mail"}
                     </CardDescription>

@@ -11,7 +11,7 @@ export default function Home() {
           <Image src="/logo.png" alt="Acompanha Logo" width={120} height={120} className="rounded-3xl shadow-2xl shadow-blue-500/20" />
         </div>
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <h1 className="text-5xl font-black tracking-tighter sm:text-7xl md:text-8xl italic uppercase">
+          <h1 className="text-5xl font-black tracking-tighter sm:text-7xl md:text-8xl uppercase">
             Acompanha<span className="text-blue-500">.</span>
           </h1>
           <p className="mx-auto max-w-[700px] text-lg text-slate-400 md:text-xl font-medium">

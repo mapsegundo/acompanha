@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
                             <ShieldAlert className="text-white h-7 w-7" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">NOVA SENHA</CardTitle>
+                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900">NOVA SENHA</CardTitle>
                     <CardDescription className="font-bold text-slate-500 italic">
                         Crie uma nova senha segura para sua conta
                     </CardDescription>

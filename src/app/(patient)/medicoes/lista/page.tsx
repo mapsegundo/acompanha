@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
-import { Plus, Calendar, Ruler, ImageIcon, SplitSquareVertical } from "lucide-react"
+import { Plus, Calendar, Ruler, GitCompare } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -61,127 +61,133 @@ export default async function MedicoesListaPage() {
 
     const measurementsWithUrls = await withSignedMeasurementUrls(supabase, measurements)
 
-    const formatValue = (val: number | null, unit: string) => {
-        if (val === null || val === undefined) return '-'
-        return `${val}${unit}`
-    }
+    const fmtVal = (val: number | null, unit: string) =>
+        val !== null && val !== undefined ? `${val}${unit}` : '-'
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-                <h1 className="text-3xl font-bold tracking-tight">Minhas Medições</h1>
+        <div className="space-y-5">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-xl font-black tracking-tight">Medições</h1>
+                    <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                        {measurements.length > 0
+                            ? `${measurements.length} registro${measurements.length > 1 ? 's' : ''}`
+                            : 'Nenhum registro ainda'}
+                    </p>
+                </div>
                 <div className="flex gap-2">
-                    <Link href="/medicoes/comparar">
-                        <Button variant="outline" className="gap-2">
-                            <SplitSquareVertical className="h-4 w-4" /> Comparar
-                        </Button>
-                    </Link>
+                    {measurements.length >= 2 && (
+                        <Link href="/medicoes/comparar">
+                            <Button variant="outline" size="sm" className="gap-1.5 text-xs h-9 border-slate-200">
+                                <GitCompare className="h-3.5 w-3.5" />
+                                Comparar
+                            </Button>
+                        </Link>
+                    )}
                     <Link href="/medicoes">
-                        <Button className="gap-2">
-                            <Plus className="h-4 w-4" /> Nova
+                        <Button size="sm" className="gap-1.5 text-xs h-9 bg-blue-600 hover:bg-blue-700">
+                            <Plus className="h-3.5 w-3.5" />
+                            Nova
                         </Button>
                     </Link>
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {measurementsWithUrls.map((measurement) => (
-                    <Card key={measurement.id} className="hover:shadow-lg transition-all border-l-4 border-l-purple-500 overflow-hidden">
-                        {/* Photo thumbnail */}
-                        {measurement.signedUrl && (
-                            <div className="relative w-full h-40 bg-muted">
-                                <Image
-                                    src={measurement.signedUrl}
-                                    alt={`Progresso ${format(parseISO(measurement.data), "dd/MM/yyyy")}`}
-                                    fill
-                                    unoptimized
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        )}
+            {/* Empty state */}
+            {measurements.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 px-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+                        <Ruler className="h-7 w-7 text-blue-500" />
+                    </div>
+                    <h3 className="text-base font-black text-slate-800 mb-1">Nenhuma medição ainda</h3>
+                    <p className="text-sm text-muted-foreground text-center mb-5">
+                        Registre suas medidas corporais para acompanhar sua evolução.
+                    </p>
+                    <Link href="/medicoes">
+                        <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
+                            <Plus className="h-4 w-4" /> Registrar Agora
+                        </Button>
+                    </Link>
+                </div>
+            )}
 
-                        <CardContent className={`space-y-3 ${measurement.signedUrl ? 'pt-4' : 'pt-6'}`}>
-                            {/* Date Header */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                                    <Calendar className="h-4 w-4" />
-                                    {format(parseISO(measurement.data), "dd 'de' MMMM", { locale: ptBR })}
+            {/* Cards grid */}
+            <div className="grid gap-4 md:grid-cols-2">
+                {measurementsWithUrls.map((m, index) => (
+                    <Link key={m.id} href={`/medicoes?id=${m.id}`} className="block">
+                        <Card className="overflow-hidden border hover:border-blue-400/50 hover:shadow-md transition-all duration-200 group">
+                            {/* Photo */}
+                            {m.signedUrl ? (
+                                <div className="relative w-full h-44 bg-slate-100">
+                                    <Image
+                                        src={m.signedUrl}
+                                        alt={`Medição ${format(parseISO(m.data), "dd/MM/yyyy")}`}
+                                        fill
+                                        unoptimized
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                        className="object-cover"
+                                    />
+                                    {index === 0 && (
+                                        <span className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-tight px-2 py-0.5 rounded-full">
+                                            Mais recente
+                                        </span>
+                                    )}
                                 </div>
-                                {!measurement.signedUrl && (
-                                    <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                                        <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Main stats */}
-                            {measurement.peso_corporal && (
-                                <div className="text-2xl font-black text-slate-900 dark:text-slate-100 italic">
-                                    {measurement.peso_corporal} kg
-                                </div>
+                            ) : (
+                                index === 0 && (
+                                    <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 to-blue-400" />
+                                )
                             )}
 
-                            {/* Quick stats grid */}
-                            <div className="text-[11px] font-bold space-y-2">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Cintura</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.cintura, 'cm')}</span>
+                            <CardContent className="p-4">
+                                {/* Date */}
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <span className="text-sm font-bold text-slate-700">
+                                            {format(parseISO(m.data), "dd 'de' MMMM", { locale: ptBR })}
+                                        </span>
                                     </div>
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Gordura</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.gordura_corporal, '%')}</span>
-                                    </div>
+                                    <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">
+                                        {format(parseISO(m.data), "eeee", { locale: ptBR })}
+                                    </span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Peito</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.peito, 'cm')}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Ombro</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.ombro, 'cm')}</span>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Bíceps E</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.biceps_esquerdo, 'cm')}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                                        <span className="text-slate-400 font-black uppercase tracking-tighter">Bíceps D</span>
-                                        <span className="text-slate-900 dark:text-slate-100 font-black">{formatValue(measurement.biceps_direito, 'cm')}</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* Edit link */}
-                            <div className="pt-3 border-t flex justify-between items-center">
-                                <span className="text-[10px] text-slate-400 font-bold">
-                                    {format(parseISO(measurement.data), "eeee", { locale: ptBR })}
-                                </span>
-                                <Link
-                                    href={`/medicoes?id=${measurement.id}`}
-                                    className="text-xs text-blue-600 font-black uppercase hover:underline"
-                                >
-                                    Editar
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                {/* Main weight */}
+                                {m.peso_corporal && (
+                                    <div className="text-3xl font-black text-slate-900 tracking-tight mb-3">
+                                        {m.peso_corporal}
+                                        <span className="text-base font-bold text-muted-foreground ml-0.5">kg</span>
+                                    </div>
+                                )}
+
+                                {/* Key stats */}
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div className="bg-slate-50 rounded-lg p-2 text-center">
+                                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-tight">Cintura</div>
+                                        <div className="text-sm font-black text-slate-800 mt-0.5">{fmtVal(m.cintura, 'cm')}</div>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-lg p-2 text-center">
+                                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-tight">Gordura</div>
+                                        <div className="text-sm font-black text-slate-800 mt-0.5">{fmtVal(m.gordura_corporal, '%')}</div>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-lg p-2 text-center">
+                                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-tight">M. Magra</div>
+                                        <div className="text-sm font-black text-slate-800 mt-0.5">{fmtVal(m.massa_magra, 'kg')}</div>
+                                    </div>
+                                </div>
+
+                                {/* Edit hint */}
+                                <div className="mt-3 pt-3 border-t flex justify-end">
+                                    <span className="text-xs text-blue-600 font-black uppercase tracking-tight group-hover:underline">
+                                        Editar →
+                                    </span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
                 ))}
-
-                {measurements.length === 0 && (
-                    <div className="col-span-full flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/10">
-                        <Ruler className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold">Nenhuma medição encontrada</h3>
-                        <p className="text-muted-foreground mb-4">Registre suas primeiras medições corporais.</p>
-                        <Link href="/medicoes">
-                            <Button>Registrar Medições</Button>
-                        </Link>
-                    </div>
-                )}
             </div>
         </div>
     )

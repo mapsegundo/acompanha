@@ -144,7 +144,7 @@ export default async function AlertsPage() {
     return (
         <div className="space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 italic">Alertas Clínicos</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Alertas Clínicos</h1>
                 <p className="text-sm sm:text-base text-muted-foreground mt-1 font-medium italic">
                     Eventos detectados nos últimos 7 dias que requerem intervenção ou monitoramento próximo.
                 </p>

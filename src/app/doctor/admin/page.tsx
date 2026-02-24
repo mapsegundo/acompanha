@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Settings, Plus, Pencil, Trash2, Users, Activity, CalendarRange } from "lucide-react"
+import { Settings, Plus, Pencil, Trash2, Users, Activity, CalendarRange, LogOut } from "lucide-react"
 import { toast } from "sonner"
 
 type Modality = {
@@ -583,6 +583,14 @@ export default function AdminPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <div className="mt-8 bg-white p-6 rounded-lg shadow-sm border md:hidden">
+                <form action="/auth/signout" method="post">
+                    <Button variant="outline" className="w-full h-12 gap-2 text-red-600 border-red-200 bg-red-50/50 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all font-bold uppercase tracking-tight" type="submit">
+                        <LogOut className="h-4 w-4" /> Sair da Conta
+                    </Button>
+                </form>
+            </div>
         </div>
     )
 }

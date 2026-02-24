@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Loader2, LogOut } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
     Select,
@@ -285,6 +285,14 @@ export default function ProfilePage() {
                         </Button>
                     </form>
                 </Form>
+            </div>
+
+            <div className="mt-8 bg-white p-6 rounded-lg shadow-sm border md:hidden">
+                <form action="/auth/signout" method="post">
+                    <Button variant="outline" className="w-full h-12 gap-2 text-red-600 border-red-200 bg-red-50/50 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all font-bold uppercase tracking-tight" type="submit">
+                        <LogOut className="h-4 w-4" /> Sair da Conta
+                    </Button>
+                </form>
             </div>
         </div>
     )

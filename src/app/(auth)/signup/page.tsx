@@ -88,7 +88,7 @@ export default function SignupPage() {
                             <ShieldCheck className="text-white h-7 w-7" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">CADASTRO</CardTitle>
+                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900">CADASTRO</CardTitle>
                     <CardDescription className="font-bold text-slate-500 italic">Crie sua conta em 2 passos rápidos</CardDescription>
                 </CardHeader>
                 <CardContent>

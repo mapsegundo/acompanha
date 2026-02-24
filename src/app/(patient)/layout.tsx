@@ -3,7 +3,7 @@ import { Activity, ClipboardPlus, LogOut, CircleUserRound, User, Ruler, Trending
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
-import { PatientMobileSidebar } from "@/components/patient-mobile-sidebar"
+import { PatientBottomNavNoSSR } from "@/components/patient-bottom-nav-nosr"
 
 export default async function PatientLayout({
     children,
@@ -15,8 +15,8 @@ export default async function PatientLayout({
 
     return (
         <div className="flex min-h-screen w-full flex-col md:flex-row bg-muted/20">
-            {/* Mobile hamburger */}
-            <PatientMobileSidebar userEmail={user?.email} />
+            {/* Mobile bottom tab nav */}
+            <PatientBottomNavNoSSR />
 
             {/* Desktop sidebar - hidden on mobile */}
             <aside className="hidden md:flex w-64 bg-background border-r flex-col justify-between">
@@ -85,7 +85,8 @@ export default async function PatientLayout({
                 </div>
             </aside>
 
-            <main className="flex-1 overflow-y-auto p-4 pt-16 md:pt-8 md:p-8">
+            {/* Main content: pb-20 on mobile for bottom nav clearance */}
+            <main className="flex-1 overflow-y-auto p-4 pb-24 md:pb-8 md:p-8">
                 {children}
             </main>
         </div>

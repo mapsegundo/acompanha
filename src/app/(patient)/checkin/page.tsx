@@ -5,16 +5,12 @@ import { useForm, UseFormReturn } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, parseISO, isAfter, startOfDay } from "date-fns"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -29,8 +25,6 @@ const formSchema = z.object({
     }, {
         message: "A data não pode ser futura",
     }),
-
-    // Check-in Fields
     peso: z.any().transform((v) => Number(v)).pipe(z.number().min(0, "Peso inválido")),
     cansaco: z.number().min(0).max(10),
     horas_treino_7d: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
@@ -48,14 +42,127 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
+// --- Score Button Grid ---
+interface ScoreButtonsProps {
+    value: number
+    onChange: (v: number) => void
+    isPositive: boolean // green at high end (true) or low end (false)
+}
+
+function getButtonColor(score: number, isPositive: boolean) {
+    const good = isPositive ? score >= 7 : score <= 3
+    const mid = isPositive ? score >= 4 && score < 7 : score > 3 && score < 7
+    if (good) return "bg-emerald-500 text-white border-emerald-500 shadow-emerald-200"
+    if (mid) return "bg-amber-400 text-white border-amber-400 shadow-amber-200"
+    return "bg-red-500 text-white border-red-500 shadow-red-200"
+}
+
+function getCardAccent(value: number, isPositive: boolean) {
+    if (value === 0) return ""
+    const good = isPositive ? value >= 7 : value <= 3
+    const mid = isPositive ? value >= 4 && value < 7 : value > 3 && value < 7
+    if (good) return "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
+    if (mid) return "bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+    return "bg-red-50/60 dark:bg-red-950/30 border-red-200 dark:border-red-800"
+}
+
+function ScoreButtons({ value, onChange, isPositive }: ScoreButtonsProps) {
+    return (
+        <div className="grid grid-cols-5 gap-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                <button
+                    key={n}
+                    type="button"
+                    onClick={() => onChange(n)}
+                    className={cn(
+                        "h-12 rounded-xl border-2 text-base font-black transition-all duration-150 shadow-sm active:scale-95",
+                        value === n
+                            ? getButtonColor(n, isPositive) + " scale-105 shadow-md"
+                            : "bg-background text-muted-foreground border-border hover:border-foreground/30"
+                    )}
+                    aria-label={`Nota ${n}`}
+                    aria-pressed={value === n}
+                >
+                    {n}
+                </button>
+            ))}
+        </div>
+    )
+}
+
+// --- Metric Card Wrapper ---
+interface MetricCardProps {
+    label: string
+    sublabel?: string
+    value: number
+    isPositive: boolean
+    children: React.ReactNode
+}
+
+function MetricCard({ label, sublabel, value, isPositive, children }: MetricCardProps) {
+    return (
+        <div className={cn(
+            "rounded-2xl border-2 p-5 space-y-4 transition-colors duration-300",
+            value > 0 ? getCardAccent(value, isPositive) : "border-border"
+        )}>
+            <div className="flex items-end justify-between">
+                <div>
+                    <p className="text-base font-bold">{label}</p>
+                    {sublabel && <p className="text-xs text-muted-foreground mt-0.5">{sublabel}</p>}
+                </div>
+                {value > 0 && (
+                    <span className="text-3xl font-black tabular-nums leading-none">{value}<span className="text-sm font-normal text-muted-foreground">/10</span></span>
+                )}
+            </div>
+            {children}
+        </div>
+    )
+}
+
+// --- Stories Progress Bar ---
+function StoriesProgress({ current, total }: { current: number; total: number }) {
+    return (
+        <div className="flex gap-1.5 w-full" role="progressbar" aria-valuenow={current} aria-valuemin={1} aria-valuemax={total}>
+            {Array.from({ length: total }, (_, i) => (
+                <div
+                    key={i}
+                    className={cn(
+                        "h-1 flex-1 rounded-full transition-colors duration-300",
+                        i < current ? "bg-foreground" : "bg-foreground/20"
+                    )}
+                />
+            ))}
+        </div>
+    )
+}
+
+// --- Loading Skeleton ---
+function CheckinSkeleton() {
+    return (
+        <div className="max-w-2xl mx-auto py-4 space-y-6 animate-pulse">
+            <div className="flex gap-1.5">
+                {[1, 2, 3].map(i => <div key={i} className="h-1 flex-1 rounded-full bg-muted" />)}
+            </div>
+            <div className="h-8 w-48 bg-muted rounded-lg" />
+            <div className="space-y-4">
+                <div className="h-32 bg-muted rounded-2xl" />
+                <div className="h-32 bg-muted rounded-2xl" />
+            </div>
+        </div>
+    )
+}
+
 function CheckinForm() {
     const [step, setStep] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const [sexo, setSexo] = useState<string | null>(null)
     const router = useRouter()
     const searchParams = useSearchParams()
     const checkinId = searchParams.get('id')
     const supabase = createClient()
+
+    const TOTAL_STEPS = 3
 
     const form: UseFormReturn<FormValues> = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -82,34 +189,17 @@ function CheckinForm() {
         const loadData = async () => {
             setIsLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                router.push('/login')
-                return
-            }
+            if (!user) { router.push('/login'); return }
 
-            // 1. Check Patient Profile
             const { data: patient } = await supabase
-                .from('patients')
-                .select('*')
-                .eq('user_id', user.id)
-                .single()
-
-            if (!patient) {
-                toast.error("Perfil não encontrado.")
-                router.push('/login')
-                return
-            }
+                .from('patients').select('*').eq('user_id', user.id).single()
+            if (!patient) { toast.error("Perfil não encontrado."); router.push('/login'); return }
 
             setSexo(patient.sexo)
 
-            // 2. Load Check-in if Editing
             if (checkinId) {
                 const { data: checkin } = await supabase
-                    .from('weekly_checkins')
-                    .select('*')
-                    .eq('id', checkinId)
-                    .single()
-
+                    .from('weekly_checkins').select('*').eq('id', checkinId).single()
                 if (checkin) {
                     form.reset({
                         data: checkin.data,
@@ -134,30 +224,17 @@ function CheckinForm() {
         loadData()
     }, [checkinId, form, router, supabase])
 
-
-    // Basic step navigation
-    // Explicitly prevent default to avoid any chance of button click bubbling as submit
-    const nextStep = (e: React.MouseEvent) => {
-        e.preventDefault()
-        setStep((s) => Math.min(s + 1, 3))
-    }
-    const prevStep = (e: React.MouseEvent) => {
-        e.preventDefault()
-        setStep((s) => Math.max(s - 1, 1))
-    }
+    const nextStep = (e: React.MouseEvent) => { e.preventDefault(); setStep((s) => Math.min(s + 1, TOTAL_STEPS)) }
+    const prevStep = (e: React.MouseEvent) => { e.preventDefault(); setStep((s) => Math.max(s - 1, 1)) }
 
     const onSubmit = async (values: FormValues) => {
+        setIsSubmitting(true)
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        if (!user) { setIsSubmitting(false); return }
 
         try {
-            // Get Patient ID (we assume it exists because of the check in useEffect)
             const { data: patient } = await supabase.from('patients').select('id').eq('user_id', user.id).single()
-
-            if (!patient) {
-                toast.error("Perfil de paciente não encontrado.")
-                return
-            }
+            if (!patient) { toast.error("Perfil de paciente não encontrado."); setIsSubmitting(false); return }
 
             const payload: Record<string, unknown> = {
                 patient_id: patient.id,
@@ -175,13 +252,12 @@ function CheckinForm() {
                 local_lesao: values.local_lesao || null,
             }
 
-            // Explicitly handle gender-specific fields to ensure they persist
             if (sexo === 'F') {
-                payload.ciclo_menstrual_alterado = Boolean(values.ciclo_menstrual_alterado);
-                payload.erecao_matinal = null;
+                payload.ciclo_menstrual_alterado = Boolean(values.ciclo_menstrual_alterado)
+                payload.erecao_matinal = null
             } else if (sexo === 'M') {
-                payload.erecao_matinal = Boolean(values.erecao_matinal);
-                payload.ciclo_menstrual_alterado = null;
+                payload.erecao_matinal = Boolean(values.erecao_matinal)
+                payload.ciclo_menstrual_alterado = null
             }
 
             if (checkinId) {
@@ -195,189 +271,110 @@ function CheckinForm() {
             }
 
             router.push("/dashboard")
-
         } catch (error) {
             toast.error("Erro ao salvar", { description: (error as Error).message })
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
-    const onInvalid = () => {
-        toast.error("Por favor, corrija os erros no formulário antes de continuar.")
-    }
+    const onInvalid = () => toast.error("Por favor, corrija os erros antes de continuar.")
 
-    const getScoreColor = (value: number, isPositive: boolean) => {
-        if (isPositive) {
-            if (value >= 7) return "text-green-600"
-            if (value >= 4) return "text-yellow-600"
-            return "text-red-600"
-        } else {
-            if (value <= 3) return "text-green-600"
-            if (value <= 6) return "text-yellow-600"
-            return "text-red-600"
-        }
-    }
-
-    const getRangeColor = (value: number, isPositive: boolean) => {
-        if (isPositive) {
-            if (value >= 7) return "bg-green-500"
-            if (value >= 4) return "bg-yellow-500"
-            return "bg-red-500"
-        } else {
-            if (value <= 3) return "bg-green-500"
-            if (value <= 6) return "bg-yellow-500"
-            return "bg-red-500"
-        }
-    }
-
-    const progress = (step / 3) * 100
-
-    if (isLoading) {
-        return <div className="flex justify-center py-10">Verificando perfil...</div>
-    }
+    if (isLoading) return <CheckinSkeleton />
 
     return (
         <div className="max-w-2xl mx-auto py-4 pb-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">
-                    {checkinId ? 'Editar Acompanhamento' : 'Novo Acompanhamento'}
-                </h1>
-                <Progress value={progress} className="h-2" />
-                <p className="text-sm text-muted-foreground mt-2">Passo {step} de 3</p>
+            {/* Header */}
+            <div className="mb-6 space-y-3">
+                <StoriesProgress current={step} total={TOTAL_STEPS} />
+                <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-black">
+                        {checkinId ? 'Editar Acompanhamento' : 'Novo Acompanhamento'}
+                    </h1>
+                    <span className="text-sm font-semibold text-muted-foreground">{step}/{TOTAL_STEPS}</span>
+                </div>
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
 
+                    {/* STEP 1: Dados Gerais */}
                     {step === 1 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-xl font-semibold">Dados Gerais</h2>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+                            <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-widest text-[11px]">Dados Gerais & Corpo</h2>
 
                             <FormField
                                 control={form.control}
                                 name="data"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-col">
+                                    <FormItem>
                                         <FormLabel>Data do Check-in</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} className="max-w-[200px] h-12" />
+                                            <Input type="date" {...field} className="h-12 max-w-[200px]" />
                                         </FormControl>
-                                        <FormDescription>Se este check-in é de dias anteriores, ajuste a data.</FormDescription>
+                                        <FormDescription>Ajuste se este check-in for de dias anteriores.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
-                            <Separator />
+                            <FormField
+                                control={form.control}
+                                name="peso"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Peso Atual (kg)</FormLabel>
+                                        <FormControl>
+                                            <Input type="text" inputMode="decimal" placeholder="Ex: 80.5" {...field} className="h-12 text-lg font-bold" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                            <div className="space-y-8">
-                                <FormField
-                                    control={form.control}
-                                    name="peso"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Peso Atual (kg)</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    inputMode="decimal"
-                                                    placeholder="Ex: 80.5"
-                                                    {...field}
-                                                    className="h-12"
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                            <FormField
+                                control={form.control}
+                                name="qualidade_sono"
+                                render={({ field }) => (
+                                    <MetricCard label="Qualidade do Sono" sublabel="Como você dormiu essa semana?" value={field.value} isPositive={true}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={true} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
+                                            <span>Péssimo</span><span>Excelente</span>
+                                        </div>
+                                    </MetricCard>
+                                )}
+                            />
 
-                                <FormField
-                                    control={form.control}
-                                    name="qualidade_sono"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="flex justify-between">
-                                                Qualidade do Sono
-                                                <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
-                                                    {field.value}/10
-                                                </span>
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Slider
-                                                    min={0} max={10} step={1}
-                                                    value={[field.value ?? 5]}
-                                                    onValueChange={(vals) => field.onChange(vals[0])}
-                                                    className="py-4"
-                                                    rangeClassName={getRangeColor(field.value ?? 5, true)}
-                                                />
-                                            </FormControl>
-                                            <div className="flex justify-between text-xs text-muted-foreground px-1">
-                                                <span>Péssimo</span><span>Excelente</span>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="cansaco"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="flex justify-between">
-                                                Nível de Cansaço
-                                                <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
-                                                    {field.value}/10
-                                                </span>
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Slider
-                                                    min={0} max={10} step={1}
-                                                    value={[field.value ?? 5]}
-                                                    onValueChange={(vals) => field.onChange(vals[0])}
-                                                    className="py-4"
-                                                    rangeClassName={getRangeColor(field.value ?? 5, false)}
-                                                />
-                                            </FormControl>
-                                            <div className="flex justify-between text-xs text-muted-foreground px-1">
-                                                <span>Zero</span><span>Exausto</span>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="cansaco"
+                                render={({ field }) => (
+                                    <MetricCard label="Nível de Cansaço" sublabel="Qual sua fadiga acumulada?" value={field.value} isPositive={false}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={false} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
+                                            <span>Zero</span><span>Exausto</span>
+                                        </div>
+                                    </MetricCard>
+                                )}
+                            />
                         </div>
                     )}
 
+                    {/* STEP 2: Bem-estar Mental */}
                     {step === 2 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-xl font-semibold">Bem-estar Mental</h2>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+                            <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-widest text-[11px]">Bem-estar Mental & Hormonal</h2>
 
                             <FormField
                                 control={form.control}
                                 name="estresse"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex justify-between">
-                                            Nível de Estresse
-                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
-                                                {field.value}/10
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Slider
-                                                min={0} max={10} step={1}
-                                                value={[field.value ?? 5]}
-                                                onValueChange={(v) => field.onChange(v[0])}
-                                                className="py-4"
-                                                rangeClassName={getRangeColor(field.value ?? 5, false)}
-                                            />
-                                        </FormControl>
-                                        <div className="flex justify-between text-xs text-muted-foreground">
+                                    <MetricCard label="Nível de Estresse" sublabel="Quanto você se sentiu estressado?" value={field.value} isPositive={false}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={false} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
                                             <span>Baixo</span><span>Muito Alto</span>
                                         </div>
-                                        <FormMessage />
-                                    </FormItem>
+                                    </MetricCard>
                                 )}
                             />
 
@@ -385,27 +382,25 @@ function CheckinForm() {
                                 control={form.control}
                                 name="humor"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex justify-between">
-                                            Humor
-                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
-                                                {field.value}/10
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Slider
-                                                min={0} max={10} step={1}
-                                                value={[field.value ?? 5]}
-                                                onValueChange={(v) => field.onChange(v[0])}
-                                                className="py-4"
-                                                rangeClassName={getRangeColor(field.value ?? 5, true)}
-                                            />
-                                        </FormControl>
-                                        <div className="flex justify-between text-xs text-muted-foreground">
+                                    <MetricCard label="Humor" sublabel="Como foi o seu estado emocional?" value={field.value} isPositive={true}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={true} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
                                             <span>Deprimido</span><span>Feliz</span>
                                         </div>
-                                        <FormMessage />
-                                    </FormItem>
+                                    </MetricCard>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="libido"
+                                render={({ field }) => (
+                                    <MetricCard label="Libido" sublabel="Como está seu desejo sexual?" value={field.value} isPositive={true}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={true} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
+                                            <span>Baixa</span><span>Alta</span>
+                                        </div>
+                                    </MetricCard>
                                 )}
                             />
 
@@ -414,66 +409,30 @@ function CheckinForm() {
                                     control={form.control}
                                     name="ciclo_menstrual_alterado"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <FormItem className="flex flex-row items-center justify-between rounded-2xl border-2 p-5 min-h-[72px]">
                                             <div className="space-y-0.5">
-                                                <FormLabel className="text-base font-bold">Alteração recente do ciclo menstrual?</FormLabel>
+                                                <FormLabel className="text-base font-bold">Alteração no ciclo menstrual?</FormLabel>
                                             </div>
                                             <FormControl>
-                                                <Switch
-                                                    checked={!!field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
+                                                <Switch checked={!!field.value} onCheckedChange={field.onChange} />
                                             </FormControl>
                                         </FormItem>
                                     )}
                                 />
                             )}
 
-                            <FormField
-                                control={form.control}
-                                name="libido"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex justify-between">
-                                            Libido
-                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, true))}>
-                                                {field.value}/10
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Slider
-                                                min={0} max={10} step={1}
-                                                value={[field.value ?? 5]}
-                                                onValueChange={(v) => field.onChange(v[0])}
-                                                className="py-4"
-                                                rangeClassName={getRangeColor(field.value ?? 5, true)}
-                                            />
-                                        </FormControl>
-                                        <div className="flex justify-between text-xs text-muted-foreground">
-                                            <span>Baixa</span><span>Alta</span>
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
                             {sexo === 'M' && (
                                 <FormField
                                     control={form.control}
                                     name="erecao_matinal"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <FormItem className="flex flex-row items-center justify-between rounded-2xl border-2 p-5 min-h-[72px]">
                                             <div className="space-y-0.5">
                                                 <FormLabel className="text-base font-bold">Ereção Matinal</FormLabel>
-                                                <FormDescription>
-                                                    Você apresentou ereção matinal na maioria dos dias?
-                                                </FormDescription>
+                                                <FormDescription>Na maioria dos dias essa semana?</FormDescription>
                                             </div>
                                             <FormControl>
-                                                <Switch
-                                                    checked={!!field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
+                                                <Switch checked={!!field.value} onCheckedChange={field.onChange} />
                                             </FormControl>
                                         </FormItem>
                                     )}
@@ -482,25 +441,20 @@ function CheckinForm() {
                         </div>
                     )}
 
+                    {/* STEP 3: Treino & Lesões */}
                     {step === 3 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-xl font-semibold">Treino & Lesões</h2>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+                            <h2 className="text-lg font-bold text-muted-foreground uppercase tracking-widest text-[11px]">Treino & Lesões</h2>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="horas_treino_7d"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Horas de Treino (últimos 7 dias)</FormLabel>
+                                            <FormLabel>Horas de Treino (7 dias)</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    inputMode="decimal"
-                                                    placeholder="Ex: 5.5"
-                                                    {...field}
-                                                    className="h-12"
-                                                />
+                                                <Input type="text" inputMode="decimal" placeholder="Ex: 5.5" {...field} className="h-12 text-base font-bold" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -511,15 +465,9 @@ function CheckinForm() {
                                     name="duracao_treino"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Duração Média por Treino (min)</FormLabel>
+                                            <FormLabel>Duração Média (min)</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    placeholder="Ex: 60"
-                                                    {...field}
-                                                    className="h-12"
-                                                />
+                                                <Input type="text" inputMode="numeric" placeholder="Ex: 60" {...field} className="h-12 text-base font-bold" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -531,27 +479,12 @@ function CheckinForm() {
                                 control={form.control}
                                 name="dor_muscular"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex justify-between">
-                                            Dor Muscular
-                                            <span className={cn("font-bold transition-colors", getScoreColor(field.value, false))}>
-                                                {field.value}/10
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Slider
-                                                min={0} max={10} step={1}
-                                                value={[field.value ?? 0]}
-                                                onValueChange={(v) => field.onChange(v[0])}
-                                                className="py-4"
-                                                rangeClassName={getRangeColor(field.value ?? 0, false)}
-                                            />
-                                        </FormControl>
-                                        <div className="flex justify-between text-xs text-muted-foreground">
+                                    <MetricCard label="Dor Muscular" sublabel="Intensidade da dor / soreness esta semana" value={field.value} isPositive={false}>
+                                        <ScoreButtons value={field.value} onChange={field.onChange} isPositive={false} />
+                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
                                             <span>Sem Dor</span><span>Muita Dor</span>
                                         </div>
-                                        <FormMessage />
-                                    </FormItem>
+                                    </MetricCard>
                                 )}
                             />
 
@@ -559,15 +492,12 @@ function CheckinForm() {
                                 control={form.control}
                                 name="lesao"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <FormItem className="flex flex-row items-center justify-between rounded-2xl border-2 p-5 min-h-[72px]">
                                         <div className="space-y-0.5">
                                             <FormLabel className="text-base font-bold">Alguma lesão, dor ou incômodo?</FormLabel>
                                         </div>
                                         <FormControl>
-                                            <Switch
-                                                checked={!!field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
+                                            <Switch checked={!!field.value} onCheckedChange={field.onChange} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -579,44 +509,54 @@ function CheckinForm() {
                                     name="local_lesao"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Local da Lesão</FormLabel>
+                                            <FormLabel>Descreva a Lesão</FormLabel>
                                             <FormControl>
-                                                <Textarea placeholder="Descreva o local e tipo da dor..." {...field} />
+                                                <Textarea placeholder="Local e tipo da dor, quando começou..." {...field} className="min-h-[100px]" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             )}
-
                         </div>
                     )}
 
-                    <div className="flex justify-between pt-4">
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 pt-2">
                         {step > 1 && (
-                            <Button type="button" variant="outline" onClick={prevStep}>
-                                Voltar
-                            </Button>
-                        )}
-                        {step < 3 ? (
-                            <Button type="button" className="ml-auto" onClick={nextStep}>
-                                Próximo
-                            </Button>
-                        ) : (
-                            <Button
-                                type="submit"
-                                className="ml-auto bg-green-600 hover:bg-green-700"
-                                disabled={form.formState.isSubmitting}
+                            <button
+                                type="button"
+                                onClick={prevStep}
+                                className="flex items-center justify-center gap-2 h-14 px-6 rounded-2xl border-2 font-bold text-sm transition-all active:scale-95 hover:bg-muted"
+                                aria-label="Voltar para o passo anterior"
                             >
-                                {form.formState.isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Processando...
-                                    </>
+                                <ChevronLeft className="h-4 w-4" />
+                                Voltar
+                            </button>
+                        )}
+                        {step < TOTAL_STEPS ? (
+                            <button
+                                type="button"
+                                onClick={nextStep}
+                                className="flex flex-1 items-center justify-center gap-2 h-14 rounded-2xl bg-foreground text-background font-bold text-base transition-all active:scale-95 hover:opacity-90"
+                                aria-label="Avançar para o próximo passo"
+                            >
+                                Próximo
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        ) : (
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex flex-1 items-center justify-center gap-2 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                                aria-label="Salvar check-in"
+                            >
+                                {isSubmitting ? (
+                                    <><Loader2 className="h-5 w-5 animate-spin" /> Salvando...</>
                                 ) : (
-                                    checkinId ? 'Atualizar Check-in' : 'Finalizar Check-in'
+                                    checkinId ? 'Atualizar Check-in' : '✓ Finalizar Check-in'
                                 )}
-                            </Button>
+                            </button>
                         )}
                     </div>
                 </form>
@@ -627,7 +567,7 @@ function CheckinForm() {
 
 export default function CheckinPage() {
     return (
-        <Suspense fallback={<div>Carregando...</div>}>
+        <Suspense fallback={<CheckinSkeleton />}>
             <CheckinForm />
         </Suspense>
     )

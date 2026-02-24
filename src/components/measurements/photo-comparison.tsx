@@ -66,7 +66,7 @@ function SideSelector({
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="w-full flex items-center justify-between px-3 py-2 rounded-xl border bg-card text-sm font-medium gap-2 hover:bg-muted/40 transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-xl border bg-card text-sm font-medium gap-2 hover:bg-muted/40 transition-colors min-h-[44px]"
       >
         <span className="truncate text-left">{selected ? formatDate(selected) : label}</span>
         <ChevronDown
@@ -87,7 +87,7 @@ function SideSelector({
                 onChange(measurement.id)
                 setOpen(false)
               }}
-              className={`w-full text-left px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors ${value === measurement.id ? "font-bold text-primary" : ""}`}
+              className={`w-full text-left px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors min-h-[44px] ${value === measurement.id ? "font-bold text-primary" : ""}`}
             >
               {format(parseISO(measurement.data), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
               {measurement.peso_corporal && <span className="text-muted-foreground ml-2">· {measurement.peso_corporal}kg</span>}
@@ -110,6 +110,7 @@ function StatRow({
   right: number | null
   unit: string
 }) {
+  const diff = left !== null && right !== null ? right - left : null
   return (
     <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
       <span className="text-left font-mono font-bold text-muted-foreground">
@@ -117,9 +118,14 @@ function StatRow({
         {left !== null ? unit : ""}
       </span>
       <span className="text-center font-medium text-muted-foreground">{label}</span>
-      <span className="text-right font-mono font-bold text-muted-foreground">
+      <span className="text-right font-mono font-bold">
         {right ?? "—"}
         {right !== null ? unit : ""}
+        {diff !== null && diff !== 0 && (
+          <span className={`ml-1 text-[9px] font-black ${diff < 0 ? "text-emerald-500" : "text-red-500"}`}>
+            {diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1)}
+          </span>
+        )}
       </span>
     </div>
   )
@@ -145,11 +151,11 @@ export function PhotoComparison({
 
   const fallbackRightId = withPhotos[0]?.id ?? ""
   const fallbackLeftId = withPhotos[1]?.id ?? withPhotos[0]?.id ?? ""
-  const selectedLeftId = withPhotos.some((measurement) => measurement.id === leftId) ? leftId : fallbackLeftId
-  const selectedRightId = withPhotos.some((measurement) => measurement.id === rightId) ? rightId : fallbackRightId
+  const selectedLeftId = withPhotos.some((m) => m.id === leftId) ? leftId : fallbackLeftId
+  const selectedRightId = withPhotos.some((m) => m.id === rightId) ? rightId : fallbackRightId
 
-  const leftMeasurement = withPhotos.find((measurement) => measurement.id === selectedLeftId) ?? null
-  const rightMeasurement = withPhotos.find((measurement) => measurement.id === selectedRightId) ?? null
+  const leftMeasurement = withPhotos.find((m) => m.id === selectedLeftId) ?? null
+  const rightMeasurement = withPhotos.find((m) => m.id === selectedRightId) ?? null
 
   const formatDateShort = (measurement: PhotoComparisonMeasurement) =>
     format(parseISO(measurement.data), "dd/MM/yy", { locale: ptBR })
@@ -158,7 +164,15 @@ export function PhotoComparison({
     measurement ? format(parseISO(measurement.data), "dd 'de' MMM 'de' yyyy", { locale: ptBR }) : "—"
 
   if (isLoading) {
-    return <div className="text-center py-8 text-muted-foreground text-sm">Carregando...</div>
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="flex gap-2">
+          <div className="h-11 flex-1 bg-muted rounded-xl" />
+          <div className="h-11 flex-1 bg-muted rounded-xl" />
+        </div>
+        <div className="aspect-square bg-muted rounded-2xl" />
+      </div>
+    )
   }
 
   return (
@@ -200,6 +214,7 @@ export function PhotoComparison({
 
       {withPhotos.length >= 2 && (
         <>
+          {/* Side-by-side photo comparison */}
           <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border">
             <div className="relative">
               {leftMeasurement?.signedUrl ? (
@@ -207,9 +222,7 @@ export function PhotoComparison({
                   <Image
                     src={leftMeasurement.signedUrl}
                     alt={`${leftLabel} - ${formatDateLong(leftMeasurement)}`}
-                    width={900}
-                    height={900}
-                    unoptimized
+                    width={900} height={900} unoptimized
                     className="w-full h-auto object-contain bg-black/5"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
@@ -220,16 +233,13 @@ export function PhotoComparison({
                 <div className="h-64 flex items-center justify-center bg-muted/30 text-muted-foreground text-xs">Selecione</div>
               )}
             </div>
-
             <div className="relative">
               {rightMeasurement?.signedUrl ? (
                 <>
                   <Image
                     src={rightMeasurement.signedUrl}
                     alt={`${rightLabel} - ${formatDateLong(rightMeasurement)}`}
-                    width={900}
-                    height={900}
-                    unoptimized
+                    width={900} height={900} unoptimized
                     className="w-full h-auto object-contain bg-black/5"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
@@ -242,6 +252,7 @@ export function PhotoComparison({
             </div>
           </div>
 
+          {/* Stats comparison table */}
           {leftMeasurement && rightMeasurement && (
             <div className="rounded-xl border overflow-hidden">
               <div className="px-4 py-2 border-b bg-muted/20">
@@ -268,34 +279,14 @@ export function PhotoComparison({
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-2 pb-1">Braços</p>
                 <StatRow label="Bíceps E" left={leftMeasurement.biceps_esquerdo} right={rightMeasurement.biceps_esquerdo} unit="cm" />
                 <StatRow label="Bíceps D" left={leftMeasurement.biceps_direito} right={rightMeasurement.biceps_direito} unit="cm" />
-                <StatRow
-                  label="Antebraço E"
-                  left={leftMeasurement.antebraco_esquerdo}
-                  right={rightMeasurement.antebraco_esquerdo}
-                  unit="cm"
-                />
-                <StatRow
-                  label="Antebraço D"
-                  left={leftMeasurement.antebraco_direito}
-                  right={rightMeasurement.antebraco_direito}
-                  unit="cm"
-                />
+                <StatRow label="Antebraço E" left={leftMeasurement.antebraco_esquerdo} right={rightMeasurement.antebraco_esquerdo} unit="cm" />
+                <StatRow label="Antebraço D" left={leftMeasurement.antebraco_direito} right={rightMeasurement.antebraco_direito} unit="cm" />
 
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-2 pb-1">Pernas</p>
                 <StatRow label="Coxa E" left={leftMeasurement.coxa_esquerda} right={rightMeasurement.coxa_esquerda} unit="cm" />
                 <StatRow label="Coxa D" left={leftMeasurement.coxa_direita} right={rightMeasurement.coxa_direita} unit="cm" />
-                <StatRow
-                  label="Panturrilha E"
-                  left={leftMeasurement.panturrilha_esquerda}
-                  right={rightMeasurement.panturrilha_esquerda}
-                  unit="cm"
-                />
-                <StatRow
-                  label="Panturrilha D"
-                  left={leftMeasurement.panturrilha_direita}
-                  right={rightMeasurement.panturrilha_direita}
-                  unit="cm"
-                />
+                <StatRow label="Panturrilha E" left={leftMeasurement.panturrilha_esquerda} right={rightMeasurement.panturrilha_esquerda} unit="cm" />
+                <StatRow label="Panturrilha D" left={leftMeasurement.panturrilha_direita} right={rightMeasurement.panturrilha_direita} unit="cm" />
               </div>
             </div>
           )}

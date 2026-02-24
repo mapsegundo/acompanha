@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+    const [captchaKey, setCaptchaKey] = useState(0)
     const supabase = createClient()
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -33,10 +34,7 @@ export default function LoginPage() {
         if (error) {
             toast.error("Erro ao entrar", { description: "E-mail ou senha inválidos." })
         } else {
-            toast.success("Sucesso!", {
-                description: "Redirecionando para o painel..."
-            })
-            // Redirect will be handled by middleware or automatic refresh
+            toast.success("Sucesso!", { description: "Redirecionando para o painel..." })
             window.location.href = "/"
         }
         setLoading(false)
@@ -51,7 +49,7 @@ export default function LoginPage() {
                             <Image src="/logo.png" alt="Logo" width={48} height={48} className="rounded-xl" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900 italic">LOG IN</CardTitle>
+                    <CardTitle className="text-3xl font-black tracking-tight text-slate-900">LOG IN</CardTitle>
                     <CardDescription className="font-bold text-slate-500 italic">Acesse sua conta para continuar</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -87,13 +85,19 @@ export default function LoginPage() {
                         </div>
                         <div className="flex justify-center">
                             <Turnstile
+                                key={captchaKey}
                                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
                                 onVerify={(token) => setCaptchaToken(token)}
-                                onExpire={() => setCaptchaToken(null)}
+                                onExpire={() => { setCaptchaToken(null); setCaptchaKey(k => k + 1) }}
+                                onError={() => { setCaptchaToken(null); setCaptchaKey(k => k + 1) }}
                                 theme="light"
                             />
                         </div>
-                        <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl" disabled={loading || !captchaToken}>
+                        <Button
+                            type="submit"
+                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-black text-sm shadow-lg shadow-blue-100 transition-all rounded-xl"
+                            disabled={loading || !captchaToken}
+                        >
                             {loading ? "Entrando..." : "ENTRAR AGORA"}
                         </Button>
                     </form>

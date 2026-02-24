@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { Camera, Loader2, X, ArrowLeft } from "lucide-react"
+import { Camera, Loader2, X, ChevronLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 const numericField = z.string().transform((v) => v === '' ? null : Number(v)).pipe(z.number().nullable());
 
@@ -46,7 +48,6 @@ const formSchema = z.object({
 
 type FormOutput = z.output<typeof formSchema>
 
-// Input type uses strings for numeric fields since the form inputs work with strings
 interface FormInput {
     data: string
     peso_corporal: string
@@ -68,31 +69,55 @@ interface FormInput {
     panturrilha_direita: string
 }
 
-interface MeasurementField {
+interface FieldDef {
     name: keyof FormInput
     label: string
     unit: string
-    step?: string
 }
 
-const measurementFields: MeasurementField[] = [
-    { name: "peso_corporal", label: "Peso Corporal", unit: "kg", step: "0.1" },
-    { name: "cintura", label: "Cintura", unit: "cm", step: "0.1" },
-    { name: "gordura_corporal", label: "Gordura Corporal", unit: "%", step: "0.1" },
-    { name: "massa_magra", label: "Massa Corporal Magra", unit: "kg", step: "0.1" },
-    { name: "pescoco", label: "Pescoço", unit: "cm", step: "0.1" },
-    { name: "ombro", label: "Ombro", unit: "cm", step: "0.1" },
-    { name: "peito", label: "Peito", unit: "cm", step: "0.1" },
-    { name: "biceps_esquerdo", label: "Bíceps Esquerdo", unit: "cm", step: "0.1" },
-    { name: "biceps_direito", label: "Bíceps Direito", unit: "cm", step: "0.1" },
-    { name: "antebraco_esquerdo", label: "Antebraço Esquerdo", unit: "cm", step: "0.1" },
-    { name: "antebraco_direito", label: "Antebraço Direito", unit: "cm", step: "0.1" },
-    { name: "abdomen", label: "Abdômen", unit: "cm", step: "0.1" },
-    { name: "quadris", label: "Quadris", unit: "cm", step: "0.1" },
-    { name: "coxa_esquerda", label: "Coxa Esquerda", unit: "cm", step: "0.1" },
-    { name: "coxa_direita", label: "Coxa Direita", unit: "cm", step: "0.1" },
-    { name: "panturrilha_esquerda", label: "Panturrilha Esquerda", unit: "cm", step: "0.1" },
-    { name: "panturrilha_direita", label: "Panturrilha Direita", unit: "cm", step: "0.1" },
+// Field groups for semantic organization
+const fieldGroups: { title: string; emoji: string; fields: FieldDef[] }[] = [
+    {
+        title: "Composição Corporal",
+        emoji: "📊",
+        fields: [
+            { name: "peso_corporal", label: "Peso Corporal", unit: "kg" },
+            { name: "gordura_corporal", label: "Gordura Corporal", unit: "%" },
+            { name: "massa_magra", label: "Massa Magra", unit: "kg" },
+        ],
+    },
+    {
+        title: "Centro",
+        emoji: "🎯",
+        fields: [
+            { name: "cintura", label: "Cintura", unit: "cm" },
+            { name: "abdomen", label: "Abdômen", unit: "cm" },
+            { name: "quadris", label: "Quadris", unit: "cm" },
+        ],
+    },
+    {
+        title: "Membros Superiores",
+        emoji: "💪",
+        fields: [
+            { name: "pescoco", label: "Pescoço", unit: "cm" },
+            { name: "ombro", label: "Ombro", unit: "cm" },
+            { name: "peito", label: "Peito", unit: "cm" },
+            { name: "biceps_esquerdo", label: "Bíceps Esquerdo", unit: "cm" },
+            { name: "biceps_direito", label: "Bíceps Direito", unit: "cm" },
+            { name: "antebraco_esquerdo", label: "Antebraço Esquerdo", unit: "cm" },
+            { name: "antebraco_direito", label: "Antebraço Direito", unit: "cm" },
+        ],
+    },
+    {
+        title: "Membros Inferiores",
+        emoji: "🦵",
+        fields: [
+            { name: "coxa_esquerda", label: "Coxa Esquerda", unit: "cm" },
+            { name: "coxa_direita", label: "Coxa Direita", unit: "cm" },
+            { name: "panturrilha_esquerda", label: "Panturrilha Esquerda", unit: "cm" },
+            { name: "panturrilha_direita", label: "Panturrilha Direita", unit: "cm" },
+        ],
+    },
 ]
 
 function MedicoesForm() {
@@ -114,23 +139,13 @@ function MedicoesForm() {
         mode: "onChange",
         defaultValues: {
             data: format(new Date(), 'yyyy-MM-dd'),
-            peso_corporal: '',
-            cintura: '',
-            gordura_corporal: '',
-            massa_magra: '',
-            pescoco: '',
-            ombro: '',
-            peito: '',
-            biceps_esquerdo: '',
-            biceps_direito: '',
-            antebraco_esquerdo: '',
-            antebraco_direito: '',
-            abdomen: '',
-            quadris: '',
-            coxa_esquerda: '',
-            coxa_direita: '',
-            panturrilha_esquerda: '',
-            panturrilha_direita: '',
+            peso_corporal: '', cintura: '', gordura_corporal: '', massa_magra: '',
+            pescoco: '', ombro: '', peito: '',
+            biceps_esquerdo: '', biceps_direito: '',
+            antebraco_esquerdo: '', antebraco_direito: '',
+            abdomen: '', quadris: '',
+            coxa_esquerda: '', coxa_direita: '',
+            panturrilha_esquerda: '', panturrilha_direita: '',
         },
     })
 
@@ -138,32 +153,17 @@ function MedicoesForm() {
         const loadData = async () => {
             setIsLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                router.push('/login')
-                return
-            }
+            if (!user) { router.push('/login'); return }
 
             const { data: patient } = await supabase
-                .from('patients')
-                .select('id')
-                .eq('user_id', user.id)
-                .single()
+                .from('patients').select('id').eq('user_id', user.id).single()
 
-            if (!patient) {
-                toast.error("Perfil não encontrado.")
-                router.push('/login')
-                return
-            }
-
+            if (!patient) { toast.error("Perfil não encontrado."); router.push('/login'); return }
             setPatientId(patient.id)
 
-            // Load existing measurement if editing
             if (measurementId) {
                 const { data: measurement } = await supabase
-                    .from('body_measurements')
-                    .select('*')
-                    .eq('id', measurementId)
-                    .single()
+                    .from('body_measurements').select('*').eq('id', measurementId).single()
 
                 if (measurement) {
                     form.reset({
@@ -186,30 +186,20 @@ function MedicoesForm() {
                         panturrilha_esquerda: measurement.panturrilha_esquerda ?? '',
                         panturrilha_direita: measurement.panturrilha_direita ?? '',
                     })
-
                     if (measurement.foto_url) {
                         setExistingFotoUrl(measurement.foto_url)
-                        // Generate signed URL for preview
                         const { data: signedUrl } = await supabase.storage
-                            .from('measurements')
-                            .createSignedUrl(measurement.foto_url, 3600)
-                        if (signedUrl) {
-                            setImagePreview(signedUrl.signedUrl)
-                        }
+                            .from('measurements').createSignedUrl(measurement.foto_url, 3600)
+                        if (signedUrl) setImagePreview(signedUrl.signedUrl)
                     }
                 }
             } else {
-                // New measurement: pre-fill with values from the most recent one
                 const { data: lastMeasurement } = await supabase
-                    .from('body_measurements')
-                    .select('*')
+                    .from('body_measurements').select('*')
                     .eq('patient_id', patient.id)
-                    .order('data', { ascending: false })
-                    .limit(1)
-                    .single()
+                    .order('data', { ascending: false }).limit(1).single()
 
                 if (lastMeasurement) {
-                    // Keep today's date, no photo — only copy numeric values
                     form.reset({
                         data: format(new Date(), 'yyyy-MM-dd'),
                         peso_corporal: lastMeasurement.peso_corporal ?? '',
@@ -240,15 +230,10 @@ function MedicoesForm() {
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                toast.error("A imagem deve ter no máximo 5MB")
-                return
-            }
+            if (file.size > 5 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 5MB"); return }
             setSelectedImage(file)
             const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string)
-            }
+            reader.onloadend = () => setImagePreview(reader.result as string)
             reader.readAsDataURL(file)
         }
     }
@@ -257,33 +242,22 @@ function MedicoesForm() {
         setSelectedImage(null)
         setImagePreview(null)
         setExistingFotoUrl(null)
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ''
-        }
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-    const uploadImage = async (measurementRecordId: string): Promise<string | null> => {
+    const uploadImage = async (recordId: string): Promise<string | null> => {
         if (!selectedImage || !patientId) return existingFotoUrl
-
         const fileExt = selectedImage.name.split('.').pop()
-        const filePath = `${patientId}/${measurementRecordId}.${fileExt}`
-
-        const { error: uploadError } = await supabase.storage
-            .from('measurements')
+        const filePath = `${patientId}/${recordId}.${fileExt}`
+        const { error } = await supabase.storage.from('measurements')
             .upload(filePath, selectedImage, { upsert: true })
-
-        if (uploadError) {
-            console.error('Upload error:', uploadError)
-            throw new Error("Erro ao fazer upload da imagem")
-        }
-
+        if (error) throw new Error("Erro ao fazer upload da imagem")
         return filePath
     }
 
     const onSubmit = async (values: FormOutput) => {
         if (!patientId) return
         setIsSaving(true)
-
         try {
             const payload: Record<string, unknown> = {
                 patient_id: patientId,
@@ -308,40 +282,23 @@ function MedicoesForm() {
             }
 
             if (measurementId) {
-                // Update existing
                 const fotoUrl = await uploadImage(measurementId)
                 if (fotoUrl !== undefined) payload.foto_url = fotoUrl
-
-                const { error } = await supabase
-                    .from('body_measurements')
-                    .update(payload)
-                    .eq('id', measurementId)
-
+                const { error } = await supabase.from('body_measurements')
+                    .update(payload).eq('id', measurementId)
                 if (error) throw error
-                toast.success("Medições atualizadas com sucesso!")
+                toast.success("Medições atualizadas!")
             } else {
-                // Insert new — first create the record, then upload image
-                const { data: newRecord, error } = await supabase
-                    .from('body_measurements')
-                    .insert(payload)
-                    .select('id')
-                    .single()
-
+                const { data: newRecord, error } = await supabase.from('body_measurements')
+                    .insert(payload).select('id').single()
                 if (error) throw error
-
                 if (newRecord && selectedImage) {
                     const fotoUrl = await uploadImage(newRecord.id)
-                    if (fotoUrl) {
-                        await supabase
-                            .from('body_measurements')
-                            .update({ foto_url: fotoUrl })
-                            .eq('id', newRecord.id)
-                    }
+                    if (fotoUrl) await supabase.from('body_measurements')
+                        .update({ foto_url: fotoUrl }).eq('id', newRecord.id)
                 }
-
-                toast.success("Medições salvas com sucesso!")
+                toast.success("Medições salvas!")
             }
-
             router.push("/medicoes/lista")
         } catch (error) {
             toast.error("Erro ao salvar", { description: (error as Error).message })
@@ -361,133 +318,152 @@ function MedicoesForm() {
     return (
         <div className="max-w-2xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between py-4 mb-2">
-                <Button
-                    variant="ghost"
-                    onClick={() => router.push("/medicoes/lista")}
-                    className="text-blue-500 hover:text-blue-600 p-0 h-auto font-medium"
+            <div className="mb-6">
+                <Link
+                    href="/medicoes/lista"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground font-semibold hover:text-foreground mb-3 transition-colors"
                 >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Cancelar
-                </Button>
-                <h1 className="text-lg font-bold">
-                    {measurementId ? 'Editar Medições' : 'Registrar Medições'}
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Minhas Medições
+                </Link>
+                <h1 className="text-2xl font-black tracking-tight">
+                    {measurementId ? 'Editar Medições' : 'Nova Medição'}
                 </h1>
-                <Button
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onClick={form.handleSubmit(onSubmit as any)}
-                    disabled={isSaving}
-                    variant="ghost"
-                    className="text-blue-500 hover:text-blue-600 p-0 h-auto font-bold"
-                >
-                    {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Salvar'}
-                </Button>
+                <p className="text-sm text-muted-foreground mt-1">
+                    {measurementId ? 'Atualize os valores registrados.' : 'Preencha os campos que deseja registrar.'}
+                </p>
             </div>
 
             <Form {...form}>
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-0">
-                    {/* Data */}
-                    <div className="flex items-center justify-between py-3 border-b border-border/50">
-                        <span className="text-sm font-medium">Data</span>
-                        <FormField
-                            control={form.control}
-                            name="data"
-                            render={({ field }) => (
-                                <FormItem className="m-0 flex items-center gap-2">
-                                    <FormControl>
-                                        <Input
-                                            type="date"
-                                            {...field}
-                                            className="w-[160px] h-8 text-right text-sm border border-border/60 rounded-md bg-muted/20 cursor-pointer"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-1">
+
+                    {/* Date row */}
+                    <div className="bg-white border rounded-2xl overflow-hidden mb-4">
+                        <div className="flex items-center justify-between px-4 py-3.5">
+                            <span className="text-sm font-bold text-slate-700">Data</span>
+                            <FormField
+                                control={form.control}
+                                name="data"
+                                render={({ field }) => (
+                                    <FormItem className="m-0 flex items-center gap-2">
+                                        <FormControl>
+                                            <Input
+                                                type="date"
+                                                {...field}
+                                                className="w-[150px] h-9 text-right text-sm border border-slate-200 rounded-xl bg-slate-50 font-medium"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </div>
 
-                    {/* Photo section */}
-                    <div className="py-4 border-b border-border/50">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-sm font-medium text-muted-foreground">Imagem do progresso</span>
+                    {/* Photo section — right after date */}
+                    <div className="bg-white border rounded-2xl overflow-hidden mb-4">
+                        <div className="px-4 py-3 border-b bg-slate-50/80">
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+                                📸 Foto do Progresso
+                            </span>
+                            <span className="ml-2 text-[10px] text-muted-foreground font-semibold">(opcional)</span>
                         </div>
-
-                        {imagePreview ? (
-                            <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted/20">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    className="w-full h-auto object-contain rounded-t-xl"
-                                />
+                        <div className="p-4">
+                            {imagePreview ? (
+                                <div className="relative rounded-xl overflow-hidden border border-slate-200">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full h-auto object-contain rounded-t-xl"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={removeImage}
+                                        className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition-colors"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ) : (
                                 <button
                                     type="button"
-                                    onClick={removeImage}
-                                    className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition-colors"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full border-2 border-dashed border-slate-200 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-blue-500/50 hover:bg-blue-50/30 transition-all"
                                 >
-                                    <X className="h-4 w-4" />
+                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                                        <Camera className="h-6 w-6 text-blue-500" />
+                                    </div>
+                                    <span className="text-sm font-bold text-blue-600">Adicionar Foto</span>
+                                    <span className="text-xs text-muted-foreground">JPEG, PNG ou WebP — máx. 5MB</span>
                                 </button>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-full border-2 border-dashed border-border/60 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
-                            >
-                                <Camera className="h-8 w-8 text-blue-500" />
-                                <span className="text-sm font-medium text-blue-500">Adicionar imagem</span>
-                            </button>
-                        )}
-
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                        />
-                    </div>
-
-                    {/* Measurements */}
-                    <div className="pt-4">
-                        <h2 className="text-sm font-medium text-muted-foreground mb-2">Medições</h2>
-
-                        <div className="divide-y divide-border/40">
-                            {measurementFields.map((mField) => (
-                                <FormField
-                                    key={mField.name}
-                                    control={form.control}
-                                    name={mField.name}
-                                    render={({ field }) => (
-                                        <FormItem className="flex items-center justify-between py-3 space-y-0">
-                                            <FormLabel className="text-sm font-normal cursor-pointer">
-                                                {mField.label} ({mField.unit})
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step={mField.step || "1"}
-                                                    placeholder="-"
-                                                    {...field}
-                                                    value={field.value ?? ''}
-                                                    className="w-24 h-8 text-right border-none bg-transparent text-sm font-medium tabular-nums focus-visible:ring-1 focus-visible:ring-blue-500"
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            ))}
+                            )}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handleImageSelect}
+                                className="hidden"
+                            />
                         </div>
                     </div>
 
-                    {/* Bottom Save Button (mobile-friendly) */}
-                    <div className="pt-6 pb-8">
+                    {/* Field groups */}
+                    {fieldGroups.map((group) => (
+                        <div key={group.title} className="bg-white border rounded-2xl overflow-hidden mb-4">
+                            {/* Group header */}
+                            <div className="px-4 py-3 border-b bg-slate-50/80">
+                                <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+                                    {group.emoji} {group.title}
+                                </span>
+                            </div>
+
+                            {/* Fields */}
+                            <div className="divide-y divide-slate-100">
+                                {group.fields.map((mField) => (
+                                    <FormField
+                                        key={mField.name}
+                                        control={form.control}
+                                        name={mField.name}
+                                        render={({ field }) => (
+                                            <FormItem className="flex items-center justify-between px-4 space-y-0 min-h-[52px]">
+                                                <FormLabel className={cn(
+                                                    "text-sm font-medium cursor-pointer text-slate-700 flex-1"
+                                                )}>
+                                                    {mField.label}
+                                                </FormLabel>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <FormControl>
+                                                        <Input
+                                                            type="number"
+                                                            step="0.1"
+                                                            inputMode="decimal"
+                                                            placeholder="-"
+                                                            {...field}
+                                                            value={field.value ?? ''}
+                                                            className="w-24 h-10 text-right border border-slate-200 bg-slate-50 rounded-xl text-sm font-bold tabular-nums focus-visible:ring-1 focus-visible:ring-blue-500"
+                                                        />
+                                                    </FormControl>
+                                                    <span className="text-xs text-muted-foreground font-bold w-6 text-right">
+                                                        {mField.unit}
+                                                    </span>
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                    }
+
+                    {/* Save button — normal flow, end of form */}
+                    <div className="pt-2 pb-10">
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                            className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-lg shadow-emerald-100"
                             disabled={isSaving}
                         >
                             {isSaving ? (

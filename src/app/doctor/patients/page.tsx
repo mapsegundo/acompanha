@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { calculateHealthStatus, getBadgeVariant, getHealthBadgeColorClasses, type CheckinData, type RecoveryStatus } from "@/lib/monitoring"
 import { Search, ArrowRight, ArrowUpDown, ChevronLeft, ChevronRight, Users } from "lucide-react"
 import { ClickableTableRow } from "@/components/dashboard/clickable-table-row"
+import Link from "next/link"
 
 interface WeeklyCheckin extends CheckinData {
   id: string
@@ -37,9 +38,9 @@ type StatusFilter = "ativos" | "inativos" | "todos"
 
 type SortConfig =
   | {
-      key: "nome" | "status" | "lastCheckin"
-      direction: "asc" | "desc"
-    }
+    key: "nome" | "status" | "lastCheckin"
+    direction: "asc" | "desc"
+  }
   | null
 
 type TableStatus = ReturnType<typeof calculateHealthStatus>
@@ -195,9 +196,8 @@ export default function PatientsListPage() {
                 setStatusFilter(filterValue)
                 setCurrentPage(1)
               }}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md capitalize transition-all ${
-                statusFilter === filterValue ? "bg-muted shadow-sm text-foreground" : "text-muted-foreground"
-              }`}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md capitalize transition-all ${statusFilter === filterValue ? "bg-muted shadow-sm text-foreground" : "text-muted-foreground"
+                }`}
             >
               {filterValue}
             </button>
@@ -213,7 +213,76 @@ export default function PatientsListPage() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="md:hidden flex flex-col gap-4 p-4">
+          {paginatedPatients.map((patient) => {
+            const latest = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))[0]
+
+            let status: TableStatus = "Sem Dados"
+            let variant: BadgeVariant = "outline"
+            if (latest) {
+              status = calculateHealthStatus(latest, patient.sexo ?? undefined)
+              variant = getBadgeVariant(status)
+            }
+
+            return (
+              <Link
+                href={`/doctor/patients/${patient.id}`}
+                key={patient.id}
+                className={`block p-4 border rounded-xl bg-card shadow-sm hover:border-blue-500/50 transition-colors ${!patient.ativo ? "opacity-50 grayscale" : ""}`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-sm uppercase">
+                        {patient.nome?.substring(0, 2) || "P"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-[#0f172a] truncate">{patient.nome}</div>
+                      <div className="text-xs text-muted-foreground truncate">{patient.email}</div>
+                    </div>
+                  </div>
+                  <Badge
+                    variant={variant}
+                    className={`font-bold uppercase py-0.5 px-2 text-[10px] whitespace-nowrap shrink-0 ${getHealthBadgeColorClasses(status)}`}
+                  >
+                    {status}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm mt-4 bg-slate-50 border p-3 rounded-lg">
+                  <div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Score</div>
+                    {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
+                      <span className="font-bold text-orange-500">{latest.recovery_score}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Última Sync</div>
+                    <div className="font-medium">{latest ? format(parseISO(latest.data), "dd/MM") : "Pendente"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Modalidade</div>
+                    <div className="truncate text-muted-foreground text-xs font-semibold">{patient.sport_modalities?.nome || "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Fase</div>
+                    <div className="truncate text-muted-foreground text-xs font-semibold">{patient.season_phases?.nome || "-"}</div>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+          {!paginatedPatients.length && (
+            <div className="text-center py-12 text-muted-foreground border rounded-xl bg-card">
+              Nenhum paciente encontrado.
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

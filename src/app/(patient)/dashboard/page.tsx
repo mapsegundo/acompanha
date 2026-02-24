@@ -1,14 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import { Plus, Calendar, Activity } from "lucide-react"
+import { Plus, Calendar, Activity, AlertTriangle, CheckCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
 import { calculateHealthStatus, getStatusColor, getBadgeVariant, getRecoveryColor, getRecoveryBadgeVariant, getRecoveryBadgeColorClasses, type RecoveryStatus } from "@/lib/monitoring"
 import { SharedNotes } from "./shared-notes"
+import { cn } from "@/lib/utils"
 
 interface WeeklyCheckin {
     id: string
@@ -29,26 +28,59 @@ interface WeeklyCheckin {
     horas_treino_7d: number
 }
 
+function getStatusBg(status: string): string {
+    const s = status.toLowerCase()
+    if (s === "crítico") return "bg-red-600"
+    if (s === "atenção") return "bg-amber-500"
+    return "bg-emerald-600"
+}
+
+function getStatusText(status: string): string {
+    const s = status.toLowerCase()
+    if (s === "crítico") return "text-red-600"
+    if (s === "atenção") return "text-amber-500"
+    return "text-emerald-600"
+}
+
+interface MetricBarProps {
+    label: string
+    value: number
+    isPositive: boolean
+}
+
+function MetricBar({ label, value, isPositive }: MetricBarProps) {
+    const pct = (value / 10) * 100
+    const good = isPositive ? value >= 7 : value <= 3
+    const mid = isPositive ? value >= 4 && value < 7 : value > 3 && value < 7
+
+    const barColor = good ? "bg-emerald-500" : mid ? "bg-amber-400" : "bg-red-500"
+
+    return (
+        <div className="space-y-1">
+            <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+                <span className="text-[11px] font-black tabular-nums">{value}/10</span>
+            </div>
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div
+                    className={cn("h-full rounded-full transition-all", barColor)}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
+        </div>
+    )
+}
+
 export default async function PatientDashboard() {
     const supabase = await createClient()
 
-    // 1. Get logged user
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
 
-    if (!user) {
-        redirect('/login')
-    }
-
-    // 2. Get Patient Data
     const { data: patient } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
+        .from('patients').select('*').eq('user_id', user.id).single()
 
-    // 3. Get Checkins
     let checkins: WeeklyCheckin[] = []
-
     if (patient) {
         try {
             const { data, error } = await supabase
@@ -56,11 +88,7 @@ export default async function PatientDashboard() {
                 .select('*')
                 .eq('patient_id', patient.id)
                 .order('data', { ascending: false })
-
-            if (error) {
-                throw error
-            }
-
+            if (error) throw error
             if (data) checkins = data as WeeklyCheckin[]
         } catch (error) {
             console.error('Error loading checkins:', error)
@@ -69,107 +97,117 @@ export default async function PatientDashboard() {
 
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Meus Acompanhamentos</h1>
-                <Link href="/checkin">
-                    <Button className="gap-2">
-                        <Plus className="h-4 w-4" /> Novo
-                    </Button>
-                </Link>
+                <h1 className="text-2xl font-black tracking-tight">Meus Acompanhamentos</h1>
             </div>
 
             {/* Shared Notes from Doctor */}
             {patient && <SharedNotes patientId={patient.id} />}
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Empty state */}
+            {checkins.length === 0 && (
+                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-2xl bg-muted/10 text-center">
+                    <Activity className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold">Nenhum check-in encontrado</h3>
+                    <p className="text-muted-foreground mb-4 text-sm">Realize seu primeiro acompanhamento semanal.</p>
+                    <Link
+                        href="/checkin"
+                        className="h-12 px-6 rounded-2xl bg-foreground text-background font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform"
+                    >
+                        <Plus className="h-4 w-4" /> Realizar Check-in
+                    </Link>
+                </div>
+            )}
+
+            {/* Checkin cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {checkins.map((checkin) => {
-                    // Use recovery_status if available, fallback to old calculation
                     const status = checkin.recovery_status || calculateHealthStatus(checkin, patient.sexo)
                     const statusColor = checkin.recovery_status
                         ? getRecoveryColor(checkin.recovery_status as RecoveryStatus)
                         : getStatusColor(status)
-                    const statusBadge = checkin.recovery_status
-                        ? getRecoveryBadgeVariant(checkin.recovery_status as RecoveryStatus)
-                        : getBadgeVariant(status)
-                    const badgeColorClass = checkin.recovery_status
-                        ? getRecoveryBadgeColorClasses(checkin.recovery_status as RecoveryStatus)
-                        : ''
+                    void getRecoveryBadgeVariant
+                    void getBadgeVariant
+                    void getRecoveryBadgeColorClasses
+                    const statusBg = getStatusBg(status)
+                    const statusTxt = getStatusText(status)
+                    const isCritical = status.toLowerCase() === "crítico"
+                    const isAttention = status.toLowerCase() === "atenção"
 
                     return (
-                        <Card key={checkin.id} className="hover:shadow-lg transition-all border-l-4"
-                            style={{ borderLeftColor: statusColor }}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                                    {format(parseISO(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
-                                </CardTitle>
-                                <Badge variant={statusBadge} className={`font-bold uppercase tracking-widest text-[10px] ${badgeColorClass}`}>
-                                    {status}
-                                </Badge>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="text-2xl font-black flex items-center gap-2 text-slate-900 italic">
-                                    {checkin.peso} kg
+                        <Card
+                            key={checkin.id}
+                            className="overflow-hidden border-0 shadow-sm"
+                            style={{ borderLeft: `4px solid ${statusColor}` }}
+                        >
+                            <CardContent className="p-0">
+                                {/* Top band: status + date */}
+                                <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                            {format(parseISO(checkin.data), "dd 'de' MMMM", { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <div className={cn("text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full text-white", statusBg)}>
+                                        {status}
+                                    </div>
                                 </div>
-                                <div className="text-[11px] text-slate-600 font-bold space-y-3">
-                                    {/* Linha 1: Saúde Básica */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Sono</span>
-                                            <span className="text-slate-900 font-black">{checkin.qualidade_sono}/10</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Fadiga</span>
-                                            <span className="text-slate-900 font-black">{checkin.cansaco}/10</span>
-                                        </div>
-                                    </div>
 
-                                    {/* Linha 2: Psicológico */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Humor</span>
-                                            <span className="text-slate-900 font-black">{checkin.humor}/10</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Stress</span>
-                                            <span className="text-slate-900 font-black">{checkin.estresse}/10</span>
-                                        </div>
+                                {/* Peso + Score */}
+                                <div className="px-4 pb-3 flex items-end justify-between">
+                                    <div>
+                                        <span className="text-3xl font-black italic">{checkin.peso}</span>
+                                        <span className="text-sm text-muted-foreground ml-1">kg</span>
                                     </div>
-
-                                    {/* Linha 3: Recuperação & Hormonal */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Libido</span>
-                                            <span className="text-slate-900 font-black font-mono">{checkin.libido}/10</span>
+                                    {checkin.recovery_score != null && (
+                                        <div className="text-right">
+                                            <span className={cn("text-2xl font-black tabular-nums", statusTxt)}>{checkin.recovery_score}</span>
+                                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest">Recovery</p>
                                         </div>
-                                        <div className="flex justify-between border-b border-slate-100 pb-1">
-                                            <span className="text-slate-400 font-black uppercase tracking-tighter">Treino</span>
-                                            <span className="text-slate-900 font-black">{checkin.horas_treino_7d}h</span>
-                                        </div>
-                                    </div>
+                                    )}
+                                </div>
 
-                                    {/* Indicadores de Risco */}
-                                    <div className="space-y-2 pt-1">
+                                {/* Metric bars */}
+                                <div className="px-4 pb-4 space-y-2">
+                                    <MetricBar label="Sono" value={checkin.qualidade_sono} isPositive={true} />
+                                    <MetricBar label="Cansaço" value={checkin.cansaco} isPositive={false} />
+                                    <MetricBar label="Humor" value={checkin.humor} isPositive={true} />
+                                    <MetricBar label="Estresse" value={checkin.estresse} isPositive={false} />
+                                </div>
+
+                                {/* Risk indicators */}
+                                {(isCritical || isAttention || checkin.lesao) && (
+                                    <div className="px-4 pb-3 space-y-1.5">
                                         {checkin.lesao && (
-                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 p-1.5 rounded-lg border border-red-100">
-                                                <Activity className="h-3 w-3" /> Lesão ou Dor relatada
+                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 dark:bg-red-950/30 p-2 rounded-lg">
+                                                <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> Lesão ou Dor relatada
                                             </div>
                                         )}
                                         {checkin.ciclo_menstrual_alterado && patient.sexo === 'F' && (
-                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 p-1.5 rounded-lg border border-red-100">
-                                                <div className="h-1.5 w-1.5 rounded-full bg-red-600" /> Alteração Ciclo Menstrual
+                                            <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px] bg-red-50 dark:bg-red-950/30 p-2 rounded-lg">
+                                                <div className="h-2 w-2 rounded-full bg-red-600 shrink-0" /> Alteração Ciclo Menstrual
                                             </div>
                                         )}
                                         {!checkin.erecao_matinal && patient.sexo === 'M' && (
-                                            <div className="flex items-center gap-2 text-orange-600 font-black uppercase text-[10px] bg-orange-50 p-1.5 rounded-lg border border-orange-100">
-                                                <div className="h-1.5 w-1.5 rounded-full bg-orange-600" /> Ausência Ereção Matinal
+                                            <div className="flex items-center gap-2 text-amber-600 font-black uppercase text-[10px] bg-amber-50 dark:bg-amber-950/30 p-2 rounded-lg">
+                                                <div className="h-2 w-2 rounded-full bg-amber-600 shrink-0" /> Ausência Ereção Matinal
                                             </div>
                                         )}
                                     </div>
-                                </div>
-                                <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                                    <span className="text-[10px] text-slate-400 font-bold">Ref: {format(parseISO(checkin.data), "eeee", { locale: ptBR })}</span>
-                                    <Link href={`/checkin?id=${checkin.id}`} className="text-xs text-blue-600 font-black uppercase hover:underline">
+                                )}
+
+                                {/* Footer */}
+                                <div className="px-4 pb-4 pt-1 flex justify-between items-center border-t border-border/40">
+                                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold">
+                                        <CheckCircle className="h-3 w-3" />
+                                        {format(parseISO(checkin.data), "eeee", { locale: ptBR })}
+                                    </div>
+                                    <Link
+                                        href={`/checkin?id=${checkin.id}`}
+                                        className="text-xs font-black uppercase text-blue-600 hover:underline min-h-[44px] flex items-center"
+                                    >
                                         Editar
                                     </Link>
                                 </div>
@@ -177,18 +215,18 @@ export default async function PatientDashboard() {
                         </Card>
                     )
                 })}
-
-                {checkins.length === 0 && (
-                    <div className="col-span-full flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/10">
-                        <Activity className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold">Nenhum check-in encontrado</h3>
-                        <p className="text-muted-foreground mb-4">Realize seu primeiro acompanhamento semanal.</p>
-                        <Link href="/checkin">
-                            <Button>Realizar Check-in</Button>
-                        </Link>
-                    </div>
-                )}
             </div>
+
+            {/* FAB - New checkin (mobile only) */}
+            {checkins.length > 0 && (
+                <Link
+                    href="/checkin"
+                    className="md:hidden fixed bottom-20 right-4 h-14 w-14 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl z-40 active:scale-90 transition-transform"
+                    aria-label="Novo check-in"
+                >
+                    <Plus className="h-6 w-6" />
+                </Link>
+            )}
         </div>
     )
 }
