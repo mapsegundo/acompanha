@@ -351,7 +351,7 @@ function MedicoesForm() {
                                             <Input
                                                 type="date"
                                                 {...field}
-                                                className="w-[150px] h-9 text-right text-sm border border-slate-200 rounded-xl bg-slate-50 font-medium"
+                                                className="w-auto min-w-[160px] h-9 text-right text-sm border border-slate-200 rounded-xl bg-slate-50 font-medium"
                                             />
                                         </FormControl>
                                         <FormMessage />
