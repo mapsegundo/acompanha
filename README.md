@@ -1,157 +1,134 @@
-# ACOMPANHA
+<div align="center">
 
-Plataforma web para acompanhamento clinico e esportivo longitudinal, conectando medicos e pacientes com check-ins semanais, alertas e analise de tendencia.
+# Acompanha MD
+**Plataforma de Monitoramento Clínico e Esportivo Longitudinal de Alta Performance**
 
-Site: https://acompanha.online
+[![Next.js](https://img.shields.io/badge/Next.js-16+-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_&_DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 
-## Visao geral
+🌐 **Site Oficial:** [acompanha.online](https://acompanha.online)
 
-O sistema possui dois portais:
+</div>
 
-- Portal do paciente: registro semanal de saude, medicao corporal, comparacao de fotos, evolucao e documentos.
-- Portal medico: dashboard de risco, lista de pacientes, prontuario completo, notas clinicas, documentos e relatorio PDF.
+---
 
-## Funcionalidades principais
+## 📖 Visão Geral
 
-### Paciente
+**Acompanha MD** é um ecossistema digital avançado desenhado para revolucionar o acompanhamento de pacientes e atletas. A plataforma preenche a lacuna entre as consultas presenciais através de check-ins semanais estruturados, permitindo que a equipe médica identifique precocemente sinais de regressão, risco de lesão ou declínio na saúde mental e física. 
 
-- Autenticacao: login, cadastro, recuperacao e reset de senha.
-- Check-in semanal em etapas.
-- Dashboard com historico de check-ins e status de saude.
-- Pagina de evolucao com grafico de peso, gordura e massa magra.
-- Modulo de medicoes corporais com foto.
-- Comparacao de fotos e medidas lado a lado.
-- Pagina de documentos enviados pelo medico.
-- Notas compartilhadas pelo medico.
+Com uma interface responsiva, tema adaptável (*Dark/Light Mode*) elaborado com a biblioteca UI **shadcn/ui** e tipografia **Inter**, o sistema entrega uma experiência *premium*, focada em acessibilidade e legibilidade de dados clínicos de alta densidade.
 
-### Medico
+---
 
-- Dashboard com total de pacientes, alertas criticos e taxa de resposta.
-- Lista de pacientes com busca, ordenacao, paginacao e filtro por ativos/inativos.
-- Ativar e desativar paciente no prontuario.
-- Prontuario com:
-  - resumo semanal comparativo,
-  - graficos de metricas,
-  - historico detalhado,
-  - medicoes corporais,
-  - comparacao de fotos,
-  - notas clinicas.
-- Gestao de documentos por paciente (upload, download e exclusao).
-- Relatorio PDF do paciente.
-- Pagina de alertas clinicos com priorizacao por severidade.
+## ✨ Ecossistema da Plataforma
 
-### Admin
+O Acompanha MD é arquitetado em dois portais principais, com rigoroso controle de acesso baseado em *Row Level Security* (RLS) do Supabase.
 
-- Cadastro e gerenciamento de modalidades e fases de temporada.
-- Vinculacao de medico existente via endpoint administrativo.
+### 🧑‍⚕️ Portal Médico (Doctor)
+Painel de controle analítico voltado para a rápida tomada de decisão clínica.
+- **Dashboard Estratégico**: Visão panorâmica da base de pacientes, alertas críticos de saúde e taxas de engajamento (resposta).
+- **Lista de Pacientes**: Motor de busca e filtragem robusto, segmentando pacientes por *status* ativo/inativo e nível de prioridade clínica.
+- **Prontuário Longitudinal Completo**:
+  - Resumo comparativo semanal.
+  - Oito gráficos independentes de métricas vitais (Sono, Cansaço, Estresse, Humor, Dor, Libido, Peso, Treino).
+  - Módulo de medições corporais com comparador visual (fotos lado a lado).
+  - Bloco de notas clínicas integradas e seguras.
+- **Gestão Documental**: Upload e compartilhamento de exames, laudos e dietas diretamente com o paciente.
+- **Relatórios**: Geração automatizada de laudos em PDF via `jsPDF` sumarizando a evolução do paciente.
 
-## Regras clinicas e score
+### 🏃 Portal do Paciente (Patient)
+Ambiente pessoal, acolhedor e seguro para a auto-declaração de saúde.
+- **Check-in Semanal Simplificado**: Formulário responsivo com indicadores de bem-estar de 1 a 10.
+- **Dashboard de Evolução**: Gráficos de fácil compreensão sobre progressão de peso corporal, massa magra e percentual de gordura.
+- **Módulo de Medição**: Upload seguro de fotos semanais para avaliação física.
+- **Acesso Documental e Notas**: Recebimento de orientações e documentos do médico responsável.
+- **Autenticação Segura**: Recuperação de senha autônoma.
 
-As regras de classificacao de status clinico estao centralizadas em:
+---
 
-- `src/lib/clinical-rules.ts`
+## 🧠 Motor de Regras Clínicas (Clinical Rules)
 
-Essa e a fonte unica para thresholds e avaliacao de status (`Crítico`, `Atenção`, `Seguro`, `Sem Dados`), usada por dashboard, lista de pacientes e alertas.
+A inteligência da plataforma reside em sua fonte única da verdade para classificação de risco clínico, centralizada em `src/lib/clinical-rules.ts`.
 
-O Recovery Score e calculado em:
+A tríade de *Status* Clínico:
+- 🔴 **Crítico:** Lesões reportadas, sono exíguo (≤3), dores ou cansaço extremos (≥9), entre outros de instabilidade aguda.
+- 🟡 **Atenção:** Sinais de alerta moderados como estresse elevado, distúrbios leves de sono ou fadiga acentuada.
+- 🟢 **Seguro:** Todos os parâmetros dentro de limiares saudáveis e operacionais.
 
-- `src/lib/monitoring.ts`
+> **💡 Nota Técnica:** O cálculo longitudinal do *Recovery Score* obedece a um algoritmo customizado em `src/lib/monitoring.ts`, responsável por ditar orientações visuais nos gráficos (Recharts) e painéis de atendimento.
 
-## Stack
+---
 
-- Next.js 16 (App Router)
-- React 19 + TypeScript
-- Tailwind CSS 4 + shadcn/ui + Radix
-- Supabase (Auth, Postgres, Storage, RLS)
-- Recharts
-- jsPDF + jspdf-autotable
+## 🛠️ Stack Tecnológica & Arquitetura
 
-## Requisitos
+O projeto utiliza o que há de mais moderno no ecossistema React.
 
-- Node.js 20+
-- npm 10+
-- Projeto Supabase configurado
+| Camada | Tecnologia | Propósito / Função |
+|---|---|---|
+| **Core & Roteamento** | `Next.js 16 (App Router)` | Renderização híbrida (SSR/CSR), performance e rotas baseadas no sistema de arquivos estrito. |
+| **Linguagem** | `React 19` + `TypeScript 5` | Tipagem forte e prevenção de erros em tempo de compilação. |
+| **Estilização & UI** | `Tailwind CSS 4` + `shadcn/ui` | Construção de interface sofisticada de utilitários css com componentes Radix sem cabeçalho e variáveis de tema em Oklch. |
+| **BaaS & Backend** | `Supabase` | Autenticação, Banco de Dados Relacional PostgreSQL, Storage de imagens e RLS Policies. |
+| **Data Viz** | `Recharts` | Mapas e gráficos interativos para evolução paramétrica. |
 
-## Configuracao local
+---
 
-### 1) Instalar dependencias
+## ⚙️ Ambiente de Desenvolvimento e Configuração
+
+### 1. Pré-Requisitos
+- **Node.js**: v20 ou superior.
+- **Gerenciador de Pacotes**: npm v10+.
+- **Banco de Dados**: Um projeto configurado no [Supabase](https://supabase.com).
+
+### 2. Instalação e Inicialização
 
 ```bash
+# Clone o repositório e instale as dependências
 npm install
 ```
 
-### 2) Configurar variaveis de ambiente
-
-Use o arquivo de exemplo:
+### 3. Variáveis de Ambiente
+Crie e preencha o arquivo `.env.local` na raiz do projeto copiando os exemplares listados em `.env.local.example`:
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Variaveis usadas:
+| Variável | Descrição |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chave pública anônima |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (apenas server-side / endpoints admin) |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | *(Opcional)* Chave de proteção anti-bot / Cloudflare Turnstile |
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (apenas servidor)
+### 4. Migrações de Banco de Dados
+Aplica a estrutura arquitetural, segurança RLS e tabelas executando os scripts localizados em `supabase/migrations/` em ordem, ou através do CLI do Supabase. Arquivos cruciais incluem `patient_notes_migration.sql` e a infraestrutura do `recovery_score`.
 
-Opcional (quando habilitado no projeto):
-
-- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
-
-### 3) Aplicar migrations no Supabase
-
-Executar os SQLs da pasta `supabase/migrations`:
-
-- `apply_admin_rls.sql`
-- `fix_doctor_rls_circular.sql`
-- `measurements_migration.sql`
-- `patient_notes_migration.sql`
-- `patient_notes_delete_policy.sql`
-- `patient_status_and_documents.sql`
-- `recovery_score_migration.sql`
-- `recalculate_recovery_scores.sql`
-
-### 4) Rodar o projeto
+### 5. Iniciar o Servidor
 
 ```bash
 npm run dev
+# O aplicativo iniciará em http://localhost:3000
 ```
 
-## Qualidade
+---
 
+## 🔒 Segurança e Melhores Práticas
+
+- **Proteção do Service Role**: A chave `SUPABASE_SERVICE_ROLE_KEY` e operações administrativas de criação de usuários bypassam RLS e são restritas **exclusivamente** às "Server Actions" ou "Route Handlers". Não devem ser expostas no cliente *sob nenhuma hipótese*.
+- **Row Level Security (RLS)**: Cada médico e paciente consome apenas os dados a eles pertencentes ou condicionalmente interligados por chaves estrangeiras.
+- **Qualidade de Código**: Pipelines internos de validação via ESLint 9 rigoroso de TypeScript (*strict mode*).
+
+Para rodar checagens estáticas:
 ```bash
-npm run lint
-npx tsc --noEmit
-npm run build
+npm run lint         # Verificação visual e sintática
+npx tsc --noEmit     # Análise de compilação e tipagem
 ```
 
-## Estrutura relevante
-
-```text
-src/
-  app/
-    (auth)/
-    (patient)/
-    doctor/
-    api/
-  components/
-    dashboard/
-    measurements/
-    ui/
-  lib/
-    clinical-rules.ts
-    monitoring.ts
-    supabase/
-supabase/
-  migrations/
-```
-
-## Seguranca
-
-- Nunca expor `SUPABASE_SERVICE_ROLE_KEY` no cliente.
-- O endpoint admin usa service role e deve ser acessivel somente por usuarios autorizados.
-- RLS e policies estao versionadas nas migrations SQL.
-
-## Status do projeto
-
-Produto em evolucao continua, com foco em qualidade clinica, UX e consistencia de regras de negocio.
+---
+<div align="center">
+  <p>Construído pela equipe técnica do <strong>Acompanha MD</strong></p>
+</div>
