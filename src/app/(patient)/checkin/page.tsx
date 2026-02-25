@@ -352,7 +352,7 @@ function CheckinForm() {
                                     <MetricCard label="Nível de Cansaço" sublabel="Qual sua fadiga acumulada?" value={field.value} isPositive={false}>
                                         <ScoreButtons value={field.value} onChange={field.onChange} isPositive={false} />
                                         <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">
-                                            <span>Zero</span><span>Exausto</span>
+                                            <span>Descansado</span><span>Exausto</span>
                                         </div>
                                     </MetricCard>
                                 )}
