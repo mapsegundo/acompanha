@@ -170,8 +170,8 @@ export default function PatientsListPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-[#0f172a]">Meus Pacientes</h1>
-        <p className="text-muted-foreground">Listagem completa de atletas monitorados e sua saúde atual.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0f172a]">Meus Pacientes</h1>
+        <p className="text-sm text-muted-foreground">Listagem completa de atletas monitorados e sua saúde atual.</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -228,48 +228,48 @@ export default function PatientsListPage() {
               <Link
                 href={`/doctor/patients/${patient.id}`}
                 key={patient.id}
-                className={`block p-4 border rounded-xl bg-card shadow-sm hover:border-blue-500/50 transition-colors ${!patient.ativo ? "opacity-50 grayscale" : ""}`}
+                className={`block p-4 border rounded-xl bg-card shadow-sm hover:border-blue-500/50 transition-colors overflow-hidden ${!patient.ativo ? "opacity-50 grayscale" : ""}`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-sm uppercase">
-                        {patient.nome?.substring(0, 2) || "P"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-[#0f172a] truncate">{patient.nome}</div>
-                      <div className="text-xs text-muted-foreground truncate">{patient.email}</div>
-                    </div>
+                {/* Header row — overflow safe */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-sm uppercase">
+                      {patient.nome?.substring(0, 2) || "P"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-[#0f172a] truncate text-sm">{patient.nome}</div>
+                    <div className="text-xs text-muted-foreground truncate">{patient.email}</div>
                   </div>
                   <Badge
                     variant={variant}
-                    className={`font-bold uppercase py-0.5 px-2 text-[10px] whitespace-nowrap shrink-0 ${getHealthBadgeColorClasses(status)}`}
+                    className={`shrink-0 font-bold uppercase py-0.5 px-2 text-[10px] whitespace-nowrap ${getHealthBadgeColorClasses(status)}`}
                   >
                     {status}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm mt-4 bg-slate-50 border p-3 rounded-lg">
+                {/* Stats grid */}
+                <div className="grid grid-cols-4 gap-2 mt-3 bg-slate-50 border p-2.5 rounded-lg">
                   <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Score</div>
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Score</div>
                     {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
-                      <span className="font-bold text-orange-500">{latest.recovery_score}</span>
+                      <span className="font-black text-orange-500 text-sm">{latest.recovery_score}</span>
                     ) : (
-                      "-"
+                      <span className="font-bold text-muted-foreground">-</span>
                     )}
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Última Sync</div>
-                    <div className="font-medium">{latest ? format(parseISO(latest.data), "dd/MM") : "Pendente"}</div>
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Sync</div>
+                    <div className="font-bold text-xs">{latest ? format(parseISO(latest.data), "dd/MM") : "—"}</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Modalidade</div>
-                    <div className="truncate text-muted-foreground text-xs font-semibold">{patient.sport_modalities?.nome || "-"}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Modal.</div>
+                    <div className="truncate text-muted-foreground text-[10px] font-semibold">{patient.sport_modalities?.nome || "—"}</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Fase</div>
-                    <div className="truncate text-muted-foreground text-xs font-semibold">{patient.season_phases?.nome || "-"}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Fase</div>
+                    <div className="truncate text-muted-foreground text-[10px] font-semibold">{patient.season_phases?.nome || "—"}</div>
                   </div>
                 </div>
               </Link>

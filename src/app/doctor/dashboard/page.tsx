@@ -109,50 +109,74 @@ export default async function DoctorDashboard({
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[#0f172a]">Painel Médico</h1>
-        <p className="text-muted-foreground">Visão geral do desempenho e saúde dos seus pacientes.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0f172a]">Painel Médico</h1>
+        <p className="text-sm text-muted-foreground mt-1">Visão geral do desempenho e saúde dos seus pacientes.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pacientes Ativos</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalPatients}</div>
-            <p className="text-xs text-muted-foreground mt-1 text-slate-400">Total de atletas monitorados</p>
+      {/* Stats cards */}
+      <div className="grid gap-3 grid-cols-3">
+        {/* Pacientes Ativos */}
+        <Card className="shadow-sm border overflow-hidden">
+          <CardContent className="px-3 pt-3 pb-3">
+            <div className="flex items-start justify-between mb-2">
+              <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-foreground leading-tight">Pacientes</span>
+              <Users className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" />
+            </div>
+            <div className="text-2xl md:text-3xl font-black text-[#0f172a] leading-none mb-2">{totalPatients}</div>
+            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 rounded-full w-full" />
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border border-t-red-500 border-t-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Críticos</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalAlerts}</div>
-            <p className="text-xs text-muted-foreground mt-1 text-slate-400">Requerem atenção imediata (7d)</p>
+        {/* Alertas Críticos */}
+        <Card className="shadow-sm border-t-2 border-t-red-500 overflow-hidden">
+          <CardContent className="px-3 pt-3 pb-3">
+            <div className="flex items-start justify-between mb-2">
+              <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-foreground leading-tight">Críticos</span>
+              <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+            </div>
+            <div className={`text-2xl md:text-3xl font-black leading-none mb-2 ${criticalAlerts > 0 ? "text-red-600" : "text-[#0f172a]"}`}>
+              {criticalAlerts}
+            </div>
+            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+              {totalPatients > 0 && (
+                <div
+                  className="h-full bg-red-500 rounded-full transition-all"
+                  style={{ width: `${Math.round((criticalAlerts / totalPatients) * 100)}%` }}
+                />
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Resposta</CardTitle>
-            <Activity className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{responseRate}%</div>
-            <p className="text-xs text-muted-foreground mt-1 text-slate-400">Check-ins realizados nos últimos 7d</p>
+        {/* Taxa de Resposta */}
+        <Card className="shadow-sm border overflow-hidden">
+          <CardContent className="px-3 pt-3 pb-3">
+            <div className="flex items-start justify-between mb-2">
+              <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-foreground leading-tight">Resposta</span>
+              <Activity className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+            </div>
+            <div className={`text-2xl md:text-3xl font-black leading-none mb-2 ${responseRate >= 70 ? "text-emerald-600" : responseRate >= 40 ? "text-amber-500" : "text-[#0f172a]"}`}>
+              {responseRate}%
+            </div>
+            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${responseRate >= 70 ? "bg-emerald-500" : responseRate >= 40 ? "bg-amber-400" : "bg-slate-400"}`}
+                style={{ width: `${responseRate}%` }}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Patient list */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-base md:text-lg font-bold flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
             Pacientes Recentes
           </h2>
           <Link href="/doctor/patients" className="text-xs font-semibold text-slate-900 flex items-center gap-1 hover:underline">
@@ -160,173 +184,174 @@ export default async function DoctorDashboard({
           </Link>
         </div>
 
-        <Card className="border shadow-sm overflow-hidden bg-transparent md:bg-card border-none md:border-solid">
-          {/* Mobile view - Cards */}
-          <div className="md:hidden flex flex-col gap-4">
-            {paginatedPatients.map((patient) => {
-              const latest = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))[0]
-              let status: TableStatus = "Sem Dados"
-              let variant: BadgeVariant = "outline"
+        {/* Mobile list — no wrapper, cards appear individually */}
+        <div className="md:hidden flex flex-col gap-3">
+          {paginatedPatients.map((patient) => {
+            const latest = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))[0]
+            let status: TableStatus = "Sem Dados"
+            let variant: BadgeVariant = "outline"
 
-              if (latest) {
-                status = calculateHealthStatus(latest, patient.sexo)
-                variant = getBadgeVariant(status)
-              }
+            if (latest) {
+              status = calculateHealthStatus(latest, patient.sexo)
+              variant = getBadgeVariant(status)
+            }
 
-              return (
-                <Link
-                  href={`/doctor/patients/${patient.id}`}
-                  key={patient.id}
-                  className="block p-4 border rounded-xl bg-card shadow-sm hover:border-blue-500/50 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-sm uppercase">
-                          {patient.nome?.substring(0, 2) || "P"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-bold text-[#0f172a] line-clamp-1 break-all">{patient.nome}</div>
-                        <div className="text-xs text-muted-foreground line-clamp-1 break-all">{patient.email}</div>
-                      </div>
-                    </div>
-                    <Badge
-                      variant={variant}
-                      className={`font-bold uppercase py-0.5 px-2 text-[10px] whitespace-nowrap ${getHealthBadgeColorClasses(status)}`}
-                    >
-                      {status}
-                    </Badge>
+            return (
+              <Link
+                href={`/doctor/patients/${patient.id}`}
+                key={patient.id}
+                className="block p-4 border rounded-xl bg-card shadow-sm hover:border-blue-500/50 transition-colors overflow-hidden"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-sm uppercase">
+                      {patient.nome?.substring(0, 2) || "P"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {/* NAME + EMAIL — min-w-0 prevents overflow */}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-[#0f172a] truncate text-sm">{patient.nome}</div>
+                    <div className="text-xs text-muted-foreground truncate">{patient.email}</div>
                   </div>
+                  {/* Badge — shrink-0 prevents compression */}
+                  <Badge
+                    variant={variant}
+                    className={`shrink-0 font-bold uppercase py-0.5 px-2 text-[10px] whitespace-nowrap ${getHealthBadgeColorClasses(status)}`}
+                  >
+                    {status}
+                  </Badge>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm mt-4 bg-slate-50 border p-3 rounded-lg">
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Score</div>
-                      {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
-                        <span className="font-bold text-orange-500">{latest.recovery_score}</span>
-                      ) : (
-                        "-"
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Última Sync</div>
-                      <div className="font-medium">{latest ? format(parseISO(latest.data), "dd/MM") : "Pendente"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Modalidade</div>
-                      <div className="truncate text-muted-foreground text-xs font-semibold">{patient.sport_modalities?.nome || "-"}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1">Fase</div>
-                      <div className="truncate text-muted-foreground text-xs font-semibold">{patient.season_phases?.nome || "-"}</div>
-                    </div>
+                <div className="grid grid-cols-4 gap-2 text-sm mt-3 bg-slate-50 border p-2.5 rounded-lg">
+                  <div>
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Score</div>
+                    {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
+                      <span className="font-black text-orange-500 text-sm">{latest.recovery_score}</span>
+                    ) : (
+                      <span className="text-muted-foreground font-bold">-</span>
+                    )}
                   </div>
-                </Link>
-              )
-            })}
-            {!paginatedPatients.length && (
-              <div className="text-center py-12 text-muted-foreground border rounded-xl bg-card">
-                Nenhum paciente configurado.
-              </div>
-            )}
-          </div>
+                  <div>
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Sync</div>
+                    <div className="font-bold text-xs">{latest ? format(parseISO(latest.data), "dd/MM") : "—"}</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Modal.</div>
+                    <div className="truncate text-muted-foreground text-[10px] font-semibold">{patient.sport_modalities?.nome || "—"}</div>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-black text-muted-foreground uppercase tracking-tight mb-0.5">Fase</div>
+                    <div className="truncate text-muted-foreground text-[10px] font-semibold">{patient.season_phases?.nome || "—"}</div>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+          {!paginatedPatients.length && (
+            <div className="text-center py-12 text-muted-foreground border rounded-xl bg-card">
+              Nenhum paciente configurado.
+            </div>
+          )}
+        </div>
 
-          {/* Desktop view - Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Paciente</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Modalidade</TableHead>
-                  <TableHead>Fase</TableHead>
-                  <TableHead>Última Sincronização</TableHead>
-                  <TableHead className="text-right">Ação</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedPatients.map((patient) => {
-                  const latest = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))[0]
-                  let status: TableStatus = "Sem Dados"
-                  let variant: BadgeVariant = "outline"
+        {/* Desktop view — Table */}
+        <Card className="hidden md:block border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Paciente</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Score</TableHead>
+                <TableHead>Modalidade</TableHead>
+                <TableHead>Fase</TableHead>
+                <TableHead>Última Sincronização</TableHead>
+                <TableHead className="text-right">Ação</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedPatients.map((patient) => {
+                const latest = [...(patient.weekly_checkins || [])].sort((a, b) => b.data.localeCompare(a.data))[0]
+                let status: TableStatus = "Sem Dados"
+                let variant: BadgeVariant = "outline"
 
-                  if (latest) {
-                    status = calculateHealthStatus(latest, patient.sexo)
-                    variant = getBadgeVariant(status)
-                  }
+                if (latest) {
+                  status = calculateHealthStatus(latest, patient.sexo)
+                  variant = getBadgeVariant(status)
+                }
 
-                  return (
-                    <ClickableTableRow
-                      key={patient.id}
-                      href={`/doctor/patients/${patient.id}`}
-                      label={`Abrir prontuário de ${patient.nome ?? "paciente"}`}
-                      className="hover:bg-muted/50"
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-xs uppercase">
-                              {patient.nome?.substring(0, 2) || "P"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-bold text-[#0f172a]">{patient.nome}</div>
-                            <div className="text-xs text-muted-foreground">{patient.email}</div>
-                          </div>
+                return (
+                  <ClickableTableRow
+                    key={patient.id}
+                    href={`/doctor/patients/${patient.id}`}
+                    label={`Abrir prontuário de ${patient.nome ?? "paciente"}`}
+                    className="hover:bg-muted/50"
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8 shrink-0">
+                          <AvatarFallback className="bg-blue-50 text-blue-600 font-bold text-xs uppercase">
+                            {patient.nome?.substring(0, 2) || "P"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <div className="font-bold text-[#0f172a] truncate max-w-[200px]">{patient.nome}</div>
+                          <div className="text-xs text-muted-foreground truncate max-w-[200px]">{patient.email}</div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={variant}
-                          className={`font-bold uppercase py-0 px-2 text-[10px] ${getHealthBadgeColorClasses(status)}`}
-                        >
-                          {status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
-                          <span className="font-bold text-orange-500 text-lg">{latest.recovery_score}</span>
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{patient.sport_modalities?.nome || "-"}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-muted/50">
-                          {patient.season_phases?.nome || "-"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm font-medium">{latest ? format(parseISO(latest.data), "dd/MM/yyyy") : "Pendente"}</div>
-                        {latest && (
-                          <div className="text-[10px] text-muted-foreground uppercase font-bold">
-                            {format(parseISO(latest.data), "EEEE", { locale: ptBR })}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="font-medium text-xs">
-                          Ver <ArrowRight className="ml-1 h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </ClickableTableRow>
-                  )
-                })}
-
-                {!paginatedPatients.length && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                      Nenhum paciente configurado.
+                      </div>
                     </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                    <TableCell>
+                      <Badge
+                        variant={variant}
+                        className={`font-bold uppercase py-0 px-2 text-[10px] ${getHealthBadgeColorClasses(status)}`}
+                      >
+                        {status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {latest && latest.recovery_score !== null && latest.recovery_score !== undefined ? (
+                        <span className="font-bold text-orange-500 text-lg">{latest.recovery_score}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground max-w-[120px] truncate">
+                      {patient.sport_modalities?.nome || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-muted/50 max-w-[120px] truncate block">
+                        {patient.season_phases?.nome || "—"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm font-medium">{latest ? format(parseISO(latest.data), "dd/MM/yyyy") : "Pendente"}</div>
+                      {latest && (
+                        <div className="text-[10px] text-muted-foreground uppercase font-bold">
+                          {format(parseISO(latest.data), "EEEE", { locale: ptBR })}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" className="font-medium text-xs">
+                        Ver <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </ClickableTableRow>
+                )
+              })}
+
+              {!paginatedPatients.length && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                    Nenhum paciente configurado.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </Card>
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border rounded-lg bg-muted/20">
           <div className="text-xs text-muted-foreground">
@@ -348,7 +373,8 @@ export default async function DoctorDashboard({
             </Link>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }

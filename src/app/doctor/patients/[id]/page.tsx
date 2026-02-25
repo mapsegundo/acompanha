@@ -1,25 +1,18 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, User, Activity, Calendar, Target } from "lucide-react"
+import { ArrowLeft, Target, Calendar } from "lucide-react"
 import Link from "next/link"
-import { PatientCharts } from "./charts"
-import { PatientNotes } from "./patient-notes"
 import { Badge } from "@/components/ui/badge"
 import { ReportButton } from "./report-button"
 import { calculateRecoveryScore, getRecoveryColor } from "@/lib/monitoring"
-import { Info } from 'lucide-react'
-import { PatientSummary } from "./patient-summary"
-import { PatientMeasurements } from "./patient-measurements"
 import { PatientToggleStatus } from "./patient-toggle-status"
-import { PatientDocuments } from "./patient-documents"
-import { PatientPhotoComparison } from "./patient-photo-comparison"
+import { PatientTabView } from "./patient-tab-view"
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const supabase = await createClient()
 
-    // 1. Fetch Patient Info with FK joins
     const { data: patient, error: patientError } = await supabase
         .from('patients')
         .select(`
@@ -36,13 +29,11 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         .eq('id', id)
         .single()
 
-    // 2. Fetch Check-ins
     const { data: checkins } = await supabase
         .from('weekly_checkins')
         .select('*')
         .eq('patient_id', id)
         .order('data', { ascending: true })
-
 
     if (patientError || !patient) {
         return (
@@ -54,93 +45,36 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         )
     }
 
-    // Type-safe extraction of FK joined data
-    // @ts-expect-error Supabase FK join types are complex, but we know the structure
+    // @ts-expect-error Supabase FK join types
     const modalityName = patient.sport_modalities?.nome || "Sem modalidade"
-    // @ts-expect-error Supabase FK join types are complex, but we know the structure
+    // @ts-expect-error Supabase FK join types
     const phaseName = patient.season_phases?.nome || "Sem fase"
 
-    // Get most recent weight from check-ins
     const latestCheckin = checkins && checkins.length > 0 ? checkins[checkins.length - 1] : null
     const currentWeight = latestCheckin?.peso || patient.peso
 
+    // Recovery score
+    let recoveryScore: number | null = null
+    let recoveryColor = "#64748b"
+    if (latestCheckin?.recovery_score !== null && latestCheckin?.recovery_score !== undefined) {
+        const recovery = calculateRecoveryScore(latestCheckin)
+        recoveryScore = recovery.score
+        recoveryColor = getRecoveryColor(recovery.status)
+    }
+
     return (
-        <div className="space-y-6">
-            {/* Header - Premium Redesign */}
-            <div className="bg-white border rounded-xl p-4 sm:p-6 shadow-sm">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                        <Link href="/doctor/patients" className="mt-1">
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-slate-100 transition-colors">
-                                <ArrowLeft className="h-5 w-5 text-slate-600" />
-                            </Button>
-                        </Link>
-                        <div className="space-y-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                                    {patient.nome || "Paciente Sem Nome"}
-                                </h1>
+        <div className="space-y-4">
+            {/* ── Header ── */}
+            <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
 
-                                {/* Recovery Score Badge */}
-                                {latestCheckin?.recovery_score !== null && latestCheckin?.recovery_score !== undefined && (() => {
-                                    const recovery = calculateRecoveryScore(latestCheckin)
-                                    const color = getRecoveryColor(recovery.status)
-                                    return (
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className="flex items-center justify-center w-12 h-12 rounded-full border-3"
-                                                style={{ borderColor: color, borderWidth: '3px' }}
-                                            >
-                                                <span
-                                                    className="text-lg font-bold"
-                                                    style={{ color }}
-                                                >
-                                                    {recovery.score}
-                                                </span>
-                                            </div>
-                                            <Link
-                                                href="/doctor/recovery-score-info"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7">
-                                                    <Info className="h-3 w-3 mr-1" />
-                                                    Como calculamos?
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    )
-                                })()}
-
-                                <div className="flex gap-2">
-                                    <Badge variant="outline" className="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-slate-200">
-                                        <Target className="h-3 w-3 mr-1" />
-                                        {modalityName}
-                                    </Badge>
-                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-100 text-[10px] font-bold uppercase tracking-wider">
-                                        <Calendar className="h-3 w-3 mr-1" />
-                                        {phaseName}
-                                    </Badge>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 font-medium">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="p-1 bg-slate-100 rounded-md">
-                                        <User className="h-3.5 w-3.5" />
-                                    </div>
-                                    {patient.email}
-                                </div>
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100 italic">
-                                    <span>{patient.idade || "N/A"} anos</span>
-                                    <span className="text-slate-300">•</span>
-                                    <span>{currentWeight ? `${currentWeight}kg` : "N/A"}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 self-end md:self-center">
+                {/* Top bar: back + actions */}
+                <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b">
+                    <Link href="/doctor/patients">
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-slate-100">
+                            <ArrowLeft className="h-4 w-4 text-slate-600" />
+                        </Button>
+                    </Link>
+                    <div className="flex items-center gap-2">
                         <PatientToggleStatus patientId={id} initialAtivo={patient.ativo !== false} />
                         <ReportButton
                             patient={{
@@ -156,35 +90,53 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                         />
                     </div>
                 </div>
+
+                {/* Patient identity */}
+                <div className="px-4 py-4">
+                    {/* Row 1: Name + Score */}
+                    <div className="flex items-start gap-3 min-w-0">
+                        {/* Score circle */}
+                        {recoveryScore !== null && (
+                            <div
+                                className="shrink-0 flex items-center justify-center w-12 h-12 rounded-full"
+                                style={{ border: `3px solid ${recoveryColor}` }}
+                            >
+                                <span className="text-base font-black" style={{ color: recoveryColor }}>
+                                    {recoveryScore}
+                                </span>
+                            </div>
+                        )}
+                        <div className="min-w-0 flex-1 pt-0.5">
+                            <h1 className="text-lg font-black tracking-tight text-slate-900 leading-tight break-words">
+                                {patient.nome || "Paciente Sem Nome"}
+                            </h1>
+                            <p className="text-xs text-muted-foreground mt-0.5 truncate">{patient.email}</p>
+                        </div>
+                    </div>
+
+                    {/* Row 2: Badges + biometrics */}
+                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                        <Badge variant="outline" className="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-slate-200">
+                            <Target className="h-3 w-3 mr-1" />
+                            {modalityName}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-100 text-[10px] font-bold uppercase tracking-wider">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {phaseName}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground italic">
+                            {patient.idade ? `${patient.idade} anos` : "—"} · {currentWeight ? `${currentWeight}kg` : "—"}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            {/* Patient Progress Summary */}
-            {checkins && checkins.length > 0 && (
-                <PatientSummary checkins={checkins} />
-            )}
-
-            {/* Charts & Data */}
-            {checkins && checkins.length > 0 ? (
-                <PatientCharts checkins={checkins} sexo={patient.sexo || 'M'} />
-            ) : (
-                <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/10">
-                    <Activity className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold">Sem dados de check-in</h3>
-                    <p className="text-muted-foreground">Este paciente ainda não realizou nenhum acompanhamento.</p>
-                </div>
-            )}
-
-            {/* Body Measurements */}
-            <PatientMeasurements patientId={id} />
-
-            {/* Photo Comparison */}
-            <PatientPhotoComparison patientId={id} />
-
-            {/* Documents */}
-            <PatientDocuments patientId={id} />
-
-            {/* Clinical Notes */}
-            <PatientNotes patientId={id} isDoctor={true} />
+            {/* ── Tab sections ── */}
+            <PatientTabView
+                patientId={id}
+                checkins={checkins || []}
+                sexo={patient.sexo || 'M'}
+            />
         </div>
     )
 }

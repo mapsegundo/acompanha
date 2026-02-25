@@ -99,7 +99,14 @@ export default async function PatientDashboard() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-black tracking-tight">Meus Acompanhamentos</h1>
+                <div>
+                    <h1 className="text-xl font-black tracking-tight">Meus Acompanhamentos</h1>
+                    {checkins.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                            Última sync: {format(parseISO(checkins[0].data), "dd 'de' MMMM", { locale: ptBR })}
+                        </p>
+                    )}
+                </div>
             </div>
 
             {/* Shared Notes from Doctor */}
@@ -156,14 +163,14 @@ export default async function PatientDashboard() {
                                 </div>
 
                                 {/* Peso + Score */}
-                                <div className="px-4 pb-3 flex items-end justify-between">
-                                    <div>
-                                        <span className="text-3xl font-black italic">{checkin.peso}</span>
+                                <div className="px-4 pb-3 flex items-end justify-between gap-2 min-w-0">
+                                    <div className="min-w-0">
+                                        <span className="text-2xl md:text-3xl font-black italic tabular-nums">{checkin.peso}</span>
                                         <span className="text-sm text-muted-foreground ml-1">kg</span>
                                     </div>
                                     {checkin.recovery_score != null && (
-                                        <div className="text-right">
-                                            <span className={cn("text-2xl font-black tabular-nums", statusTxt)}>{checkin.recovery_score}</span>
+                                        <div className="text-right shrink-0">
+                                            <span className={cn("text-xl md:text-2xl font-black tabular-nums", statusTxt)}>{checkin.recovery_score}</span>
                                             <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest">Recovery</p>
                                         </div>
                                     )}
@@ -221,7 +228,7 @@ export default async function PatientDashboard() {
             {checkins.length > 0 && (
                 <Link
                     href="/checkin"
-                    className="md:hidden fixed bottom-20 right-4 h-14 w-14 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl z-40 active:scale-90 transition-transform"
+                    className="md:hidden fixed bottom-24 right-4 h-14 w-14 rounded-full bg-foreground text-background flex items-center justify-center shadow-xl z-40 active:scale-90 transition-transform"
                     aria-label="Novo check-in"
                 >
                     <Plus className="h-6 w-6" />
