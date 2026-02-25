@@ -45,3 +45,6 @@ next-env.d.ts
 # project-specific
 /apresentacao
 /.temp_ag_kit
+
+.vercel
+.env*.local
