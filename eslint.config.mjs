@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // AI agent generated files — not project source
+    ".temp_ag_kit/**",
   ]),
 ]);
 
