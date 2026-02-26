@@ -49,7 +49,7 @@ export default function LoginPage() {
         } else {
             // Register biometric credential after successful login
             if (data.user) {
-                await registerCredential(email, data.user.id)
+                await registerCredential(email, data.user.id, data.session?.refresh_token ?? null)
             }
             toast.success("Sucesso!", { description: "Redirecionando para o painel..." })
             window.location.href = "/"
@@ -61,7 +61,7 @@ export default function LoginPage() {
         setBiometricLoading(true)
         const success = await loginWithBiometrics()
         if (!success) {
-            toast.error("Falha na biometria", { description: "Use seu email e senha para entrar." })
+            toast.error("Falha na biometria", { description: "Use e-mail e senha uma vez para reativar o Face ID / Digital neste aparelho." })
         }
         setBiometricLoading(false)
     }

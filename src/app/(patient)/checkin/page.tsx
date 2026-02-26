@@ -14,6 +14,7 @@ import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { notifyDoctorOnCheckin } from "@/lib/push-notifications"
 
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
@@ -233,8 +234,25 @@ function CheckinForm() {
         if (!user) { setIsSubmitting(false); return }
 
         try {
-            const { data: patient } = await supabase.from('patients').select('id').eq('user_id', user.id).single()
+            const { data: patient } = await supabase.from('patients').select('id,nome').eq('user_id', user.id).single()
             if (!patient) { toast.error("Perfil de paciente não encontrado."); setIsSubmitting(false); return }
+
+            const notifyDoctors = async (eventType: "created" | "updated") => {
+                try {
+                    const { data: doctors } = await supabase.from("doctors").select("user_id")
+                    if (!doctors || doctors.length === 0) return
+
+                    const patientName = patient.nome?.trim() || "Paciente"
+                    const notifications = doctors
+                        .map((doctor) => doctor.user_id)
+                        .filter((doctorUserId): doctorUserId is string => Boolean(doctorUserId))
+                        .map((doctorUserId) => notifyDoctorOnCheckin(doctorUserId, patientName, patient.id, eventType))
+
+                    await Promise.allSettled(notifications)
+                } catch {
+                    // Non-critical - check-in should not fail if notification fails
+                }
+            }
 
             const payload: Record<string, unknown> = {
                 patient_id: patient.id,
@@ -263,10 +281,12 @@ function CheckinForm() {
             if (checkinId) {
                 const { error } = await supabase.from('weekly_checkins').update(payload).eq('id', checkinId)
                 if (error) throw error
+                await notifyDoctors("updated")
                 toast.success("Check-in atualizado com sucesso!")
             } else {
                 const { error } = await supabase.from('weekly_checkins').insert(payload)
                 if (error) throw error
+                await notifyDoctors("created")
                 toast.success("Check-in salvo com sucesso!")
             }
 
