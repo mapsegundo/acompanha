@@ -7,9 +7,14 @@ import { createClient } from "@/lib/supabase/client"
 interface RealtimeRefreshListenerProps {
     tables: string[]
     debounceMs?: number
+    pollMs?: number
 }
 
-export function RealtimeRefreshListener({ tables, debounceMs = 1200 }: RealtimeRefreshListenerProps) {
+export function RealtimeRefreshListener({
+    tables,
+    debounceMs = 1200,
+    pollMs = 20000,
+}: RealtimeRefreshListenerProps) {
     const router = useRouter()
     const debounceRef = useRef<number | null>(null)
     const tableKey = useMemo(() => tables.join("|"), [tables])
@@ -43,17 +48,23 @@ export function RealtimeRefreshListener({ tables, debounceMs = 1200 }: RealtimeR
 
         window.addEventListener("focus", triggerRefresh)
         document.addEventListener("visibilitychange", handleVisibility)
+        const intervalId = window.setInterval(() => {
+            if (document.visibilityState === "visible") {
+                triggerRefresh()
+            }
+        }, pollMs)
 
         return () => {
             if (debounceRef.current) {
                 window.clearTimeout(debounceRef.current)
                 debounceRef.current = null
             }
+            window.clearInterval(intervalId)
             window.removeEventListener("focus", triggerRefresh)
             document.removeEventListener("visibilitychange", handleVisibility)
             void supabase.removeChannel(channel)
         }
-    }, [debounceMs, router, tableKey, tableList])
+    }, [debounceMs, pollMs, router, tableKey, tableList])
 
     return null
 }
