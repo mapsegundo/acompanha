@@ -115,15 +115,26 @@ export function PatientDocuments({ patientId }: PatientDocumentsProps) {
     }
 
     async function handleDownload(doc: Document) {
-        const { data } = await supabase.storage
+        const { data, error } = await supabase.storage
             .from('patient-documents')
             .createSignedUrl(doc.file_url, 3600)
 
-        if (data?.signedUrl) {
-            window.open(data.signedUrl, '_blank')
-        } else {
+        if (error || !data?.signedUrl) {
             toast.error("Erro ao gerar link de download")
+            return
         }
+
+        // Use programmatic <a> click instead of window.open
+        // window.open is blocked by iOS Safari PWA popup blocker
+        const link = window.document.createElement('a')
+        link.href = data.signedUrl
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        // Set download filename when possible (works for same-origin or with CORS header)
+        if (doc.file_name) link.download = doc.file_name
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
     }
 
     async function handleDelete(doc: Document) {

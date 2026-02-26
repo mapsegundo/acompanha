@@ -53,22 +53,24 @@ export default function DocumentosPage() {
     }, [loadDocuments])
 
     async function handleDownload(doc: Document) {
-        console.log("Gerando link para:", doc.file_url)
         const { data, error } = await supabase.storage
             .from('patient-documents')
             .createSignedUrl(doc.file_url, 3600)
 
-        if (error) {
-            console.error("Erro Supabase Storage:", error)
+        if (error || !data?.signedUrl) {
             toast.error("Erro ao gerar link de download")
             return
         }
 
-        if (data?.signedUrl) {
-            window.open(data.signedUrl, '_blank')
-        } else {
-            toast.error("Erro ao gerar link de download")
-        }
+        // Anchor programático — window.open é bloqueado pelo iOS Safari PWA
+        const link = window.document.createElement('a')
+        link.href = data.signedUrl
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        if (doc.file_name) link.download = doc.file_name
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
     }
 
     if (isLoading) {
