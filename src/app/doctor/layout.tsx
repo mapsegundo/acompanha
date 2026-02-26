@@ -69,7 +69,7 @@ export default async function DoctorLayout({
             </aside>
 
             {/* Main Content - Full width on mobile with padding for bottom nav */}
-            <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+            <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 safe-top md:pt-8">
                 {children}
             </main>
         </div>

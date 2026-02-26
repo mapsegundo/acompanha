@@ -86,7 +86,7 @@ export default async function PatientLayout({
             </aside>
 
             {/* Main content: pb-20 on mobile for bottom nav clearance */}
-            <main className="flex-1 overflow-y-auto p-4 pb-24 md:pb-8 md:p-8">
+            <main className="flex-1 overflow-y-auto p-4 pb-24 md:pb-8 md:p-8 safe-top md:pt-8">
                 {children}
             </main>
         </div>
