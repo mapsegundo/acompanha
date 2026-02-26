@@ -9,6 +9,7 @@ import { FileText, Upload, Trash2, Download, Loader2, Plus, X, ChevronDown, Chev
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { toast } from "sonner"
+import { downloadFile } from "@/lib/download"
 
 interface Document {
     id: string
@@ -124,17 +125,7 @@ export function PatientDocuments({ patientId }: PatientDocumentsProps) {
             return
         }
 
-        // Use programmatic <a> click instead of window.open
-        // window.open is blocked by iOS Safari PWA popup blocker
-        const link = window.document.createElement('a')
-        link.href = data.signedUrl
-        link.target = '_blank'
-        link.rel = 'noopener noreferrer'
-        // Set download filename when possible (works for same-origin or with CORS header)
-        if (doc.file_name) link.download = doc.file_name
-        window.document.body.appendChild(link)
-        link.click()
-        window.document.body.removeChild(link)
+        await downloadFile(data.signedUrl, doc.file_name ?? doc.titulo)
     }
 
     async function handleDelete(doc: Document) {

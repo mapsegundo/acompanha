@@ -8,6 +8,7 @@ import { ptBR } from "date-fns/locale"
 import { FileText, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { downloadFile } from "@/lib/download"
 
 interface Document {
     id: string
@@ -62,15 +63,7 @@ export default function DocumentosPage() {
             return
         }
 
-        // Anchor programático — window.open é bloqueado pelo iOS Safari PWA
-        const link = window.document.createElement('a')
-        link.href = data.signedUrl
-        link.target = '_blank'
-        link.rel = 'noopener noreferrer'
-        if (doc.file_name) link.download = doc.file_name
-        window.document.body.appendChild(link)
-        link.click()
-        window.document.body.removeChild(link)
+        await downloadFile(data.signedUrl, doc.file_name ?? doc.titulo)
     }
 
     if (isLoading) {
