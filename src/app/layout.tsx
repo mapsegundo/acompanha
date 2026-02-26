@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { PWARegistration } from "@/components/pwa-registration";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: "cover", // enables safe-area-inset-* on iOS
+  themeColor: "#2563eb",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://acompanha.online"),
@@ -15,11 +24,20 @@ export const metadata: Metadata = {
   keywords: ["saúde", "performance", "monitoramento", "clínico", "esporte", "médico"],
   authors: [{ name: "Acompanha" }],
   creator: "Acompanha",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Acompanha",
+    startupImage: "/icons/icon-512.png",
+  },
   icons: {
     icon: [
       { url: "/favicon.png", sizes: "32x32", type: "image/png" },
     ],
-    apple: "/favicon.png",
+    apple: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
   },
   openGraph: {
     type: "website",
@@ -44,7 +62,7 @@ export const metadata: Metadata = {
     images: ["/og-image-v2.png"],
   },
   other: {
-    "fb:app_id": "966242223397117", // Optional: Replace with your actual Facebook App ID
+    "fb:app_id": "966242223397117",
   },
 };
 
@@ -58,6 +76,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased min-h-screen bg-background text-foreground`}>
         {children}
         <Toaster position="top-right" />
+        <PWARegistration />
       </body>
     </html>
   );

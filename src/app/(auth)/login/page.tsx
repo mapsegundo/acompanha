@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,9 @@ import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
 import { Turnstile } from "@/components/turnstile"
+import { useBiometrics } from "@/hooks/use-biometrics"
+import { isNativeApp } from "@/lib/capacitor"
+import { Fingerprint } from "lucide-react"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -17,13 +20,23 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false)
     const [captchaToken, setCaptchaToken] = useState<string | null>(null)
     const [captchaKey, setCaptchaKey] = useState(0)
+    const [biometricAvailable, setBiometricAvailable] = useState(false)
+    const [biometricLoading, setBiometricLoading] = useState(false)
     const supabase = createClient()
+    const { isAvailable, registerCredential, loginWithBiometrics } = useBiometrics()
+
+    // Check biometric availability on mount (native only)
+    useEffect(() => {
+        if (isNativeApp()) {
+            isAvailable().then(setBiometricAvailable)
+        }
+    }, [isAvailable])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
             options: {
@@ -34,14 +47,27 @@ export default function LoginPage() {
         if (error) {
             toast.error("Erro ao entrar", { description: "E-mail ou senha inválidos." })
         } else {
+            // Register biometric credential after successful login
+            if (data.user) {
+                await registerCredential(email, data.user.id)
+            }
             toast.success("Sucesso!", { description: "Redirecionando para o painel..." })
             window.location.href = "/"
         }
         setLoading(false)
     }
 
+    const handleBiometricLogin = async () => {
+        setBiometricLoading(true)
+        const success = await loginWithBiometrics()
+        if (!success) {
+            toast.error("Falha na biometria", { description: "Use seu email e senha para entrar." })
+        }
+        setBiometricLoading(false)
+    }
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-muted/20 p-4">
+        <div className="flex items-center justify-center min-h-screen bg-muted/20 p-4" style={{ paddingTop: 'max(1rem, var(--sat))' }}>
             <Card className="w-full max-w-md shadow-2xl border-none ring-1 ring-slate-200">
                 <CardHeader className="text-center space-y-2 pb-8">
                     <div className="flex justify-center mb-2">
@@ -101,6 +127,27 @@ export default function LoginPage() {
                             {loading ? "Entrando..." : "ENTRAR AGORA"}
                         </Button>
                     </form>
+
+                    {/* Biometric login — only shows on native app with biometrics enrolled */}
+                    {biometricAvailable && (
+                        <div className="mt-4">
+                            <div className="relative flex items-center gap-3">
+                                <div className="flex-1 h-px bg-slate-100" />
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ou</span>
+                                <div className="flex-1 h-px bg-slate-100" />
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full h-12 mt-4 border-slate-200 font-black text-slate-700 hover:bg-slate-50 rounded-xl gap-2"
+                                onClick={handleBiometricLogin}
+                                disabled={biometricLoading}
+                            >
+                                <Fingerprint className="h-5 w-5 text-blue-600" />
+                                {biometricLoading ? "Verificando..." : "Entrar com Face ID / Digital"}
+                            </Button>
+                        </div>
+                    )}
 
                     <div className="mt-8 pt-6 border-t border-slate-100 text-center">
                         <p className="text-sm text-slate-500 font-bold italic">
