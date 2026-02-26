@@ -8,6 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth_&_DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![PWA](https://img.shields.io/badge/PWA-Instalável-5A0FC8?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
 
 🌐 **Site Oficial:** [acompanha.online](https://acompanha.online)
 
@@ -73,6 +74,45 @@ O projeto utiliza o que há de mais moderno no ecossistema React.
 | **Estilização & UI** | `Tailwind CSS 4` + `shadcn/ui` | Construção de interface sofisticada de utilitários css com componentes Radix sem cabeçalho e variáveis de tema em Oklch. |
 | **BaaS & Backend** | `Supabase` | Autenticação, Banco de Dados Relacional PostgreSQL, Storage de imagens e RLS Policies. |
 | **Data Viz** | `Recharts` | Mapas e gráficos interativos para evolução paramétrica. |
+| **PWA & SW** | `Serwist` + `Web Push API` | Service worker, cache offline e push notifications via VAPID. |
+| **Biometria** | `WebAuthn API` | Login com Face ID e digital (iOS Safari 16.4+ e Android Chrome). |
+
+---
+
+## 📱 Progressive Web App (PWA)
+
+O Acompanha MD é uma **PWA instalável** — funciona como aplicativo nativo no iPhone e Android sem precisar de App Store ou Google Play.
+
+### Recursos nativos disponíveis
+
+| Recurso | Como funciona |
+|---|---|
+| 🏠 **Ícone na Home Screen** | Instala via "Adicionar à Tela de Início" (Safari/Chrome) |
+| 🖥️ **Tela cheia** | Abre sem barra do navegador (`display: standalone`) |
+| 🔔 **Push Notifications** | Web Push API com chaves VAPID — médico recebe alerta quando paciente faz check-in |
+| 🔐 **Login com Biometria** | WebAuthn (Face ID no iPhone, digital no Android) após primeiro login |
+| 📷 **Câmera nativa** | `<input capture>` aciona diretamente câmera ou galeria do dispositivo |
+| 📐 **Safe Areas** | Suporte a notch, Dynamic Island e barra de gestos (`env(safe-area-inset-*)`) |
+
+### Como instalar no celular
+
+**iPhone (Safari):**
+1. Acesse [acompanha.online](https://acompanha.online) no Safari
+2. Toque em **Compartilhar** (ícone de caixa com seta)
+3. Toque em **"Adicionar à Tela de Início"**
+
+**Android (Chrome):**
+1. Acesse [acompanha.online](https://acompanha.online) no Chrome
+2. Toque no menu (⋮) → **"Instalar aplicativo"**
+
+### Arquitetura do Service Worker
+
+- **`src/app/sw.ts`** — source do service worker (compilado para `public/sw.js` pelo serwist durante o build)
+- **`src/hooks/use-push-notifications.ts`** — registro VAPID e salvamento de token no Supabase
+- **`src/hooks/use-biometrics.ts`** — WebAuthn credential registration e verification
+- **`src/components/pwa-registration.tsx`** — componente invisível no RootLayout que ativa tudo
+
+> ⚠️ O arquivo `public/sw.js` é gerado automaticamente pelo `next build` e **não deve ser commitado** (está no `.gitignore`).
 
 ---
 
@@ -103,16 +143,29 @@ cp .env.local.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chave pública anônima |
 | `SUPABASE_SERVICE_ROLE_KEY` | Chave de serviço (apenas server-side / endpoints admin) |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | *(Opcional)* Chave de proteção anti-bot / Cloudflare Turnstile |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Chave pública VAPID para Web Push (gerar com `npx web-push generate-vapid-keys`) |
+| `VAPID_PRIVATE_KEY` | Chave privada VAPID — **somente server-side**, nunca expor no cliente |
 
 ### 4. Migrações de Banco de Dados
 Aplica a estrutura arquitetural, segurança RLS e tabelas executando os scripts localizados em `supabase/migrations/` em ordem, ou através do CLI do Supabase. Arquivos cruciais incluem `patient_notes_migration.sql` e a infraestrutura do `recovery_score`.
 
-### 5. Iniciar o Servidor
+### 5. Gerar chaves VAPID (Push Notifications)
 
 ```bash
-npm run dev
+npx web-push generate-vapid-keys
+# Copie as chaves geradas para o .env.local
+```
+
+### 6. Iniciar o Servidor
+
+```bash
+npm run dev          # Desenvolvimento (service worker desabilitado para evitar cache)
+npm run build        # Build de produção (gera public/sw.js via serwist)
+npm start            # Servidor de produção local (SW ativo)
 # O aplicativo iniciará em http://localhost:3000
 ```
+
+> **Nota:** Os scripts `dev` e `build` usam a flag `--webpack` pois o `@serwist/next` requer webpack (o Next.js 16 ativa Turbopack por padrão).
 
 ---
 
