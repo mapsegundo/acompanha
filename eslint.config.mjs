@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // AI agent generated files — not project source
     ".temp_ag_kit/**",
+    // Serwist-generated service worker bundle (build artifact, not source)
+    "public/sw.js",
+    "public/sw.js.map",
+    "public/serwist-*.js",
   ]),
 ]);
 
