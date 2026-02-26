@@ -14,9 +14,20 @@ export function PWARegistration() {
 
     useEffect(() => {
         const supabase = createClient()
+        let active = true
+
         supabase.auth.getUser().then(({ data }) => {
-            setUserId(data.user?.id ?? null)
+            if (active) setUserId(data.user?.id ?? null)
         })
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUserId(session?.user?.id ?? null)
+        })
+
+        return () => {
+            active = false
+            subscription.unsubscribe()
+        }
     }, [])
 
     usePushNotifications(userId)

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
 import { PatientBottomNavNoSSR } from "@/components/patient-bottom-nav-nosr"
+import { RealtimeRefreshListener } from "@/components/realtime-refresh-listener"
 
 export default async function PatientLayout({
     children,
@@ -88,6 +89,7 @@ export default async function PatientLayout({
             {/* Main content: pb-20 on mobile for bottom nav clearance */}
             <main className="flex-1 overflow-y-auto p-4 pb-24 md:pb-8 md:p-8 safe-top md:pt-8">
                 {children}
+                <RealtimeRefreshListener tables={["weekly_checkins", "patient_notes", "patient_documents"]} />
             </main>
         </div>
     )

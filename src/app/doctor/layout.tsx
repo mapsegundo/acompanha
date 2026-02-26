@@ -4,6 +4,7 @@ import { Activity, Users, LogOut, Bell, User, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { DoctorBottomNavNoSSR } from "@/components/doctor-bottom-nav-nosr"
+import { RealtimeRefreshListener } from "@/components/realtime-refresh-listener"
 
 export default async function DoctorLayout({
     children,
@@ -71,6 +72,7 @@ export default async function DoctorLayout({
             {/* Main Content - Full width on mobile with padding for bottom nav */}
             <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 safe-top md:pt-8">
                 {children}
+                <RealtimeRefreshListener tables={["weekly_checkins", "patients", "patient_notes", "patient_documents"]} />
             </main>
         </div>
     )
