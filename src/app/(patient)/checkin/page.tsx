@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useForm, UseFormReturn } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, parseISO, isAfter, startOfDay } from "date-fns"
 import * as z from "zod"
@@ -45,6 +45,7 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
+type FormInput = z.input<typeof formSchema>
 
 // --- Score Button Grid ---
 interface ScoreButtonsProps {
@@ -168,19 +169,19 @@ function CheckinForm() {
 
     const TOTAL_STEPS = 3
 
-    const form: UseFormReturn<FormValues> = useForm<FormValues>({
+    const form = useForm<FormInput, unknown, FormValues>({
         resolver: zodResolver(formSchema),
         mode: "onChange",
         defaultValues: {
             data: format(new Date(), 'yyyy-MM-dd'),
-            peso: '' as unknown as number,
+            peso: '',
             cansaco: 5,
-            horas_treino_7d: '' as unknown as number,
+            horas_treino_7d: '',
             qualidade_sono: 5,
             dor_muscular: 0,
             estresse: 5,
             humor: 5,
-            duracao_treino: '' as unknown as number,
+            duracao_treino: '',
             ciclo_menstrual_alterado: false,
             libido: 5,
             erecao_matinal: false,
@@ -353,6 +354,7 @@ function CheckinForm() {
                                                 inputMode="decimal"
                                                 placeholder="Ex: 80,5 ou 80.5"
                                                 {...field}
+                                                value={field.value as string ?? ''}
                                                 onBlur={(e) => {
                                                     const normalized = e.target.value.replace(',', '.')
                                                     field.onChange(normalized)
@@ -494,6 +496,7 @@ function CheckinForm() {
                                                     inputMode="decimal"
                                                     placeholder="Ex: 5,5"
                                                     {...field}
+                                                    value={field.value as string ?? ''}
                                                     onBlur={(e) => {
                                                         const normalized = e.target.value.replace(',', '.')
                                                         field.onChange(normalized)
@@ -513,7 +516,7 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Duração Média (min)</FormLabel>
                                             <FormControl>
-                                                <Input type="text" inputMode="numeric" placeholder="Ex: 60" {...field} className="h-12 text-base font-bold" />
+                                                <Input type="text" inputMode="numeric" placeholder="Ex: 60" {...field} value={field.value as string ?? ''} className="h-12 text-base font-bold" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
