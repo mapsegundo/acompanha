@@ -16,6 +16,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { notifyDoctorOnCheckin } from "@/lib/push-notifications"
 
+// Normalizes Brazilian comma-separated decimals (e.g. "87,4" → 87.4)
+const parseDecimal = (v: unknown) => Number(String(v).replace(',', '.'))
+
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
         message: "Data inválida",
@@ -26,14 +29,14 @@ const formSchema = z.object({
     }, {
         message: "A data não pode ser futura",
     }),
-    peso: z.any().transform((v) => Number(v)).pipe(z.number().min(0, "Peso inválido")),
+    peso: z.preprocess(parseDecimal, z.number({ invalid_type_error: "Digite um número válido" }).min(0, "Peso inválido")),
     cansaco: z.number().min(0).max(10),
-    horas_treino_7d: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
+    horas_treino_7d: z.preprocess(parseDecimal, z.number({ invalid_type_error: "Digite um número válido" }).min(0)),
     qualidade_sono: z.number().min(0).max(10),
     dor_muscular: z.number().min(0).max(10),
     estresse: z.number().min(0).max(10),
     humor: z.number().min(0).max(10),
-    duracao_treino: z.any().transform((v) => Number(v)).pipe(z.number().min(0)),
+    duracao_treino: z.preprocess(parseDecimal, z.number({ invalid_type_error: "Digite um número válido" }).min(0)),
     ciclo_menstrual_alterado: z.boolean(),
     libido: z.number().min(0).max(10),
     erecao_matinal: z.boolean(),
@@ -47,7 +50,7 @@ type FormValues = z.infer<typeof formSchema>
 interface ScoreButtonsProps {
     value: number
     onChange: (v: number) => void
-    isPositive: boolean // green at high end (true) or low end (false)
+    isPositive: boolean
 }
 
 function getButtonColor(score: number, isPositive: boolean) {
@@ -345,8 +348,20 @@ function CheckinForm() {
                                     <FormItem>
                                         <FormLabel>Peso Atual (kg)</FormLabel>
                                         <FormControl>
-                                            <Input type="text" inputMode="decimal" placeholder="Ex: 80.5" {...field} className="h-12 text-lg font-bold" />
+                                            <Input
+                                                type="text"
+                                                inputMode="decimal"
+                                                placeholder="Ex: 80,5 ou 80.5"
+                                                {...field}
+                                                onBlur={(e) => {
+                                                    const normalized = e.target.value.replace(',', '.')
+                                                    field.onChange(normalized)
+                                                    field.onBlur()
+                                                }}
+                                                className="h-12 text-lg font-bold"
+                                            />
                                         </FormControl>
+                                        <FormDescription>Use ponto ou vírgula como separador decimal.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -474,7 +489,18 @@ function CheckinForm() {
                                         <FormItem>
                                             <FormLabel>Horas de Treino (7 dias)</FormLabel>
                                             <FormControl>
-                                                <Input type="text" inputMode="decimal" placeholder="Ex: 5.5" {...field} className="h-12 text-base font-bold" />
+                                                <Input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    placeholder="Ex: 5,5"
+                                                    {...field}
+                                                    onBlur={(e) => {
+                                                        const normalized = e.target.value.replace(',', '.')
+                                                        field.onChange(normalized)
+                                                        field.onBlur()
+                                                    }}
+                                                    className="h-12 text-base font-bold"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

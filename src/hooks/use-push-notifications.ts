@@ -68,25 +68,5 @@ export function usePushNotifications(userId: string | null) {
         if (userId) registerPush(userId)
     }, [userId, registerPush])
 
-    useEffect(() => {
-        if (!userId) return
 
-        const refreshPushRegistration = () => {
-            void registerPush(userId)
-        }
-
-        const handleVisibility = () => {
-            if (document.visibilityState === "visible") {
-                refreshPushRegistration()
-            }
-        }
-
-        window.addEventListener("focus", refreshPushRegistration)
-        document.addEventListener("visibilitychange", handleVisibility)
-
-        return () => {
-            window.removeEventListener("focus", refreshPushRegistration)
-            document.removeEventListener("visibilitychange", handleVisibility)
-        }
-    }, [userId, registerPush])
 }
