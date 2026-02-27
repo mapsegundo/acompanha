@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+echo "🔍 Verificando TypeScript..."
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ Erro de TypeScript. Commit bloqueado."
+  exit 1
+fi
+
+echo "🔍 Verificando ESLint..."
+npx eslint . --max-warnings=0
+if [ $? -ne 0 ]; then
+  echo "❌ Erros de ESLint. Commit bloqueado."
+  exit 1
+fi
+
+echo "✅ Verificações passaram. Commit permitido."
