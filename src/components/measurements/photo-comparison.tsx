@@ -104,13 +104,24 @@ function StatRow({
   left,
   right,
   unit,
+  positiveIncrease = false,
 }: {
   label: string
   left: number | null
   right: number | null
   unit: string
+  positiveIncrease?: boolean
 }) {
   const diff = left !== null && right !== null ? right - left : null
+  let colorClass = ""
+  if (diff !== null && diff !== 0) {
+    if (positiveIncrease) {
+      colorClass = diff > 0 ? "text-emerald-500" : "text-red-500"
+    } else {
+      colorClass = diff < 0 ? "text-emerald-500" : "text-red-500"
+    }
+  }
+
   return (
     <div className="grid grid-cols-3 text-xs py-1.5 border-b border-border/40">
       <span className="text-left font-mono font-bold text-muted-foreground">
@@ -122,7 +133,7 @@ function StatRow({
         {right ?? "—"}
         {right !== null ? unit : ""}
         {diff !== null && diff !== 0 && (
-          <span className={`ml-1 text-[9px] font-black ${diff < 0 ? "text-emerald-500" : "text-red-500"}`}>
+          <span className={`ml-1 text-[9px] font-black ${colorClass}`}>
             {diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1)}
           </span>
         )}
@@ -266,7 +277,7 @@ export function PhotoComparison({
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-1 pb-1">Composição</p>
                 <StatRow label="Peso" left={leftMeasurement.peso_corporal} right={rightMeasurement.peso_corporal} unit="kg" />
                 <StatRow label="Gordura" left={leftMeasurement.gordura_corporal} right={rightMeasurement.gordura_corporal} unit="%" />
-                <StatRow label="Massa Magra" left={leftMeasurement.massa_magra} right={rightMeasurement.massa_magra} unit="kg" />
+                <StatRow label="Massa Magra" left={leftMeasurement.massa_magra} right={rightMeasurement.massa_magra} unit="kg" positiveIncrease />
 
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 pt-2 pb-1">Tronco</p>
                 <StatRow label="Pescoço" left={leftMeasurement.pescoco} right={rightMeasurement.pescoco} unit="cm" />
