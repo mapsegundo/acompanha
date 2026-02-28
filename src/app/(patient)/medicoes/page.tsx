@@ -15,7 +15,18 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-const numericField = z.string().transform((v) => v === '' ? null : Number(v)).pipe(z.number().nullable());
+// Função auxiliar para aceitar vírgula ou ponto
+const parseDecimal = (v: unknown) => {
+    if (v === '' || v === null || v === undefined) return null
+    if (typeof v === 'number') return v
+    if (typeof v === 'string') {
+        const parsed = Number(v.replace(',', '.'))
+        return isNaN(parsed) ? null : parsed
+    }
+    return null
+}
+
+const numericField = z.preprocess(parseDecimal, z.number({ error: "Inválido" }).nullable());
 
 const formSchema = z.object({
     data: z.string().min(1, "Data é obrigatória").refine((val) => !isNaN(Date.parse(val)), {
@@ -48,26 +59,7 @@ const formSchema = z.object({
 
 type FormOutput = z.output<typeof formSchema>
 
-interface FormInput {
-    data: string
-    peso_corporal: string
-    cintura: string
-    gordura_corporal: string
-    massa_magra: string
-    pescoco: string
-    ombro: string
-    peito: string
-    biceps_esquerdo: string
-    biceps_direito: string
-    antebraco_esquerdo: string
-    antebraco_direito: string
-    abdomen: string
-    quadris: string
-    coxa_esquerda: string
-    coxa_direita: string
-    panturrilha_esquerda: string
-    panturrilha_direita: string
-}
+type FormInput = z.input<typeof formSchema>
 
 interface FieldDef {
     name: keyof FormInput
@@ -134,18 +126,10 @@ function MedicoesForm() {
     const supabase = createClient()
 
     const form = useForm<FormInput>({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        resolver: zodResolver(formSchema) as any,
+        resolver: zodResolver(formSchema),
         mode: "onChange",
         defaultValues: {
             data: format(new Date(), 'yyyy-MM-dd'),
-            peso_corporal: '', cintura: '', gordura_corporal: '', massa_magra: '',
-            pescoco: '', ombro: '', peito: '',
-            biceps_esquerdo: '', biceps_direito: '',
-            antebraco_esquerdo: '', antebraco_direito: '',
-            abdomen: '', quadris: '',
-            coxa_esquerda: '', coxa_direita: '',
-            panturrilha_esquerda: '', panturrilha_direita: '',
         },
     })
 
@@ -168,23 +152,23 @@ function MedicoesForm() {
                 if (measurement) {
                     form.reset({
                         data: measurement.data,
-                        peso_corporal: measurement.peso_corporal ?? '',
-                        cintura: measurement.cintura ?? '',
-                        gordura_corporal: measurement.gordura_corporal ?? '',
-                        massa_magra: measurement.massa_magra ?? '',
-                        pescoco: measurement.pescoco ?? '',
-                        ombro: measurement.ombro ?? '',
-                        peito: measurement.peito ?? '',
-                        biceps_esquerdo: measurement.biceps_esquerdo ?? '',
-                        biceps_direito: measurement.biceps_direito ?? '',
-                        antebraco_esquerdo: measurement.antebraco_esquerdo ?? '',
-                        antebraco_direito: measurement.antebraco_direito ?? '',
-                        abdomen: measurement.abdomen ?? '',
-                        quadris: measurement.quadris ?? '',
-                        coxa_esquerda: measurement.coxa_esquerda ?? '',
-                        coxa_direita: measurement.coxa_direita ?? '',
-                        panturrilha_esquerda: measurement.panturrilha_esquerda ?? '',
-                        panturrilha_direita: measurement.panturrilha_direita ?? '',
+                        peso_corporal: measurement.peso_corporal ?? null,
+                        cintura: measurement.cintura ?? null,
+                        gordura_corporal: measurement.gordura_corporal ?? null,
+                        massa_magra: measurement.massa_magra ?? null,
+                        pescoco: measurement.pescoco ?? null,
+                        ombro: measurement.ombro ?? null,
+                        peito: measurement.peito ?? null,
+                        biceps_esquerdo: measurement.biceps_esquerdo ?? null,
+                        biceps_direito: measurement.biceps_direito ?? null,
+                        antebraco_esquerdo: measurement.antebraco_esquerdo ?? null,
+                        antebraco_direito: measurement.antebraco_direito ?? null,
+                        abdomen: measurement.abdomen ?? null,
+                        quadris: measurement.quadris ?? null,
+                        coxa_esquerda: measurement.coxa_esquerda ?? null,
+                        coxa_direita: measurement.coxa_direita ?? null,
+                        panturrilha_esquerda: measurement.panturrilha_esquerda ?? null,
+                        panturrilha_direita: measurement.panturrilha_direita ?? null,
                     })
                     if (measurement.foto_url) {
                         setExistingFotoUrl(measurement.foto_url)
@@ -202,23 +186,23 @@ function MedicoesForm() {
                 if (lastMeasurement) {
                     form.reset({
                         data: format(new Date(), 'yyyy-MM-dd'),
-                        peso_corporal: lastMeasurement.peso_corporal ?? '',
-                        cintura: lastMeasurement.cintura ?? '',
-                        gordura_corporal: lastMeasurement.gordura_corporal ?? '',
-                        massa_magra: lastMeasurement.massa_magra ?? '',
-                        pescoco: lastMeasurement.pescoco ?? '',
-                        ombro: lastMeasurement.ombro ?? '',
-                        peito: lastMeasurement.peito ?? '',
-                        biceps_esquerdo: lastMeasurement.biceps_esquerdo ?? '',
-                        biceps_direito: lastMeasurement.biceps_direito ?? '',
-                        antebraco_esquerdo: lastMeasurement.antebraco_esquerdo ?? '',
-                        antebraco_direito: lastMeasurement.antebraco_direito ?? '',
-                        abdomen: lastMeasurement.abdomen ?? '',
-                        quadris: lastMeasurement.quadris ?? '',
-                        coxa_esquerda: lastMeasurement.coxa_esquerda ?? '',
-                        coxa_direita: lastMeasurement.coxa_direita ?? '',
-                        panturrilha_esquerda: lastMeasurement.panturrilha_esquerda ?? '',
-                        panturrilha_direita: lastMeasurement.panturrilha_direita ?? '',
+                        peso_corporal: lastMeasurement.peso_corporal ?? null,
+                        cintura: lastMeasurement.cintura ?? null,
+                        gordura_corporal: lastMeasurement.gordura_corporal ?? null,
+                        massa_magra: lastMeasurement.massa_magra ?? null,
+                        pescoco: lastMeasurement.pescoco ?? null,
+                        ombro: lastMeasurement.ombro ?? null,
+                        peito: lastMeasurement.peito ?? null,
+                        biceps_esquerdo: lastMeasurement.biceps_esquerdo ?? null,
+                        biceps_direito: lastMeasurement.biceps_direito ?? null,
+                        antebraco_esquerdo: lastMeasurement.antebraco_esquerdo ?? null,
+                        antebraco_direito: lastMeasurement.antebraco_direito ?? null,
+                        abdomen: lastMeasurement.abdomen ?? null,
+                        quadris: lastMeasurement.quadris ?? null,
+                        coxa_esquerda: lastMeasurement.coxa_esquerda ?? null,
+                        coxa_direita: lastMeasurement.coxa_direita ?? null,
+                        panturrilha_esquerda: lastMeasurement.panturrilha_esquerda ?? null,
+                        panturrilha_direita: lastMeasurement.panturrilha_direita ?? null,
                     })
                 }
             }
@@ -436,12 +420,16 @@ function MedicoesForm() {
                                                 <div className="flex items-center gap-2 shrink-0">
                                                     <FormControl>
                                                         <Input
-                                                            type="number"
-                                                            step="0.1"
+                                                            type="text"
                                                             inputMode="decimal"
                                                             placeholder="-"
                                                             {...field}
-                                                            value={field.value ?? ''}
+                                                            value={(field.value ?? '') as string}
+                                                            onBlur={(e) => {
+                                                                const normalized = e.target.value.replace(',', '.')
+                                                                field.onChange(normalized)
+                                                                field.onBlur()
+                                                            }}
                                                             className="w-24 h-10 text-right border border-slate-200 bg-slate-50 rounded-xl text-sm font-bold tabular-nums focus-visible:ring-1 focus-visible:ring-blue-500"
                                                         />
                                                     </FormControl>
